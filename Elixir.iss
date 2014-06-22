@@ -2,27 +2,26 @@
 
 [Setup]
 AppName=Elixir
-AppVersion=0
+AppVersion=@@VERSION
 DefaultDirName={sd}\Elixir
 DefaultGroupName=Elixir
+OutputBaseFilename=elixir-v@@VERSION-setup
+WizardImageFile=assets\drop_banner.bmp
+WizardSmallImageFile=assets\null.bmp
+WizardImageBackColor=clWhite
 
-[CustomMessages]
-NameAndVersion=%1
-
-[Icons]
-Name: "{group}\Elixir"; Filename: "{app}\bin\iex.bat"; WorkingDir: "{userdocs}"; IconFilename: "{app}\drop.ico"
-Name: "{group}\Uninstall Elixir"; Filename: "{uninstallexe}"; IconFilename: "{app}\drop_gs.ico"
+[Dirs]
+Name: "{tmp}\Precompiled"; Flags: deleteafterinstall
 
 [Files]
 Source: "assets\drop.ico"; DestDir: "{app}"
 Source: "assets\drop_gs.ico"; DestDir: "{app}"
-Source: "scripts\extract-zip.ps1"; DestDir: "{app}"; Flags: deleteafterinstall
+Source: "scripts\extract-zip.ps1"; DestDir: "{tmp}"; Flags: deleteafterinstall
+Source: "{tmp}\Precompiled\*"; DestDir: "{app}"; Flags: recursesubdirs external createallsubdirs; BeforeInstall: ExtractPrecompiled
 
-[Run]
-Filename: "powershell.exe"; Parameters: "-File .\extract-zip.ps1 {tmp}\Precompiled.zip"; WorkingDir: "{app}"; Flags: waituntilterminated runhidden; StatusMsg: "Extracting..."
-
-[UninstallDelete]
-Type: filesandordirs; Name: "{app}"
+[Icons]
+Name: "{group}\Elixir"; Filename: "{app}\bin\iex.bat"; WorkingDir: "{userdocs}"; IconFilename: "{app}\drop.ico"
+Name: "{group}\Uninstall Elixir"; Filename: "{uninstallexe}"; IconFilename: "{app}\drop_gs.ico"
 
 [Code]
 function ErlangIsInstalled: Boolean;
@@ -34,6 +33,13 @@ end;
 
 procedure InitializeWizard();
 begin
-  idpAddFile('https://github.com/elixir-lang/elixir/releases/download/v0.14.1/Precompiled.zip', ExpandConstant('{tmp}\Precompiled.zip'));
+  idpAddFile('@@URL', ExpandConstant('{tmp}\Precompiled.zip'));
   idpDownloadAfter(wpReady);
+end;
+
+procedure ExtractPrecompiled();
+var
+  ResultCode: Integer;
+begin
+  Exec('powershell.exe', ExpandConstant('-File {tmp}\extract-zip.ps1 {tmp}\Precompiled.zip {tmp}\Precompiled'), '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
 end;
