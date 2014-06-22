@@ -16,7 +16,7 @@ Name: "{group}\Uninstall Elixir"; Filename: "{uninstallexe}"; IconFilename: "{ap
 [Files]
 Source: "assets\drop.ico"; DestDir: "{app}"
 Source: "assets\drop_gs.ico"; DestDir: "{app}"
-Source: "extract-zip.ps1"; DestDir: "{app}"; Flags: deleteafterinstall
+Source: "scripts\extract-zip.ps1"; DestDir: "{app}"; Flags: deleteafterinstall
 
 [Run]
 Filename: "powershell.exe"; Parameters: "-File .\extract-zip.ps1 {tmp}\Precompiled.zip"; WorkingDir: "{app}"; Flags: waituntilterminated runhidden; StatusMsg: "Extracting..."
