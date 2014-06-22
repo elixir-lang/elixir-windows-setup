@@ -1,6 +1,6 @@
 [Setup]
 AppName=Elixir
-AppVersion=0.14.1
+AppVerName=Elixir
 DefaultDirName={sd}\Elixir
 DefaultGroupName=Elixir
 
