@@ -34,7 +34,25 @@ end;
 procedure InitializeWizard();
 begin
   idpAddFile('@@URL', ExpandConstant('{tmp}\Precompiled.zip'));
-  idpDownloadAfter(wpReady);
+  idpDownloadAfter(wpPreparing);
+end;
+
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+var
+  ErrorMsg: String;
+begin
+  if ErlangIsInstalled then begin
+    Result := '';
+  end else begin
+    ErrorMsg := 'Warning: Erlang does not seem to be installed.' + #13#10#13#10 +
+                'In order for Elixir to run, you will need to install Erlang from http://www.erlang.org/ and then add it to your Path environment variable.' + #13#10#13#10 +
+                'Proceed anyway?';
+    if MsgBox(ErrorMsg, mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDYES then begin
+      Result := '';
+    end else begin
+      Result := 'Erlang not installed.';
+    end;
+  end;  
 end;
 
 procedure ExtractPrecompiled();
