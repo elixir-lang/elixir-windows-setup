@@ -2,9 +2,12 @@
 
 [Setup]
 AppName=Elixir
-AppVerName=Elixir
+AppVersion=0
 DefaultDirName={sd}\Elixir
 DefaultGroupName=Elixir
+
+[CustomMessages]
+NameAndVersion=%1
 
 [Icons]
 Name: "{group}\Elixir"; Filename: "{app}\bin\iex.bat"; WorkingDir: "{userdocs}"; IconFilename: "{app}\drop.ico"
