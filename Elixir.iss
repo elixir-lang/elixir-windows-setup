@@ -14,14 +14,18 @@ WizardImageBackColor=clWhite
 Name: "{tmp}\Precompiled"; Flags: deleteafterinstall
 
 [Files]
+Source: "scripts\extract-zip.ps1"; DestDir: "{tmp}"; Flags: deleteafterinstall
+Source: "scripts\set-env.ps1"; DestDir: "{tmp}"; Flags: deleteafterinstall
 Source: "assets\drop.ico"; DestDir: "{app}"
 Source: "assets\drop_gs.ico"; DestDir: "{app}"
-Source: "scripts\extract-zip.ps1"; DestDir: "{tmp}"; Flags: deleteafterinstall
 Source: "{tmp}\Precompiled\*"; DestDir: "{app}"; Flags: recursesubdirs external createallsubdirs; BeforeInstall: ExtractPrecompiled
 
 [Icons]
 Name: "{group}\Elixir"; Filename: "{app}\bin\iex.bat"; WorkingDir: "{userdocs}"; IconFilename: "{app}\drop.ico"
 Name: "{group}\Uninstall Elixir"; Filename: "{uninstallexe}"; IconFilename: "{app}\drop_gs.ico"
+
+[Run]
+Filename: "powershell.exe"; Parameters: "-File {tmp}\set-env.ps1 {app}"; Flags: waituntilterminated runhidden; StatusMsg: "Setting environment variables..."
 
 [Code]
 function ErlangIsInstalled: Boolean;
