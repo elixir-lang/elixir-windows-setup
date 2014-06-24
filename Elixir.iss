@@ -3,6 +3,7 @@
 [Setup]
 AppName=Elixir
 AppVersion=@@VERSION
+ChangesEnvironment=yes
 DefaultDirName={sd}\Elixir
 DefaultGroupName=Elixir
 OutputBaseFilename=elixir-v@@VERSION-setup
