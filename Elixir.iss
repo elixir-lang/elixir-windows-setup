@@ -2,11 +2,11 @@
 
 [Setup]
 AppName=Elixir
-AppVersion=@@VERSION
+AppVersion={#ElixirVersion}
 ChangesEnvironment=yes
 DefaultDirName={pf}\Elixir
 DefaultGroupName=Elixir
-OutputBaseFilename=elixir-v@@VERSION-websetup
+OutputBaseFilename=elixir-v{#ElixirVersion}-websetup
 WizardImageFile=assets\drop_banner.bmp
 WizardSmallImageFile=assets\null.bmp
 WizardImageBackColor=clWhite
@@ -38,7 +38,7 @@ end;
 
 procedure InitializeWizard();
 begin
-  idpAddFile('@@URL', ExpandConstant('{tmp}\Precompiled.zip'));
+  idpAddFile('{#ZipURL}', ExpandConstant('{tmp}\Precompiled.zip'));
   idpDownloadAfter(wpPreparing);
 end;
 
