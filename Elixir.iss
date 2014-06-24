@@ -4,7 +4,7 @@
 AppName=Elixir
 AppVersion=@@VERSION
 ChangesEnvironment=yes
-DefaultDirName={sd}\Elixir
+DefaultDirName={pf}\Elixir
 DefaultGroupName=Elixir
 OutputBaseFilename=elixir-v@@VERSION-websetup
 WizardImageFile=assets\drop_banner.bmp
