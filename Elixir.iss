@@ -21,8 +21,8 @@ Source: "assets\drop_gs.ico"; DestDir: "{app}"
 Source: "{tmp}\Precompiled\*"; DestDir: "{app}"; Flags: recursesubdirs external createallsubdirs; BeforeInstall: ExtractPrecompiled
 
 [Icons]
-Name: "{group}\Elixir"; Filename: "{app}\bin\iex.bat"; WorkingDir: "{userdocs}"; IconFilename: "{app}\drop.ico"
-Name: "{group}\Uninstall Elixir"; Filename: "{uninstallexe}"; IconFilename: "{app}\drop_gs.ico"
+Name: "{group}\Elixir"; Filename: "werl.exe"; WorkingDir: "{userdocs}"; IconFilename: "{app}\drop.ico"; IconIndex: 0; Parameters: "-env ERL_LIBS ""{app}\lib"" -s elixir start_cli -user Elixir.IEx.CLI -extra --no-halt"
+Name: "{group}\Uninstall Elixir"; Filename: "{uninstallexe}"; IconFilename: "{app}\drop_gs.ico"; IconIndex: 0
 
 [Run]
 Filename: "powershell.exe"; Parameters: "-File {tmp}\set-env.ps1 {app}"; Flags: waituntilterminated runhidden; StatusMsg: "Setting environment variables..."
