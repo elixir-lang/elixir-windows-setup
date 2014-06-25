@@ -33,7 +33,7 @@ Source: "compiler:SetupLdr.e32"; DestDir: "{tmp}\_offlineinstaller"; Flags: dele
 
 [Run]
 Filename: "powershell.exe"; Parameters: "-File {tmp}\extract-zip.ps1 {tmp}\Precompiled.zip {tmp}\_offlineinstaller\elixir"; Flags: waituntilterminated runhidden; StatusMsg: "Extracting precompiled package..."
-Filename: "{tmp}\_offlineinstaller\ISCC.exe"; Parameters: "/dElixirVersion=0.14.1 /dSkipPages /dNoCompression Elixir.iss"; WorkingDir: "{tmp}\_offlineinstaller"; Flags: waituntilterminated; StatusMsg: "Preparing Elixir installer..."
+Filename: "{tmp}\_offlineinstaller\ISCC.exe"; Parameters: "/dElixirVersion=0.14.1 /dSkipPages /dNoCompression Elixir.iss"; WorkingDir: "{tmp}\_offlineinstaller"; Flags: waituntilterminated runhidden; StatusMsg: "Preparing Elixir installer..."
 Filename: "{tmp}\_offlineinstaller\Output\elixir-v0.14.1-setup.exe"; Flags: waituntilterminated; StatusMsg: "Running Elixir installer..."
 
 [Code]
