@@ -2,31 +2,39 @@
 
 [Setup]
 AppName=Elixir
-AppVersion={#ElixirVersion}
-ChangesEnvironment=yes
-DefaultDirName={pf}\Elixir
-DefaultGroupName=Elixir
-OutputBaseFilename=elixir-v{#ElixirVersion}-websetup
+AppVersion=0
+CreateAppDir=no
+OutputBaseFilename=elixir-websetup
 WizardImageFile=assets\drop_banner.bmp
 WizardSmallImageFile=assets\null.bmp
 WizardImageBackColor=clWhite
+Uninstallable=no
 
-[Dirs]
-Name: "{tmp}\Precompiled"; Flags: deleteafterinstall
+[CustomMessages]
+NameAndVersion=the latest version of %1
 
 [Files]
+; Zip extraction helper
 Source: "scripts\extract-zip.ps1"; DestDir: "{tmp}"; Flags: deleteafterinstall
-Source: "scripts\set-env.ps1"; DestDir: "{tmp}"; Flags: deleteafterinstall
-Source: "assets\drop.ico"; DestDir: "{app}"
-Source: "assets\drop_gs.ico"; DestDir: "{app}"
-Source: "{tmp}\Precompiled\*"; DestDir: "{app}"; Flags: recursesubdirs external createallsubdirs; BeforeInstall: ExtractPrecompiled
-
-[Icons]
-Name: "{group}\Elixir"; Filename: "werl.exe"; WorkingDir: "%userprofile%"; IconFilename: "{app}\drop.ico"; IconIndex: 0; Parameters: "-env ERL_LIBS ""{app}\lib"" -s elixir start_cli -user Elixir.IEx.CLI -extra --no-halt"
-Name: "{group}\Uninstall Elixir"; Filename: "{uninstallexe}"; IconFilename: "{app}\drop_gs.ico"; IconIndex: 0
+; Offline installer files
+Source: "Elixir.iss"; DestDir: "{tmp}\_offlineinstaller"; Flags: deleteafterinstall
+Source: "scripts\set-env.ps1"; DestDir: "{tmp}\_offlineinstaller\scripts"; Flags: deleteafterinstall
+Source: "assets\*"; DestDir: "{tmp}\_offlineinstaller\assets"; Flags: deleteafterinstall
+; Compiler files
+Source: "compiler:Default.isl"; DestDir: "{tmp}\_offlineinstaller"; Flags: deleteafterinstall
+Source: "compiler:ISCC.exe"; DestDir: "{tmp}\_offlineinstaller"; Flags: deleteafterinstall
+Source: "compiler:ISCmplr.dll"; DestDir: "{tmp}\_offlineinstaller"; Flags: deleteafterinstall
+Source: "compiler:islzma.dll"; DestDir: "{tmp}\_offlineinstaller"; Flags: deleteafterinstall
+Source: "compiler:ISPP.dll"; DestDir: "{tmp}\_offlineinstaller"; Flags: deleteafterinstall
+Source: "compiler:Setup.e32"; DestDir: "{tmp}\_offlineinstaller"; Flags: deleteafterinstall
+Source: "compiler:SetupLdr.e32"; DestDir: "{tmp}\_offlineinstaller"; Flags: deleteafterinstall
+; For debugging offline.
+; Source: "C:\Users\Chris\Downloads\Precompiled.zip"; DestDir: "{tmp}"; Flags: external deleteafterinstall
 
 [Run]
-Filename: "powershell.exe"; Parameters: "-File {tmp}\set-env.ps1 {app}"; Flags: waituntilterminated runhidden; StatusMsg: "Setting environment variables..."
+Filename: "powershell.exe"; Parameters: "-File {tmp}\extract-zip.ps1 {tmp}\Precompiled.zip {tmp}\_offlineinstaller\elixir"; Flags: waituntilterminated runhidden; StatusMsg: "Extracting precompiled package..."
+Filename: "{tmp}\_offlineinstaller\ISCC.exe"; Parameters: "/dElixirVersion=0.14.1 /dSkipPages /dNoCompression Elixir.iss"; WorkingDir: "{tmp}\_offlineinstaller"; Flags: waituntilterminated; StatusMsg: "Preparing Elixir installer..."
+Filename: "{tmp}\_offlineinstaller\Output\elixir-v0.14.1-setup.exe"; Flags: waituntilterminated; StatusMsg: "Running Elixir installer..."
 
 [Code]
 function ErlangIsInstalled: Boolean;
@@ -38,7 +46,7 @@ end;
 
 procedure InitializeWizard();
 begin
-  idpAddFile('{#ZipURL}', ExpandConstant('{tmp}\Precompiled.zip'));
+  idpAddFile('https://github.com/elixir-lang/elixir/releases/download/v0.14.1/Precompiled.zip', ExpandConstant('{tmp}\Precompiled.zip'));
   idpDownloadAfter(wpPreparing);
 end;
 
@@ -60,6 +68,7 @@ begin
   end;  
 end;
 
+[Code]
 procedure ExtractPrecompiled();
 var
   ResultCode: Integer;

@@ -12,6 +12,9 @@ DisableFinishedPage=True
 WizardImageFile=assets\drop_banner.bmp
 WizardSmallImageFile=assets\null.bmp
 WizardImageBackColor=clWhite
+#ifdef NoCompression
+Compression=none
+#endif
 
 [Files]
 Source: "scripts\set-env.ps1"; DestDir: "{tmp}\scripts"; Flags: deleteafterinstall
