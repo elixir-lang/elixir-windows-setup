@@ -13,7 +13,13 @@ Currently, it won't:
 * Download the LATEST version of Elixir (currently hardcoded to v0.14.1)
 
 ## Acknowledgements
-* Jordan Russell's [Inno Setup](http://www.jrsoftware.org/isinfo.php)
-* Mitrich Software's [Inno Download Plugin](https://code.google.com/p/inno-download-plugin/)
 
+#### [Inno Setup](http://www.jrsoftware.org/isinfo.php)
+Copyright (C) 1997-2013 Jordan Russell. All rights reserved.
+Portions Copyright (C) 2000-2013 Martijn Laan. All rights reserved.
+
+#### [Inno Download Plugin](https://code.google.com/p/inno-download-plugin/)
+Copyright (c) 2013-2014 Mitrich Software
+
+#### [Elixir](http://elixir-lang.org/)
 "Elixir" and the Elixir logo are copyright (c) 2012 Plataformatec.
