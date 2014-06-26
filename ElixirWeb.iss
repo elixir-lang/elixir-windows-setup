@@ -37,6 +37,37 @@ Filename: "{tmp}\_offlineinstaller\ISCC.exe"; Parameters: "/dElixirVersion=0.14.
 Filename: "{tmp}\_offlineinstaller\Output\elixir-v0.14.1-setup.exe"; Flags: waituntilterminated; StatusMsg: "Running Elixir installer..."
 
 [Code]
+var
+  PSelectVerPage: TWizardPage;
+  PSelectVerFetchText: TNewStaticText;
+  PSelectVerFetchProgress: TNewProgressBar;
+
+procedure DoPSelectVer();
+begin
+  WizardForm.NextButton.Enabled := False;
+    
+  PSelectVerFetchProgress.Visible := True;
+  MsgBox('Fetching version PLACEHOLDER', mbInformation, MB_OK);
+  PSelectVerFetchProgress.Visible := False;
+    
+  WizardForm.NextButton.Enabled := True;
+end;
+
+procedure CurPageChanged(CurPageID: Integer);
+begin
+  if CurPageID = PSelectVerPage.ID then
+    DoPSelectVer;
+end;
+
+procedure CreatePages();
+begin
+  PSelectVerPage := CreateCustomPage(wpWelcome, 'Select Elixir version', 'Setup will download and install the Elixir version you select.');
+  PSelectVerFetchProgress := TNewProgressBar.Create(PSelectVerPage);
+  PSelectVerFetchProgress.Width := PSelectVerPage.SurfaceWidth;
+  PSelectVerFetchProgress.Parent := PSelectVerPage.Surface;
+  PSelectVerFetchProgress.Style := npbstMarquee;
+end;
+
 function ErlangIsInstalled: Boolean;
 var
   ResultCode: Integer;
@@ -46,6 +77,7 @@ end;
 
 procedure InitializeWizard();
 begin
+  CreatePages;
   idpAddFile('https://github.com/elixir-lang/elixir/releases/download/v0.14.1/Precompiled.zip', ExpandConstant('{tmp}\Precompiled.zip'));
   idpDownloadAfter(wpPreparing);
 end;
