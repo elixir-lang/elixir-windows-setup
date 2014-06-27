@@ -4,15 +4,12 @@ Part of the Elixir on Windows Google Summer of Code 2014 project, this installer
 
 ## Features
 
-Currently, it will:
-* Suggest that the user install Erlang first
-* Download the precompiled Elixir package
-* Extract the package to your favorite directory (or mine)
-* Append the user's Path variable
-* Create shortcuts to IEx and the uninstaller
-
-Currently, it won't:
-* Download the LATEST version of Elixir (currently hardcoded to v0.14.1)
+* Presents list of Elixir releases that can be downloaded and installed
+* Suggests that the user install Erlang first
+* Downloads the precompiled Elixir package
+* Extracts the package to your favorite directory (or mine)
+* Appends the user's Path variable
+* Creates shortcuts to IEx and the uninstaller
 
 ## Build Instructions
 
