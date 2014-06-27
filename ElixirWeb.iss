@@ -15,6 +15,7 @@
 ;
 ; "Elixir" and the Elixir logo are copyright (c) 2012 Plataformatec.
 
+#define COMPAT_MASK 1
 #include <idp.iss>
 
 [Setup]
@@ -103,7 +104,7 @@ procedure ParseReleasesCSV;
 var
   ReleaseStrings: TArrayOfString;
   NumReleases: Integer;
-  i: Integer;
+  i: Integer;                                                   
   LineValues: TStringList;
 begin
   LoadStringsFromFile(ExpandConstant('{tmp}\releases.csv'), ReleaseStrings);
@@ -122,6 +123,7 @@ end;
 procedure PopulateListOfReleases();
 var
   LatestRelease: Boolean;
+  MatchesCompatMask: Boolean;
   VersionLabel: String;
   i: Integer;
 begin
@@ -130,9 +132,12 @@ begin
     VersionLabel := 'Version ' + ElixirReleases[i].Version;
     if LatestRelease then
       VersionLabel := VersionLabel + ' (Latest)';
-      
-    PSelectVerListBox.AddRadioButton(VersionLabel, ElixirReleases[i].ReleaseType, 0, LatestRelease, True, nil);
-    LatestRelease := False;
+    
+    MatchesCompatMask := (ElixirReleases[i].CompatMask = {#COMPAT_MASK});  
+    PSelectVerListBox.AddRadioButton(VersionLabel, ElixirReleases[i].ReleaseType, 0, LatestRelease, MatchesCompatMask, nil);
+    
+    if MatchesCompatMask then
+      LatestRelease := False;
   end;
 end;
 
