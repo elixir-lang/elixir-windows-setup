@@ -55,21 +55,19 @@ Filename: "{tmp}\_offlineinstaller\Output\elixir-v0.14.1-setup.exe"; Flags: wait
 
 [Code]
 type
-  TElixirVersion = record
+  TElixirRelease = record
     Version: String;
     URL: String;
-    Prerelease: Boolean;
-    CompatType: Integer;
+    ReleaseType: String;
+    CompatMask: Integer;
   end;
-  TArrayOfElixirVersion = array of TElixirVersion;
+  TArrayOfElixirRelease = array of TElixirRelease;
 
 var
   PSelectVerPage: TWizardPage;
-  PSelectVerFetchText: TNewStaticText;
-  PSelectVerFetchProgress: TNewProgressBar;
   PSelectVerListBox: TNewCheckListBox;
-
-  ElixirVersions: TArrayOfElixirVersion;
+  ReleasesProcessed: Boolean;
+  ElixirReleases: TArrayOfElixirRelease;
 
 function SplitStringRec(Str: String; Delim: String; StrList: TStringList): TStringList;
 var
@@ -101,61 +99,64 @@ begin
   Result := SplitStringRec(Str, Delim, StrList)
 end;
 
-procedure GetVersionsFromFile(FileName: String);
+procedure ParseReleasesCSV;
 var
-  VersionStrings: TArrayOfString;
-  NumVersions: Integer;
+  ReleaseStrings: TArrayOfString;
+  NumReleases: Integer;
   i: Integer;
   LineValues: TStringList;
 begin
-  LoadStringsFromFile(FileName, VersionStrings);
-  NumVersions := GetArrayLength(VersionStrings); 
-  SetArrayLength(ElixirVersions, NumVersions);
+  LoadStringsFromFile(ExpandConstant('{tmp}\releases.csv'), ReleaseStrings);
+  NumReleases := GetArrayLength(ReleaseStrings); 
+  SetArrayLength(ElixirReleases, NumReleases);
 
-  for i := 0 to NumVersions - 1 do begin
-    LineValues := SplitString(VersionStrings[i], ',');
-    ElixirVersions[i].Version := LineValues.Strings[0];
-    ElixirVersions[i].URL := LineValues.Strings[1];
-    if LineValues.Strings[2] = 'true' then begin
-      ElixirVersions[i].Prerelease := True;
-    end else begin
-      ElixirVersions[i].Prerelease := False;
-    end;
-    ElixirVersions[i].CompatType := StrToInt(LineValues.Strings[3]);
+  for i := 0 to NumReleases - 1 do begin
+    LineValues := SplitString(ReleaseStrings[i], ',');
+    ElixirReleases[i].Version := LineValues.Strings[0];
+    ElixirReleases[i].URL := LineValues.Strings[1];
+    ElixirReleases[i].ReleaseType := LineValues.Strings[2];
+    ElixirReleases[i].CompatMask := StrToInt(LineValues.Strings[3]);
   end;
 end;
 
-procedure DoPSelectVer();
+procedure PopulateListOfReleases();
 var
-  ElixirVersions: TArrayOfElixirVersion;
+  LatestRelease: Boolean;
+  VersionLabel: String;
+  i: Integer;
 begin
-  WizardForm.NextButton.Enabled := False;
-  PSelectVerFetchProgress.Visible := True;
-
-  if not (FileExists(ExpandConstant('{tmp}\releases.csv'))) then begin
-    idpDownloadFile('http://elixir-lang.org/releases.csv', ExpandConstant('{tmp}\releases.csv'));
-    GetVersionsFromFile(ExpandConstant('{tmp}\releases.csv'));
+  LatestRelease := True;
+  for i := 0 to GetArrayLength(ElixirReleases) - 1 do begin
+    VersionLabel := 'Version ' + ElixirReleases[i].Version;
+    if LatestRelease then
+      VersionLabel := VersionLabel + ' (Latest)';
+      
+    PSelectVerListBox.AddRadioButton(VersionLabel, ElixirReleases[i].ReleaseType, 0, LatestRelease, True, nil);
+    LatestRelease := False;
   end;
-
-  
-
-  PSelectVerFetchProgress.Visible := False;  
-  WizardForm.NextButton.Enabled := True;
 end;
 
 procedure CurPageChanged(CurPageID: Integer);
 begin
-  if CurPageID = PSelectVerPage.ID then
-    DoPSelectVer;
+  if CurPageID = PSelectVerPage.ID then begin
+    if not ReleasesProcessed then begin
+      idpDownloadFile('http://elixir-lang.org/releases.csv', ExpandConstant('{tmp}\releases.csv'));
+      ParseReleasesCSV;
+      PopulateListOfReleases;
+
+      ReleasesProcessed := True;
+    end;
+  end;
 end;
 
 procedure CreatePages();
 begin
   PSelectVerPage := CreateCustomPage(wpWelcome, 'Select Elixir version', 'Setup will download and install the Elixir version you select.');
-  PSelectVerFetchProgress := TNewProgressBar.Create(PSelectVerPage);
-  PSelectVerFetchProgress.Width := PSelectVerPage.SurfaceWidth;
-  PSelectVerFetchProgress.Parent := PSelectVerPage.Surface;
-  PSelectVerFetchProgress.Style := npbstMarquee;
+
+  PSelectVerListBox := TNewCheckListBox.Create(PSelectVerPage);
+  PSelectVerListBox.Width := PSelectVerPage.SurfaceWidth;
+  PSelectVerListBox.Height := PSelectVerPage.SurfaceHeight - 10;
+  PSelectVerListBox.Parent := PSelectVerPage.Surface;
 end;
 
 function ErlangIsInstalled: Boolean;
@@ -167,6 +168,7 @@ end;
 
 procedure InitializeWizard();
 begin
+  ReleasesProcessed := False;
   CreatePages;
   idpAddFile('https://github.com/elixir-lang/elixir/releases/download/v0.14.1/Precompiled.zip', ExpandConstant('{tmp}\Precompiled.zip'));
   idpDownloadAfter(wpPreparing);
@@ -190,7 +192,6 @@ begin
   end;  
 end;
 
-[Code]
 procedure ExtractPrecompiled();
 var
   ResultCode: Integer;
