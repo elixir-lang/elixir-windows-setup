@@ -2,6 +2,8 @@
 
 Part of the Elixir on Windows Google Summer of Code 2014 project, this installer sets up [Elixir](http://elixir-lang.org/) on a Windows machine.
 
+## Features
+
 Currently, it will:
 * Suggest that the user install Erlang first
 * Download the precompiled Elixir package
@@ -11,6 +13,20 @@ Currently, it will:
 
 Currently, it won't:
 * Download the LATEST version of Elixir (currently hardcoded to v0.14.1)
+
+## Build Instructions
+
+First, download the [Unicode Inno Setup QuickStart Pack](http://www.jrsoftware.org/isdl.php#qsp) and install it, making sure to keep the "Install Inno Setup Preprocessor" checkbox checked when asked.  (All other components are optional)
+
+Then, follow these steps to build an offline installer (a single executable which packages a particular Elixir release):
+
+1. Clone this repo to your system.
+2. Download the precompiled zip archive corresponding with the [Elixir Release](https://github.com/elixir-lang/elixir/releases/) you wish to build the installer for.
+3. Extract the contents of the zip archive into a folder called `elixir` in the repo directory.
+4. Open either a Command Prompt or PowerShell in the repo directory.
+5. In the directory, run `#PathToInnoSetup#\ISCC.exe /dElixirVersion=#Version# Elixir.iss` where `#PathToInnoSetup#` is probably "C:\Program Files (x86)\Inno Setup 5" and where `#Version#` matches the version of the precompiled package (ex. 0.14.1).
+
+And that's it!  The installer will be in a directory called "Output" in your repo directory.
 
 ## Acknowledgements
 
