@@ -54,19 +54,92 @@ Filename: "{tmp}\_offlineinstaller\ISCC.exe"; Parameters: "/dElixirVersion=0.14.
 Filename: "{tmp}\_offlineinstaller\Output\elixir-v0.14.1-setup.exe"; Flags: waituntilterminated; StatusMsg: "Running Elixir installer..."
 
 [Code]
+type
+  TElixirVersion = record
+    Version: String;
+    URL: String;
+    Prerelease: Boolean;
+    CompatType: Integer;
+  end;
+  TArrayOfElixirVersion = array of TElixirVersion;
+
 var
   PSelectVerPage: TWizardPage;
   PSelectVerFetchText: TNewStaticText;
   PSelectVerFetchProgress: TNewProgressBar;
+  PSelectVerListBox: TNewCheckListBox;
+
+  ElixirVersions: TArrayOfElixirVersion;
+
+function SplitStringRec(Str: String; Delim: String; StrList: TStringList): TStringList;
+var
+  StrHead: String;
+  StrTail: String;
+  DelimPos: Integer;
+begin
+  DelimPos := Pos(Delim, Str);
+  if (DelimPos = 0) then begin
+    StrList.Add(Str);
+    Result := StrList;
+  end else begin
+    StrHead := Str;
+    StrTail := Str;
+
+    Delete(StrHead, DelimPos, Length(StrTail));
+    Delete(StrTail, 1, DelimPos);   
+
+    StrList.Add(StrHead);
+    Result := SplitStringRec(StrTail, Delim, StrList);
+  end;
+end;
+
+function SplitString(Str: String; Delim: String): TStringList;
+var
+  StrList: TStringList;
+begin
+  StrList := TStringList.Create;
+  Result := SplitStringRec(Str, Delim, StrList)
+end;
+
+procedure GetVersionsFromFile(FileName: String);
+var
+  VersionStrings: TArrayOfString;
+  NumVersions: Integer;
+  i: Integer;
+  LineValues: TStringList;
+begin
+  LoadStringsFromFile(FileName, VersionStrings);
+  NumVersions := GetArrayLength(VersionStrings); 
+  SetArrayLength(ElixirVersions, NumVersions);
+
+  for i := 0 to NumVersions - 1 do begin
+    LineValues := SplitString(VersionStrings[i], ',');
+    ElixirVersions[i].Version := LineValues.Strings[0];
+    ElixirVersions[i].URL := LineValues.Strings[1];
+    if LineValues.Strings[2] = 'true' then begin
+      ElixirVersions[i].Prerelease := True;
+    end else begin
+      ElixirVersions[i].Prerelease := False;
+    end;
+    ElixirVersions[i].CompatType := StrToInt(LineValues.Strings[3]);
+  end;
+end;
 
 procedure DoPSelectVer();
+var
+  ElixirVersions: TArrayOfElixirVersion;
 begin
   WizardForm.NextButton.Enabled := False;
-    
   PSelectVerFetchProgress.Visible := True;
-  MsgBox('Fetching version PLACEHOLDER', mbInformation, MB_OK);
-  PSelectVerFetchProgress.Visible := False;
-    
+
+  if not (FileExists(ExpandConstant('{tmp}\releases.csv'))) then begin
+    idpDownloadFile('http://elixir-lang.org/releases.csv', ExpandConstant('{tmp}\releases.csv'));
+    GetVersionsFromFile(ExpandConstant('{tmp}\releases.csv'));
+  end;
+
+  
+
+  PSelectVerFetchProgress.Visible := False;  
   WizardForm.NextButton.Enabled := True;
 end;
 
