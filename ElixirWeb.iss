@@ -56,19 +56,11 @@ Filename: "{tmp}\_offlineinstaller\Output\elixir-v0.14.1-setup.exe"; Flags: wait
 
 [Code]
 type
-  TElixirRelease = record
-    Version: String;
-    URL: String;
-    ReleaseType: String;
-    CompatMask: Integer;
-  end;
-  TArrayOfElixirRelease = array of TElixirRelease;
+  TStringTable = array of TStringList;
 
 var
-  PSelectVerPage: TWizardPage;
-  PSelectVerListBox: TNewCheckListBox;
-  ReleasesProcessed: Boolean;
-  ElixirReleases: TArrayOfElixirRelease;
+  PSelRelease: TWizardPage;
+  PSelReleaseListBox: TNewCheckListBox;
 
 function SplitStringRec(Str: String; Delim: String; StrList: TStringList): TStringList;
 var
@@ -100,89 +92,94 @@ begin
   Result := SplitStringRec(Str, Delim, StrList)
 end;
 
-procedure ParseReleasesCSV;
+function CSVToStringTable(Filename: String): TStringTable;
 var
-  ReleaseStrings: TArrayOfString;
+  Rows: TArrayOfString;
   NumReleases: Integer;
   i: Integer;                                                   
-  LineValues: TStringList;
+  Values: TStringList;
+  ReturnArray: TStringTable;
 begin
-  LoadStringsFromFile(ExpandConstant('{tmp}\releases.csv'), ReleaseStrings);
-  NumReleases := GetArrayLength(ReleaseStrings); 
-  SetArrayLength(ElixirReleases, NumReleases);
+  LoadStringsFromFile(Filename, Rows);
+  
+  NumReleases := GetArrayLength(Rows); 
+  SetArrayLength(ReturnArray, NumReleases);
 
   for i := 0 to NumReleases - 1 do begin
-    LineValues := SplitString(ReleaseStrings[i], ',');
-    ElixirReleases[i].Version := LineValues.Strings[0];
-    ElixirReleases[i].URL := LineValues.Strings[1];
-    ElixirReleases[i].ReleaseType := LineValues.Strings[2];
-    ElixirReleases[i].CompatMask := StrToInt(LineValues.Strings[3]);
+    ReturnArray[i] := SplitString(Rows[i], ',');
   end;
+
+  Result := ReturnArray;
 end;
 
-procedure PopulateListOfReleases();
+procedure PopulatePSelReleaseListBox(StringTable: TStringTable);
 var
-  LatestRelease: Boolean;
+  PrereleaseLabel: String;
   MatchesCompatMask: Boolean;
   VersionLabel: String;
   i: Integer;
 begin
-  LatestRelease := True;
-  for i := 0 to GetArrayLength(ElixirReleases) - 1 do begin
-    VersionLabel := 'Version ' + ElixirReleases[i].Version;
-    if LatestRelease then
-      VersionLabel := VersionLabel + ' (Latest)';
+  PSelReleaseListBox.Items.Clear;
+
+  for i := 0 to GetArrayLength(StringTable) - 1 do begin
+    if (StrToInt(StringTable[i][3]) = {#COMPAT_MASK}) then begin
+      VersionLabel := 'Version ' + StringTable[i][0];
+      if StringTable[i][2] = 'true' then begin
+        PrereleaseLabel := 'Prerelease';
+      end else
+        PrereleaseLabel := 'Release';
     
-    MatchesCompatMask := (ElixirReleases[i].CompatMask = {#COMPAT_MASK});  
-    PSelectVerListBox.AddRadioButton(VersionLabel, ElixirReleases[i].ReleaseType, 0, LatestRelease, MatchesCompatMask, nil);
-    
-    if MatchesCompatMask then
-      LatestRelease := False;
+      PSelReleaseListBox.AddRadioButton(VersionLabel, PrereleaseLabel, 0, False, True, StringTable[i]);
+    end;
   end;
 end;
 
-function GetSelectedRelease(): TElixirRelease;
+function GetSelectedReleaseValues(): TStrings;
 var
   i: Integer;
 begin
-  for i := 0 to GetArrayLength(ElixirReleases) - 1 do begin
-    if PSelectVerListBox.Checked[i] then begin
-      Result := ElixirReleases[i];
+  for i := 0 to PSelReleaseListBox.Items.Count - 1 do begin
+    if PSelReleaseListBox.Checked[i] then begin
+      Result := TStrings(PSelReleaseListBox.ItemObject[i]);
     end;
   end;
 end;
 
 function GetSelectedReleaseVersion(Param: String): String;
 begin
-  Result := GetSelectedRelease().Version;
+  Result := GetSelectedReleaseValues[0];
+end;
+
+function GetSelectedReleaseURL(): String;
+begin
+  Result := GetSelectedReleaseValues[1];
 end;
 
 procedure CurPageChanged(CurPageID: Integer);
 begin
-  if CurPageID = PSelectVerPage.ID then begin
-    if not ReleasesProcessed then begin
+  if CurPageID = PSelRelease.ID then begin
+    if not FileExists(ExpandConstant('{tmp}\releases.csv')) then
       idpDownloadFile('http://elixir-lang.org/releases.csv', ExpandConstant('{tmp}\releases.csv'));
-      ParseReleasesCSV;
-      PopulateListOfReleases;
 
-      ReleasesProcessed := True;
-    end;
+    PopulatePSelReleaseListBox(
+      CSVToStringTable(
+        ExpandConstant('{tmp}\releases.csv')));
   end;
 
   if CurPageID = wpReady then begin
-    idpAddFile(GetSelectedRelease().URL, ExpandConstant('{tmp}\Precompiled.zip'));
+    idpAddFile(GetSelectedReleaseURL, ExpandConstant('{tmp}\Precompiled.zip'));
     idpDownloadAfter(wpPreparing);
   end;
 end;
 
 procedure CreatePages();
 begin
-  PSelectVerPage := CreateCustomPage(wpWelcome, 'Select Elixir version', 'Setup will download and install the Elixir version you select.');
+  PSelRelease := CreateCustomPage(wpWelcome, 'Select Elixir release', 'Setup will download and install the Elixir release you select.');
 
-  PSelectVerListBox := TNewCheckListBox.Create(PSelectVerPage);
-  PSelectVerListBox.Width := PSelectVerPage.SurfaceWidth;
-  PSelectVerListBox.Height := PSelectVerPage.SurfaceHeight - 10;
-  PSelectVerListBox.Parent := PSelectVerPage.Surface;
+  PSelReleaseListBox := TNewCheckListBox.Create(PSelRelease);
+  PSelReleaseListBox.Width := PSelRelease.SurfaceWidth;
+  PSelReleaseListBox.Height := PSelRelease.SurfaceHeight - 10;
+  PSelReleaseListBox.Parent := PSelRelease.Surface;
 end;
 
 function ErlangIsInstalled: Boolean;
@@ -194,7 +191,7 @@ end;
 
 procedure InitializeWizard();
 begin
-  ReleasesProcessed := False;
+  idpSetOption('DetailsButton', '0');
   CreatePages;
 end;
 
