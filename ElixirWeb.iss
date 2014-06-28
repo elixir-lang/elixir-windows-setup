@@ -116,7 +116,7 @@ begin
       end else begin
         PrereleaseLabel := 'Release';
       end;
-      PSelReleaseListBox.AddRadioButton('Version ' + StringTable[i][0], PrereleaseLabel, 0, False, True, StringTable[i]);
+      PSelReleaseListBox.AddRadioButton('Elixir version ' + StringTable[i][0], PrereleaseLabel, 0, False, True, StringTable[i]);
     end;
   end;
 end;
