@@ -61,6 +61,8 @@ type
 var
   PSelRelease: TWizardPage;
   PSelReleaseListBox: TNewCheckListBox;
+  i: Integer;
+  _int: Integer;
 
 function SplitStringRec(Str: String; Delim: String; StrList: TStringList): TStringList;
 var
@@ -85,62 +87,46 @@ begin
 end;
 
 function SplitString(Str: String; Delim: String): TStringList;
-var
-  StrList: TStringList;
 begin
-  StrList := TStringList.Create;
-  Result := SplitStringRec(Str, Delim, StrList)
+  Result := SplitStringRec(Str, Delim, TStringList.Create);
 end;
 
 function CSVToStringTable(Filename: String): TStringTable;
 var
-  Rows: TArrayOfString;
-  NumReleases: Integer;
-  i: Integer;                                                   
-  Values: TStringList;
-  ReturnArray: TStringTable;
+  Rows: TArrayOfString;                                                  
 begin
-  LoadStringsFromFile(Filename, Rows);
-  
-  NumReleases := GetArrayLength(Rows); 
-  SetArrayLength(ReturnArray, NumReleases);
+  LoadStringsFromFile(Filename, Rows); 
+  SetArrayLength(Result, GetArrayLength(Rows));
 
-  for i := 0 to NumReleases - 1 do begin
-    ReturnArray[i] := SplitString(Rows[i], ',');
+  for i := 0 to GetArrayLength(Result) - 1 do begin
+    Result[i] := SplitString(Rows[i], ',');
   end;
-
-  Result := ReturnArray;
 end;
 
 procedure PopulatePSelReleaseListBox(StringTable: TStringTable);
 var
   PrereleaseLabel: String;
-  MatchesCompatMask: Boolean;
-  VersionLabel: String;
-  i: Integer;
 begin
   PSelReleaseListBox.Items.Clear;
 
   for i := 0 to GetArrayLength(StringTable) - 1 do begin
     if (StrToInt(StringTable[i][3]) = {#COMPAT_MASK}) then begin
-      VersionLabel := 'Version ' + StringTable[i][0];
       if StringTable[i][2] = 'true' then begin
         PrereleaseLabel := 'Prerelease';
-      end else
+      end else begin
         PrereleaseLabel := 'Release';
-    
-      PSelReleaseListBox.AddRadioButton(VersionLabel, PrereleaseLabel, 0, False, True, StringTable[i]);
+      end;
+      PSelReleaseListBox.AddRadioButton('Version ' + StringTable[i][0], PrereleaseLabel, 0, False, True, StringTable[i]);
     end;
   end;
 end;
 
 function GetSelectedReleaseValues(): TStrings;
-var
-  i: Integer;
 begin
   for i := 0 to PSelReleaseListBox.Items.Count - 1 do begin
     if PSelReleaseListBox.Checked[i] then begin
       Result := TStrings(PSelReleaseListBox.ItemObject[i]);
+      break;
     end;
   end;
 end;
@@ -155,15 +141,18 @@ begin
   Result := GetSelectedReleaseValues[1];
 end;
 
+function ErlangIsInstalled: Boolean;
+begin
+  Result := Exec('erl.exe', '+V', '', SW_HIDE, ewWaitUntilTerminated, _int);
+end;
+
 procedure CurPageChanged(CurPageID: Integer);
 begin
   if CurPageID = PSelRelease.ID then begin
-    if not FileExists(ExpandConstant('{tmp}\releases.csv')) then
+    if not FileExists(ExpandConstant('{tmp}\releases.csv')) then begin
       idpDownloadFile('http://elixir-lang.org/releases.csv', ExpandConstant('{tmp}\releases.csv'));
-
-    PopulatePSelReleaseListBox(
-      CSVToStringTable(
-        ExpandConstant('{tmp}\releases.csv')));
+    end;
+    PopulatePSelReleaseListBox(CSVToStringTable(ExpandConstant('{tmp}\releases.csv')));
   end;
 
   if CurPageID = wpReady then begin
@@ -172,50 +161,24 @@ begin
   end;
 end;
 
-procedure CreatePages();
-begin
-  PSelRelease := CreateCustomPage(wpWelcome, 'Select Elixir release', 'Setup will download and install the Elixir release you select.');
-
-  PSelReleaseListBox := TNewCheckListBox.Create(PSelRelease);
-  PSelReleaseListBox.Width := PSelRelease.SurfaceWidth;
-  PSelReleaseListBox.Height := PSelRelease.SurfaceHeight - 10;
-  PSelReleaseListBox.Parent := PSelRelease.Surface;
-end;
-
-function ErlangIsInstalled: Boolean;
-var
-  ResultCode: Integer;
-begin
-  Result := Exec('erl.exe', '+V', '', SW_HIDE, ewWaitUntilTerminated, ResultCode)
-end;
-
-procedure InitializeWizard();
-begin
-  idpSetOption('DetailsButton', '0');
-  CreatePages;
-end;
-
 function PrepareToInstall(var NeedsRestart: Boolean): String;
-var
-  ErrorMsg: String;
 begin
-  if ErlangIsInstalled then begin
-    Result := '';
-  end else begin
-    ErrorMsg := 'Warning: Erlang does not seem to be installed.' + #13#10#13#10 +
-                'In order for Elixir to run, you will need to install Erlang from http://www.erlang.org/ and then add it to your Path environment variable.' + #13#10#13#10 +
-                'Proceed anyway?';
-    if MsgBox(ErrorMsg, mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDYES then begin
-      Result := '';
-    end else begin
+  if not ErlangIsInstalled then begin
+    if MsgBox('Warning: Erlang does not seem to be installed.' + #13#10#13#10 +
+              'In order for Elixir to run, you will need to install Erlang from http://www.erlang.org/ and then add it to your Path environment variable.' + #13#10#13#10 +
+              'Proceed anyway?', mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDNO then begin
       Result := 'Erlang not installed.';
     end;
   end;  
 end;
 
-procedure ExtractPrecompiled();
-var
-  ResultCode: Integer;
+procedure InitializeWizard();
 begin
-  Exec('powershell.exe', ExpandConstant('-File {tmp}\extract-zip.ps1 {tmp}\Precompiled.zip {tmp}\Precompiled'), '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  idpSetOption('DetailsButton', '0');
+  
+  PSelRelease := CreateCustomPage(wpWelcome, 'Select Elixir release', 'Setup will download and install the Elixir release you select.');
+  PSelReleaseListBox := TNewCheckListBox.Create(PSelRelease);
+  PSelReleaseListBox.Width := PSelRelease.SurfaceWidth;
+  PSelReleaseListBox.Height := PSelRelease.SurfaceHeight - 10;
+  PSelReleaseListBox.Parent := PSelRelease.Surface;
 end;
