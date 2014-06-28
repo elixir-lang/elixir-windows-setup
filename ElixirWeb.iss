@@ -105,19 +105,13 @@ end;
 
 procedure PopulatePSelReleaseListBox(StringTable: TStringTable);
 var
-  PrereleaseLabel: String;
   SelectFirst: Boolean;
 begin
   PSelReleaseListBox.Items.Clear;
   SelectFirst := True;
   for i := 0 to GetArrayLength(StringTable) - 1 do begin
     if (StrToInt(StringTable[i][3]) = {#COMPAT_MASK}) then begin
-      if StringTable[i][2] = 'true' then begin
-        PrereleaseLabel := 'Prerelease';
-      end else begin
-        PrereleaseLabel := 'Release';
-      end;
-      PSelReleaseListBox.AddRadioButton('Elixir version ' + StringTable[i][0], PrereleaseLabel, 0, SelectFirst, True, StringTable[i]);
+      PSelReleaseListBox.AddRadioButton('Elixir version ' + StringTable[i][0], StringTable[i][2], 0, SelectFirst, True, StringTable[i]);
       SelectFirst := False;
     end;
   end;
