@@ -20,7 +20,7 @@
 
 [Setup]
 AppName=Elixir
-AppVersion=0.50
+AppVersion=0.52
 CreateAppDir=no
 OutputBaseFilename=elixir-websetup
 WizardImageFile=assets\drop_banner_hd.bmp
