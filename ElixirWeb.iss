@@ -51,8 +51,8 @@ Source: "compiler:SetupLdr.e32"; DestDir: "{tmp}\_offlineinstaller"; Flags: dele
 
 [Run]
 Filename: "powershell.exe"; Parameters: "-File {tmp}\extract-zip.ps1 {tmp}\Precompiled.zip {tmp}\_offlineinstaller\elixir"; Flags: waituntilterminated runhidden; StatusMsg: "Extracting precompiled package..."
-Filename: "{tmp}\_offlineinstaller\ISCC.exe"; Parameters: "/dElixirVersion={code:ConstGetTargetReleaseVersion} /dSkipPages /dNoCompression Elixir.iss"; WorkingDir: "{tmp}\_offlineinstaller"; Flags: waituntilterminated runhidden; StatusMsg: "Preparing Elixir installer..."
-Filename: "{tmp}\_offlineinstaller\Output\elixir-v{code:ConstGetTargetReleaseVersion}-setup.exe"; Flags: nowait; StatusMsg: "Running Elixir installer..."
+Filename: "{tmp}\_offlineinstaller\ISCC.exe"; Parameters: "/dElixirVersion={code:ConstGetSelectedReleaseVersion} /dSkipPages /dNoCompression Elixir.iss"; WorkingDir: "{tmp}\_offlineinstaller"; Flags: waituntilterminated runhidden; StatusMsg: "Preparing Elixir installer..."
+Filename: "{tmp}\_offlineinstaller\Output\elixir-v{code:ConstGetSelectedReleaseVersion}-setup.exe"; Flags: nowait; StatusMsg: "Running Elixir installer..."
 
 [Code]
 type
@@ -61,14 +61,6 @@ type
 var
   PSelRelease: TInputOptionWizardPage;
   PSelInstallType: TInputOptionWizardPage;
-
-  itypeLatestRelease: Integer;
-  itypeLatestPrerelease: Integer;
-  itypeCustom: Integer; 
-  
-  TargetRelease: TStrings;
-
-  i: Integer;
   _int: Integer;
 
 function SplitStringRec(Str: String; Delim: String; StrList: TStringList): TStringList;
@@ -120,7 +112,8 @@ end;
 
 function CSVToStringTable(Filename: String): TStringTable;
 var
-  Rows: TArrayOfString;                                                  
+  Rows: TArrayOfString;
+  i: Integer;                                                  
 begin
   LoadStringsFromFile(Filename, Rows); 
   SetArrayLength(Result, GetArrayLength(Rows));
@@ -134,6 +127,7 @@ procedure PopulatePSelReleaseListBox(StringTable: TStringTable);
 var
   SelectFirst: Boolean;
   ReleaseDesc: String;
+  i: Integer;
 begin
   PSelRelease.CheckListBox.Items.Clear;
   SelectFirst := True;
@@ -151,6 +145,8 @@ begin
 end;
 
 function GetListBoxSelectedRelease(): TStrings;
+var
+  i: Integer;
 begin
   for i := 0 to PSelRelease.CheckListBox.Items.Count - 1 do begin
     if PSelRelease.CheckListBox.Checked[i] then begin
@@ -161,6 +157,8 @@ begin
 end;
 
 function GetListBoxLatestRelease(Prerelease: Boolean): TStrings;
+var
+  i: Integer;
 begin
   for i := 0 to PSelRelease.CheckListBox.Items.Count - 1 do begin
     if Prerelease = IsPrerelease(TStrings(PSelRelease.CheckListBox.ItemObject[i])) then begin
@@ -170,9 +168,25 @@ begin
   end; 
 end;
 
-function ConstGetTargetReleaseVersion(Param: String): String;
+function GetSelectedRelease(): TStrings;
+var
+  i: Integer;
 begin
-  Result := GetVersion(TargetRelease);
+  for i := 0 to PSelInstallType.CheckListBox.Items.Count - 1 do begin
+    if PSelInstallType.CheckListBox.Checked[i] then begin
+      if not (PSelInstallType.CheckListBox.ItemObject[i] = nil) then begin
+        Result := TStrings(PSelInstallType.CheckListBox.ItemObject[i]);
+      end else begin
+        Result := GetListBoxSelectedRelease();
+      end;
+      break;
+    end;
+  end;
+end;
+
+function ConstGetSelectedReleaseVersion(Param: String): String;
+begin
+  Result := GetVersion(GetSelectedRelease());
 end;
 
 function ErlangIsInstalled: Boolean;
@@ -183,15 +197,7 @@ end;
 procedure CurPageChanged(CurPageID: Integer);
 begin
   if CurPageID = wpPreparing then begin
-    if PSelInstallType.SelectedValueIndex = itypeLatestRelease then begin
-      TargetRelease := GetListBoxLatestRelease(False);
-    end else if (not (itypeLatestPrerelease = -1)) and (PSelInstallType.SelectedValueIndex = itypeLatestPrerelease) then begin
-      TargetRelease := GetListBoxLatestRelease(True);
-    end else begin
-      TargetRelease := GetListBoxSelectedRelease();
-    end;
-
-    idpAddFile(GetURL(TargetRelease), ExpandConstant('{tmp}\Precompiled.zip'));
+    idpAddFile(GetURL(GetSelectedRelease()), ExpandConstant('{tmp}\Precompiled.zip'));
     idpDownloadAfter(wpPreparing);
   end;
 end;
@@ -199,7 +205,7 @@ end;
 function ShouldSkipPage(PageID: Integer): Boolean;
 begin
   if PageID = PSelRelease.ID then begin
-    Result := not (PSelInstallType.SelectedValueIndex = itypeCustom);
+    Result := (PSelInstallType.CheckListBox.ItemObject[PSelInstallType.SelectedValueIndex] = nil);
   end else begin
     Result := False;
   end;
@@ -217,6 +223,8 @@ begin
 end;
 
 procedure InitializeWizard();
+var
+  LatestRelease, LatestPrerelease: TStrings;
 begin
   idpSetOption('DetailsButton', '0');
   
@@ -225,15 +233,14 @@ begin
   PSelRelease := CreateInputOptionPage(PSelInstallType.ID, 'Select Elixir release', 'Setup will download and install the Elixir release you select.', 'All releases available to install are listed below, from newest to oldest.', True, True);
 
   PopulatePSelReleaseListBox(CSVToStringTable(ExpandConstant('{tmp}\releases.csv')));
-  
-  itypeLatestRelease := PSelInstallType.Add('Install the latest stable release (v' + GetVersion(GetListBoxLatestRelease(False)) + ')');
-  PSelInstallType.SelectedValueIndex := itypeLatestRelease;
-  if not (GetListBoxLatestRelease(True) = nil) then begin
-    itypeLatestPrerelease := PSelInstallType.Add('Install the latest prerelease (v' + GetVersion(GetListBoxLatestRelease(True)) + ')');
-  end else begin
-    itypeLatestPrerelease := -1;
+  LatestRelease := GetListBoxLatestRelease(False);
+  LatestPrerelease := GetListBoxLatestRelease(True);
+
+  PSelInstallType.CheckListBox.AddRadioButton('Install the latest stable release (v' + GetVersion(LatestRelease) + ')', '', 0, True, True, LatestRelease);
+  if not (LatestPrerelease = nil) then begin
+    PSelInstallType.CheckListBox.AddRadioButton('Install the latest prerelease (v' + GetVersion(LatestPrerelease) + ')', '', 0, False, True, LatestPrerelease);
   end;
-  itypeCustom := PSelInstallType.Add('Select another release to install');
+  PSelInstallType.CheckListBox.AddRadioButton('Select another release to install', '', 0, False, True, nil);
 end;
 
 function InitializeSetup(): Boolean;
