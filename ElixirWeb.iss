@@ -22,7 +22,7 @@
 AppName=Elixir
 AppVersion=0.52
 CreateAppDir=no
-DisableFinishedPage=True
+DisableFinishedPage=yes
 OutputBaseFilename=elixir-websetup
 SetupIconFile=assets\drop.ico
 WizardImageFile=assets\drop_banner.bmp
@@ -205,7 +205,7 @@ end;
 function ShouldSkipPage(PageID: Integer): Boolean;
 begin
   if PageID = PSelRelease.ID then begin
-    Result := (PSelInstallType.CheckListBox.ItemObject[PSelInstallType.SelectedValueIndex] = nil);
+    Result := not (PSelInstallType.CheckListBox.ItemObject[PSelInstallType.SelectedValueIndex] = nil);
   end else begin
     Result := False;
   end;

@@ -25,7 +25,7 @@ OutputBaseFilename=elixir-v{#ElixirVersion}-setup
 SetupIconFile=assets\drop.ico
 UninstallDisplayIcon={app}\drop.ico
 #ifdef SkipPages
-DisableWelcomePage=True
+DisableWelcomePage=yes
 #endif
 WizardImageFile=assets\drop_banner.bmp
 WizardSmallImageFile=assets\null.bmp
