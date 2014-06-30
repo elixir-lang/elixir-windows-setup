@@ -153,9 +153,6 @@ end;
 procedure CurPageChanged(CurPageID: Integer);
 begin
   if CurPageID = PSelInstallType.ID then begin
-    if not FileExists(ExpandConstant('{tmp}\releases.csv')) then begin
-      idpDownloadFile('http://elixir-lang.org/releases.csv', ExpandConstant('{tmp}\releases.csv'));
-    end;
     PopulatePSelReleaseListBox(CSVToStringTable(ExpandConstant('{tmp}\releases.csv')));
   end;
 
@@ -187,4 +184,14 @@ begin
   PSelReleaseListBox.Width := PSelRelease.SurfaceWidth;
   PSelReleaseListBox.Height := PSelRelease.SurfaceHeight - 10;
   PSelReleaseListBox.Parent := PSelRelease.Surface;
+end;
+
+function InitializeSetup(): Boolean;
+begin
+  if not idpDownloadFile('http://elixir-lang.org/releases.csv', ExpandConstant('{tmp}\releases.csv')) then begin
+    MsgBox('Error: Downloading http://elixir-lang.org/releases.csv failed.  Setup cannot continue.', mbInformation, MB_OK);
+    Result := False;
+  end else begin
+    Result := True;
+  end;
 end;
