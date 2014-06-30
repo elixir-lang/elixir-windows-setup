@@ -53,8 +53,8 @@ Source: "compiler:SetupLdr.e32"; DestDir: "{tmp}\_offlineinstaller"; Flags: dele
 
 [Run]
 Filename: "powershell.exe"; Parameters: "-File {tmp}\extract-zip.ps1 {tmp}\Precompiled.zip {tmp}\_offlineinstaller\elixir"; Flags: waituntilterminated runhidden; StatusMsg: "Extracting precompiled package..."
-Filename: "{tmp}\_offlineinstaller\ISCC.exe"; Parameters: "/dElixirVersion={code:GetSelectedReleaseVersion} /dSkipPages /dNoCompression Elixir.iss"; WorkingDir: "{tmp}\_offlineinstaller"; Flags: waituntilterminated runhidden; StatusMsg: "Preparing Elixir installer..."
-Filename: "{tmp}\_offlineinstaller\Output\elixir-v{code:GetSelectedReleaseVersion}-setup.exe"; Flags: nowait; StatusMsg: "Running Elixir installer..."
+Filename: "{tmp}\_offlineinstaller\ISCC.exe"; Parameters: "/dElixirVersion={code:ConstGetTargetReleaseVersion} /dSkipPages /dNoCompression Elixir.iss"; WorkingDir: "{tmp}\_offlineinstaller"; Flags: waituntilterminated runhidden; StatusMsg: "Preparing Elixir installer..."
+Filename: "{tmp}\_offlineinstaller\Output\elixir-v{code:ConstGetTargetReleaseVersion}-setup.exe"; Flags: nowait; StatusMsg: "Running Elixir installer..."
 
 [Code]
 type
@@ -64,6 +64,9 @@ var
   PSelInstallType: TInputOptionWizardPage; 
   PSelRelease: TWizardPage;
   PSelReleaseListBox: TNewCheckListBox;
+
+  TargetRelease: TStrings;
+
   i: Integer;
   _int: Integer;
 
@@ -94,6 +97,26 @@ begin
   Result := SplitStringRec(Str, Delim, TStringList.Create);
 end;
 
+function GetVersion(Release: TStrings): String;
+begin
+  Result := Release[0];
+end;
+
+function GetURL(Release: TStrings): String;
+begin
+  Result := Release[1];
+end;
+
+function IsPrerelease(Release: TStrings): Boolean;
+begin
+  Result := (Release[2] = 'prerelease');
+end;
+
+function IsCompatibleForInstall(Release: TStrings): Boolean;
+begin
+  Result := (StrToInt(Release[3]) = {#COMPAT_MASK});
+end;
+
 function CSVToStringTable(Filename: String): TStringTable;
 var
   Rows: TArrayOfString;                                                  
@@ -109,18 +132,24 @@ end;
 procedure PopulatePSelReleaseListBox(StringTable: TStringTable);
 var
   SelectFirst: Boolean;
+  ReleaseDesc: String;
 begin
   PSelReleaseListBox.Items.Clear;
   SelectFirst := True;
   for i := 0 to GetArrayLength(StringTable) - 1 do begin
-    if (StrToInt(StringTable[i][3]) = {#COMPAT_MASK}) then begin
-      PSelReleaseListBox.AddRadioButton('Elixir version ' + StringTable[i][0], StringTable[i][2], 0, SelectFirst, True, StringTable[i]);
+    if IsCompatibleForInstall(StringTable[i]) then begin
+      if IsPrerelease(StringTable[i]) then begin
+        ReleaseDesc := 'Prerelease';
+      end else begin
+        ReleaseDesc := 'Release';
+      end;
+      PSelReleaseListBox.AddRadioButton('Elixir version ' + GetVersion(StringTable[i]), ReleaseDesc, 0, SelectFirst, True, StringTable[i]);
       SelectFirst := False;
     end;
   end;
 end;
 
-function GetSelectedReleaseValues(): TStrings;
+function GetListBoxSelectedRelease(): TStrings;
 begin
   for i := 0 to PSelReleaseListBox.Items.Count - 1 do begin
     if PSelReleaseListBox.Checked[i] then begin
@@ -130,14 +159,20 @@ begin
   end;
 end;
 
-function GetSelectedReleaseVersion(Param: String): String;
+function GetListBoxLatestRelease(Prerelease: Boolean): TStrings;
 begin
-  Result := GetSelectedReleaseValues[0];
+  for i := 0 to PSelReleaseListBox.Items.Count - 1 do begin
+    if Prerelease = IsPrerelease(TStrings(PSelReleaseListBox.ItemObject[i])) then begin
+      Result := TStrings(PSelReleaseListBox.ItemObject[i]);
+      break;
+    end;
+  end;
+  Result := nil; 
 end;
 
-function GetSelectedReleaseURL(): String;
+function ConstGetTargetReleaseVersion(Param: String): String;
 begin
-  Result := GetSelectedReleaseValues[1];
+  Result := GetVersion(TargetRelease);
 end;
 
 function ErlangIsInstalled: Boolean;
@@ -147,8 +182,8 @@ end;
 
 procedure CurPageChanged(CurPageID: Integer);
 begin
-  if CurPageID = wpReady then begin
-    idpAddFile(GetSelectedReleaseURL, ExpandConstant('{tmp}\Precompiled.zip'));
+  if CurPageID = wpPreparing then begin
+    idpAddFile(GetURL(TargetRelease), ExpandConstant('{tmp}\Precompiled.zip'));
     idpDownloadAfter(wpPreparing);
   end;
 end;
@@ -177,6 +212,7 @@ begin
   PSelReleaseListBox.Parent := PSelRelease.Surface;
 
   PopulatePSelReleaseListBox(CSVToStringTable(ExpandConstant('{tmp}\releases.csv')));
+  TargetRelease := GetListBoxLatestRelease(False);
 end;
 
 function InitializeSetup(): Boolean;
