@@ -56,11 +56,6 @@ Filename: "powershell.exe"; Parameters: "-File {tmp}\extract-zip.ps1 {tmp}\Preco
 Filename: "{tmp}\_offlineinstaller\ISCC.exe"; Parameters: "/dElixirVersion={code:GetSelectedReleaseVersion} /dSkipPages /dNoCompression Elixir.iss"; WorkingDir: "{tmp}\_offlineinstaller"; Flags: waituntilterminated runhidden; StatusMsg: "Preparing Elixir installer..."
 Filename: "{tmp}\_offlineinstaller\Output\elixir-v{code:GetSelectedReleaseVersion}-setup.exe"; Flags: nowait; StatusMsg: "Running Elixir installer..."
 
-[Types]
-Name: "latest-release"; Description: "Latest Release"
-Name: "master"; Description: "Master"
-Name: "other"; Description: "Other"
-
 [Code]
 type
   TStringTable = array of TStringList;
