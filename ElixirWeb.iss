@@ -56,11 +56,17 @@ Filename: "powershell.exe"; Parameters: "-File {tmp}\extract-zip.ps1 {tmp}\Preco
 Filename: "{tmp}\_offlineinstaller\ISCC.exe"; Parameters: "/dElixirVersion={code:GetSelectedReleaseVersion} /dSkipPages /dNoCompression Elixir.iss"; WorkingDir: "{tmp}\_offlineinstaller"; Flags: waituntilterminated runhidden; StatusMsg: "Preparing Elixir installer..."
 Filename: "{tmp}\_offlineinstaller\Output\elixir-v{code:GetSelectedReleaseVersion}-setup.exe"; Flags: nowait; StatusMsg: "Running Elixir installer..."
 
+[Types]
+Name: "latest-release"; Description: "Latest Release"
+Name: "master"; Description: "Master"
+Name: "other"; Description: "Other"
+
 [Code]
 type
   TStringTable = array of TStringList;
 
 var
+  PSelInstallType: TInputOptionWizardPage; 
   PSelRelease: TWizardPage;
   PSelReleaseListBox: TNewCheckListBox;
   i: Integer;
@@ -146,7 +152,7 @@ end;
 
 procedure CurPageChanged(CurPageID: Integer);
 begin
-  if CurPageID = PSelRelease.ID then begin
+  if CurPageID = PSelInstallType.ID then begin
     if not FileExists(ExpandConstant('{tmp}\releases.csv')) then begin
       idpDownloadFile('http://elixir-lang.org/releases.csv', ExpandConstant('{tmp}\releases.csv'));
     end;
@@ -174,7 +180,9 @@ procedure InitializeWizard();
 begin
   idpSetOption('DetailsButton', '0');
   
-  PSelRelease := CreateCustomPage(wpWelcome, 'Select Elixir release', 'Setup will download and install the Elixir release you select.');
+  PSelInstallType := CreateInputOptionPage(wpWelcome, 'Select Elixir installation type', 'Select which installation type you want to perform, then click Next.', 'I want to:', True, False);
+
+  PSelRelease := CreateCustomPage(PSelInstallType.ID, 'Select Elixir release', 'Setup will download and install the Elixir release you select.');
   PSelReleaseListBox := TNewCheckListBox.Create(PSelRelease);
   PSelReleaseListBox.Width := PSelRelease.SurfaceWidth;
   PSelReleaseListBox.Height := PSelRelease.SurfaceHeight - 10;
