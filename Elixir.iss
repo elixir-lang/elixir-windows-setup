@@ -22,10 +22,11 @@ ChangesEnvironment=yes
 DefaultDirName={pf}\Elixir
 DefaultGroupName=Elixir
 OutputBaseFilename=elixir-v{#ElixirVersion}-setup
+SetupIconFile=assets\drop.ico
 #ifdef SkipPages
 DisableWelcomePage=True
 #endif
-WizardImageFile=assets\drop_banner_hd.bmp
+WizardImageFile=assets\drop_banner.bmp
 WizardSmallImageFile=assets\null.bmp
 WizardImageBackColor=clWhite
 #ifdef NoCompression
