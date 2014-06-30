@@ -152,10 +152,6 @@ end;
 
 procedure CurPageChanged(CurPageID: Integer);
 begin
-  if CurPageID = PSelInstallType.ID then begin
-    PopulatePSelReleaseListBox(CSVToStringTable(ExpandConstant('{tmp}\releases.csv')));
-  end;
-
   if CurPageID = wpReady then begin
     idpAddFile(GetSelectedReleaseURL, ExpandConstant('{tmp}\Precompiled.zip'));
     idpDownloadAfter(wpPreparing);
@@ -184,6 +180,8 @@ begin
   PSelReleaseListBox.Width := PSelRelease.SurfaceWidth;
   PSelReleaseListBox.Height := PSelRelease.SurfaceHeight - 10;
   PSelReleaseListBox.Parent := PSelRelease.Surface;
+
+  PopulatePSelReleaseListBox(CSVToStringTable(ExpandConstant('{tmp}\releases.csv')));
 end;
 
 function InitializeSetup(): Boolean;
