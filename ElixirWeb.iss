@@ -61,7 +61,10 @@ type
   TStringTable = array of TStringList;
 
 var
-  PSelInstallType: TInputOptionWizardPage; 
+  PSelInstallType: TInputOptionWizardPage;
+  itypeLatestRelease: Integer;
+  itypeLatestPrerelease: Integer;
+  itypeCustom: Integer; 
   PSelRelease: TWizardPage;
   PSelReleaseListBox: TNewCheckListBox;
 
@@ -166,8 +169,7 @@ begin
       Result := TStrings(PSelReleaseListBox.ItemObject[i]);
       break;
     end;
-  end;
-  Result := nil; 
+  end; 
 end;
 
 function ConstGetTargetReleaseVersion(Param: String): String;
@@ -183,8 +185,25 @@ end;
 procedure CurPageChanged(CurPageID: Integer);
 begin
   if CurPageID = wpPreparing then begin
+    if PSelInstallType.SelectedValueIndex = itypeLatestRelease then begin
+      TargetRelease := GetListBoxLatestRelease(False);
+    end else if (not (itypeLatestPrerelease = -1)) and (PSelInstallType.SelectedValueIndex = itypeLatestPrerelease) then begin
+      TargetRelease := GetListBoxLatestRelease(True);
+    end else begin
+      TargetRelease := GetListBoxSelectedRelease();
+    end;
+
     idpAddFile(GetURL(TargetRelease), ExpandConstant('{tmp}\Precompiled.zip'));
     idpDownloadAfter(wpPreparing);
+  end;
+end;
+
+function ShouldSkipPage(PageID: Integer): Boolean;
+begin
+  if PageID = PSelRelease.ID then begin
+    Result := not (PSelInstallType.SelectedValueIndex = itypeCustom);
+  end else begin
+    Result := False;
   end;
 end;
 
@@ -212,7 +231,15 @@ begin
   PSelReleaseListBox.Parent := PSelRelease.Surface;
 
   PopulatePSelReleaseListBox(CSVToStringTable(ExpandConstant('{tmp}\releases.csv')));
-  TargetRelease := GetListBoxLatestRelease(False);
+  
+  itypeLatestRelease := PSelInstallType.Add('Install the latest stable release (v' + GetVersion(GetListBoxLatestRelease(False)) + ')');
+  PSelInstallType.SelectedValueIndex := itypeLatestRelease;
+  if not (GetListBoxLatestRelease(True) = nil) then begin
+    itypeLatestPrerelease := PSelInstallType.Add('Install the latest prerelease (v' + GetVersion(GetListBoxLatestRelease(True)) + ')');
+  end else begin
+    itypeLatestPrerelease := -1;
+  end;
+  itypeCustom := PSelInstallType.Add('Select another release to install');
 end;
 
 function InitializeSetup(): Boolean;
