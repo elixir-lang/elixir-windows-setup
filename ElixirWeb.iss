@@ -22,6 +22,7 @@
 AppName=Elixir
 AppVersion=0.52
 CreateAppDir=no
+DisableFinishedPage=True
 OutputBaseFilename=elixir-websetup
 WizardImageFile=assets\drop_banner_hd.bmp
 WizardSmallImageFile=assets\null.bmp

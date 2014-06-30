@@ -24,7 +24,6 @@ DefaultGroupName=Elixir
 OutputBaseFilename=elixir-v{#ElixirVersion}-setup
 #ifdef SkipPages
 DisableWelcomePage=True
-DisableFinishedPage=True
 #endif
 WizardImageFile=assets\drop_banner_hd.bmp
 WizardSmallImageFile=assets\null.bmp
