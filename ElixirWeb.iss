@@ -61,13 +61,13 @@ type
   TStringTable = array of TStringList;
 
 var
+  PSelRelease: TInputOptionWizardPage;
   PSelInstallType: TInputOptionWizardPage;
+
   itypeLatestRelease: Integer;
   itypeLatestPrerelease: Integer;
   itypeCustom: Integer; 
-  PSelRelease: TWizardPage;
-  PSelReleaseListBox: TNewCheckListBox;
-
+  
   TargetRelease: TStrings;
 
   i: Integer;
@@ -137,7 +137,7 @@ var
   SelectFirst: Boolean;
   ReleaseDesc: String;
 begin
-  PSelReleaseListBox.Items.Clear;
+  PSelRelease.CheckListBox.Items.Clear;
   SelectFirst := True;
   for i := 0 to GetArrayLength(StringTable) - 1 do begin
     if IsCompatibleForInstall(StringTable[i]) then begin
@@ -146,7 +146,7 @@ begin
       end else begin
         ReleaseDesc := 'Release';
       end;
-      PSelReleaseListBox.AddRadioButton('Elixir version ' + GetVersion(StringTable[i]), ReleaseDesc, 0, SelectFirst, True, StringTable[i]);
+      PSelRelease.CheckListBox.AddRadioButton('Elixir version ' + GetVersion(StringTable[i]), ReleaseDesc, 0, SelectFirst, True, StringTable[i]);
       SelectFirst := False;
     end;
   end;
@@ -154,9 +154,9 @@ end;
 
 function GetListBoxSelectedRelease(): TStrings;
 begin
-  for i := 0 to PSelReleaseListBox.Items.Count - 1 do begin
-    if PSelReleaseListBox.Checked[i] then begin
-      Result := TStrings(PSelReleaseListBox.ItemObject[i]);
+  for i := 0 to PSelRelease.CheckListBox.Items.Count - 1 do begin
+    if PSelRelease.CheckListBox.Checked[i] then begin
+      Result := TStrings(PSelRelease.CheckListBox.ItemObject[i]);
       break;
     end;
   end;
@@ -164,9 +164,9 @@ end;
 
 function GetListBoxLatestRelease(Prerelease: Boolean): TStrings;
 begin
-  for i := 0 to PSelReleaseListBox.Items.Count - 1 do begin
-    if Prerelease = IsPrerelease(TStrings(PSelReleaseListBox.ItemObject[i])) then begin
-      Result := TStrings(PSelReleaseListBox.ItemObject[i]);
+  for i := 0 to PSelRelease.CheckListBox.Items.Count - 1 do begin
+    if Prerelease = IsPrerelease(TStrings(PSelRelease.CheckListBox.ItemObject[i])) then begin
+      Result := TStrings(PSelRelease.CheckListBox.ItemObject[i]);
       break;
     end;
   end; 
@@ -224,11 +224,7 @@ begin
   
   PSelInstallType := CreateInputOptionPage(wpWelcome, 'Select Elixir installation type', 'Select which installation type you want to perform, then click Next.', 'I want to:', True, False);
 
-  PSelRelease := CreateCustomPage(PSelInstallType.ID, 'Select Elixir release', 'Setup will download and install the Elixir release you select.');
-  PSelReleaseListBox := TNewCheckListBox.Create(PSelRelease);
-  PSelReleaseListBox.Width := PSelRelease.SurfaceWidth;
-  PSelReleaseListBox.Height := PSelRelease.SurfaceHeight - 10;
-  PSelReleaseListBox.Parent := PSelRelease.Surface;
+  PSelRelease := CreateInputOptionPage(PSelInstallType.ID, 'Select Elixir release', 'Setup will download and install the Elixir release you select.', 'All releases available to install are listed below, from newest to oldest.', True, True);
 
   PopulatePSelReleaseListBox(CSVToStringTable(ExpandConstant('{tmp}\releases.csv')));
   
