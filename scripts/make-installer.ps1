@@ -23,6 +23,7 @@ $cd = (Get-Item -Path ".\" -Verbose).FullName
 $isccDefine = ""
 $isccDir = (Get-Item -Path ".\" -Verbose).FullName
 $elixirVersion = ""
+$startInstaller = false
 
 #### Script
 Info("Current directory:")
@@ -35,6 +36,7 @@ foreach ($arg in $args)
 	if ($arg = "--innoelixirweb")
 	{
 		$isccDefine = "/dSkipPages /dNoCompression"
+		$startInstaller = true
 	}
 }
 Info("Finished reading arguments")
@@ -96,10 +98,16 @@ Info("Running $iscc $isccDefine Elixir.iss")
 & $iscc $isccDefine Elixir.iss
 if ($LastExitCode -eq 0)
 {
-	Info("Installer compiled successfully to .\Output")
+	Info("Installer compiled successfully to .\Output\elixir-v$elixirVersion-setup.exe")
 }
 else
 {
 	Err("ISCC.exe failed with exit code $LastExitCode")
 	ExitMsg
+}
+
+if ($startInstaller)
+{
+	Info("Starting installer...")
+	start ".\Output\elixir-v$elixirVersion-setup.exe"
 }
