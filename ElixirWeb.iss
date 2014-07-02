@@ -34,25 +34,22 @@ Uninstallable=no
 NameAndVersion=%1
 
 [Files]
-; Zip extraction helper
-Source: "scripts\extract-zip.ps1"; DestDir: "{tmp}"; Flags: deleteafterinstall
 ; Offline installer files
-Source: "Elixir.iss"; DestDir: "{tmp}\_offlineinstaller"; Flags: deleteafterinstall
-Source: "scripts\set-env.ps1"; DestDir: "{tmp}\_offlineinstaller\scripts"; Flags: deleteafterinstall
-Source: "assets\*"; DestDir: "{tmp}\_offlineinstaller\assets"; Flags: deleteafterinstall
+Source: "Elixir.iss"; DestDir: "{tmp}"; Flags: deleteafterinstall
+Source: "scripts\*"; DestDir: "{tmp}\scripts"; Flags: deleteafterinstall
+Source: "assets\*"; DestDir: "{tmp}\assets"; Flags: deleteafterinstall
 ; Compiler files
-Source: "compiler:Default.isl"; DestDir: "{tmp}\_offlineinstaller"; Flags: deleteafterinstall
-Source: "compiler:ISCC.exe"; DestDir: "{tmp}\_offlineinstaller"; Flags: deleteafterinstall
-Source: "compiler:ISCmplr.dll"; DestDir: "{tmp}\_offlineinstaller"; Flags: deleteafterinstall
-Source: "compiler:islzma.dll"; DestDir: "{tmp}\_offlineinstaller"; Flags: deleteafterinstall
-Source: "compiler:ISPP.dll"; DestDir: "{tmp}\_offlineinstaller"; Flags: deleteafterinstall
-Source: "compiler:Setup.e32"; DestDir: "{tmp}\_offlineinstaller"; Flags: deleteafterinstall
-Source: "compiler:SetupLdr.e32"; DestDir: "{tmp}\_offlineinstaller"; Flags: deleteafterinstall
+Source: "compiler:Default.isl"; DestDir: "{tmp}"; Flags: deleteafterinstall
+Source: "compiler:ISCC.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
+Source: "compiler:ISCmplr.dll"; DestDir: "{tmp}"; Flags: deleteafterinstall
+Source: "compiler:islzma.dll"; DestDir: "{tmp}"; Flags: deleteafterinstall
+Source: "compiler:ISPP.dll"; DestDir: "{tmp}"; Flags: deleteafterinstall
+Source: "compiler:ISPPBuiltins.iss"; DestDir: "{tmp}"; Flags: deleteafterinstall
+Source: "compiler:Setup.e32"; DestDir: "{tmp}"; Flags: deleteafterinstall
+Source: "compiler:SetupLdr.e32"; DestDir: "{tmp}"; Flags: deleteafterinstall
 
 [Run]
-Filename: "powershell.exe"; Parameters: "-File {tmp}\extract-zip.ps1 {tmp}\Precompiled.zip {tmp}\_offlineinstaller\elixir"; Flags: waituntilterminated runhidden; StatusMsg: "Extracting precompiled package..."
-Filename: "{tmp}\_offlineinstaller\ISCC.exe"; Parameters: "/dElixirVersion={code:ConstGetSelectedReleaseVersion} /dSkipPages /dNoCompression Elixir.iss"; WorkingDir: "{tmp}\_offlineinstaller"; Flags: waituntilterminated runhidden; StatusMsg: "Preparing Elixir installer..."
-Filename: "{tmp}\_offlineinstaller\Output\elixir-v{code:ConstGetSelectedReleaseVersion}-setup.exe"; Flags: nowait; StatusMsg: "Running Elixir installer..."
+Filename: "powershell.exe"; Parameters: "-File scripts\make-installer.ps1 --innoelixirweb"; WorkingDir: "{tmp}"; StatusMsg: "Preparing offline installer..."
 
 [Code]
 type
