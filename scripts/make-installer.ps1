@@ -21,9 +21,9 @@ function ExitMsg ()
 #### Initializations
 $cd = (Get-Item -Path ".\" -Verbose).FullName
 $isccDefine = ""
-$isccDir = (Get-Item -Path ".\" -Verbose).FullName
+$isccDir = $cd
 $elixirVersion = ""
-$startInstaller = false
+$startInstaller = 0
 
 #### Script
 Info("Current directory:")
@@ -36,7 +36,7 @@ foreach ($arg in $args)
 	if ($arg = "--innoelixirweb")
 	{
 		$isccDefine = "/dSkipPages /dNoCompression"
-		$startInstaller = true
+		$startInstaller = 1
 	}
 }
 Info("Finished reading arguments")
@@ -63,19 +63,8 @@ else
 	if (Test-Path .\Precompiled.zip)
 	{
 		Info("Precompiled.zip found")
-		$zipPath = .\Precompiled.zip
-		$zipDest = .\elixir
-		
-		Info("Creating $zipDest...")
-		New-Item $zipDest -type directory -force
-
-		Info("Extracting files into $zipDest...")
-		$shell = New-Object -com Shell.Application
-		$zipFile = $shell.NameSpace($zipPath)
-		foreach ($item in $zipFile.items())
-		{
-			$shell.Namespace($zipDest).copyhere($item)
-		}
+		Info("Extracting Precompiled.zip to .\elixir...")
+		scripts\extract-zip.ps1 $cd\Precompiled.zip $cd\elixir
 	}
 	else
 	{
@@ -87,15 +76,18 @@ else
 if ($elixirVersion -eq "")
 {
 	Info("Reading Elixir version from elixir\VERSION...")
-	$versionFile = Get-Content .\elixir\VERSION
-	$elixirVersion = $versionFile[0]
+	foreach ($line in (Get-Content $cd\elixir\VERSION))
+	{
+		$elixirVersion = $line
+		break
+	}
 	Info("Elixir version: $elixirVersion")
 }
 
-$isccDefine += " /dElixirVersion=" + $elixirVersion
+$isccDefine = "`"/dElixirVersion=" + $elixirVersion + "`" " + $isccDefine
 
-Info("Running $iscc $isccDefine Elixir.iss")
-& $iscc $isccDefine Elixir.iss
+Info("Running $isccDir\ISCC.exe $isccDefine /Q Elixir.iss")
+& $isccDir\ISCC.exe $isccDefine /Q Elixir.iss
 if ($LastExitCode -eq 0)
 {
 	Info("Installer compiled successfully to .\Output\elixir-v$elixirVersion-setup.exe")
@@ -106,7 +98,7 @@ else
 	ExitMsg
 }
 
-if ($startInstaller)
+if ($startInstaller -eq 1)
 {
 	Info("Starting installer...")
 	start ".\Output\elixir-v$elixirVersion-setup.exe"
