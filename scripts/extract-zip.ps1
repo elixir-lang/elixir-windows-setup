@@ -1,4 +1,3 @@
-$cd = (split-path $MyInvocation.MyCommand.Path -parent)
 $zipPath = $args[0]
 $zipDest = $args[1]
 
