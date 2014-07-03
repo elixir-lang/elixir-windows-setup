@@ -24,7 +24,7 @@ DefaultGroupName=Elixir
 OutputBaseFilename=elixir-v{#ElixirVersion}-setup
 SetupIconFile=assets\drop.ico
 UninstallDisplayIcon={app}\drop.ico
-#ifdef SkipPages
+#ifdef SkipWelcome
 DisableWelcomePage=yes
 #endif
 WizardImageFile=assets\drop_banner.bmp

@@ -1,3 +1,11 @@
+#### Initializations
+$cd = (Get-Item -Path ".\" -Verbose).FullName
+$isccDefine = ""
+$isccDir = ""
+$elixirVersion = ""
+$startInstaller = 0
+$friendly = 0
+
 #### Output functions
 function Err ($str)
 {
@@ -9,73 +17,104 @@ function Info ($str)
 	Write-Host "  Info | " -foregroundcolor "green" -NoNewline
 	Write-Host "$str"
 }
-function ExitMsg ()
+function FriendlyPause ()
 {
 	Err("Something went wrong while making the offline installer.  Elixir was not installed to your computer.")
 	Err("You can report this issue at https://github.com/chyndman/elixir-windows-setup/issues")
 	Write-Host "         " -NoNewline
 	pause
+}
+function ErrExit ($str)
+{
+	if ($friendly -eq 1)
+	{
+		FriendlyPause
+	}
 	exit
 }
-
-#### Initializations
-$cd = (Get-Item -Path ".\" -Verbose).FullName
-$isccDefine = ""
-$isccDir = $cd
-$elixirVersion = ""
-$startInstaller = 0
 
 #### Script
 Info("Current directory:")
 Info("    $cd")
 
 Info("Reading arguments...")
-foreach ($arg in $args)
+for ($i = 0; $i -lt $args.length; $i++)
 {
-	Info("    $arg")
-	if ($arg = "--innoelixirweb")
+	Info("    " + $args[$i])
+	if ($args[$i] -eq "--friendly")
 	{
-		$isccDefine = "/dSkipPages /dNoCompression"
+		$friendly = 1
+	}
+	if ($args[$i] -eq "--skip-welcome")
+	{
+		$isccDefine += " /dSkipWelcome"
+	}
+	if ($args[$i] -eq "--no-compression")
+	{
+		$isccDefine += " /dNoCompression"
+	}
+	if ($args[$i] -eq "--start")
+	{
 		$startInstaller = 1
+	}
+	if ($args[$i] -eq "--isccdir")
+	{
+		$i++
+		if ($args[$i] -ne $null)
+		{
+			Info("    " + $args[$i])
+			$isccDir = $args[$i]
+		}
+		else
+		{
+			ErrExit("Invalid arguments")
+		}
 	}
 }
 Info("Finished reading arguments")
 
-Info("Checking for ISCC.exe in $isccDir...")
-if (Test-Path $isccDir\ISCC.exe)
+Info("Checking for ISCC.exe in:")
+foreach ($dir in ($isccDir, $cd, "C:\Program Files (x86)\Inno Setup 5", $null))
 {
-	Info("ISCC path: $isccDir\ISCC.exe")
-}
-else
-{
-	Err("ISCC.exe not found in $isccDir")
-	ExitMsg
+	if ($dir -eq $null)
+	{
+		ErrExit("ISCC.exe not found")
+	}
+	if ($dir -ne "")
+	{
+		Info("    $dir")
+		if (Test-Path $dir\ISCC.exe)
+		{
+			$isccDir = $dir
+			Info("ISCC path: $isccDir\ISCC.exe")
+			break;
+		}
+	}
 }
 
-Info("Checking for elixir directory...")
-if (Test-Path .\elixir)
+Info("Checking for $cd\elixir...")
+if (Test-Path $cd\elixir)
 {
-	Info("elixir directory exists")
+	Info("$cd\elixir exists")
 }
 else
 {
-	Info("Not found, checking for Precompiled.zip...")
-	if (Test-Path .\Precompiled.zip)
+	Info("Not found, checking for $cd\Precompiled.zip...")
+	if (Test-Path $cd\Precompiled.zip)
 	{
-		Info("Precompiled.zip found")
-		Info("Extracting Precompiled.zip to .\elixir...")
+		Info("$cd\Precompiled.zip found")
+		Info("Extracting $cd\Precompiled.zip to $cd\elixir...")
 		scripts\extract-zip.ps1 $cd\Precompiled.zip $cd\elixir
 	}
 	else
 	{
-		Err("Precompiled.zip not found")
-		ExitMsg
+		ErrExit("$cd\Precompiled.zip not found")
 	}
 }
 
 if ($elixirVersion -eq "")
 {
-	Info("Reading Elixir version from elixir\VERSION...")
+	Info("Reading Elixir version from $cd\elixir\VERSION...")
 	foreach ($line in (Get-Content $cd\elixir\VERSION))
 	{
 		$elixirVersion = $line
@@ -86,20 +125,21 @@ if ($elixirVersion -eq "")
 
 $isccDefine = "`"/dElixirVersion=" + $elixirVersion + "`" " + $isccDefine
 
+$isccDefine = $isccDefine.Trim()
 Info("Running $isccDir\ISCC.exe $isccDefine /Q Elixir.iss")
 & $isccDir\ISCC.exe $isccDefine /Q Elixir.iss
+
 if ($LastExitCode -eq 0)
 {
-	Info("Installer compiled successfully to .\Output\elixir-v$elixirVersion-setup.exe")
+	Info("Installer compiled successfully to $cd\Output\elixir-v$elixirVersion-setup.exe")
 }
 else
 {
-	Err("ISCC.exe failed with exit code $LastExitCode")
-	ExitMsg
+	ErrExit("ISCC.exe failed with exit code $LastExitCode")
 }
 
 if ($startInstaller -eq 1)
 {
 	Info("Starting installer...")
-	start ".\Output\elixir-v$elixirVersion-setup.exe"
+	start "$cd\Output\elixir-v$elixirVersion-setup.exe"
 }
