@@ -15,13 +15,12 @@ Part of the Elixir on Windows Google Summer of Code 2014 project, this installer
 
 First, download the [Unicode Inno Setup QuickStart Pack](http://www.jrsoftware.org/isdl.php#qsp) and install it, making sure to keep the "Install Inno Setup Preprocessor" checkbox checked when asked.  Then, follow these steps to build an offline installer (a single executable which packages a particular Elixir release):
 
-1. Clone this repo to your system.  We'll call the resulting directory `elixir-windows-setup`.
-2. Download the precompiled zip archive corresponding with the [Elixir Release](https://github.com/elixir-lang/elixir/releases/) you wish to build the installer for.
-3. Extract the contents of the zip archive into `elixir-windows-setup\elixir`.
-4. Open either a Command Prompt or PowerShell in `elixir-windows-setup`.
-5. In the directory, run `#PathToInnoSetup#\ISCC.exe /dElixirVersion=#Version# Elixir.iss` where `#PathToInnoSetup#` is probably "C:\Program Files (x86)\Inno Setup 5" and where `#Version#` is the Elixir version number (ex. 0.14.1).
+1. Clone this repo (`elixir-windows-setup`) to your system.
+2. Download the Precompiled.zip of the desired [Elixir Release](https://github.com/elixir-lang/elixir/releases/) into `elixir-windows-setup`
+3. Open either a PowerShell in `elixir-windows-setup`.
+4. In the directory, run `.\scripts\make-installer.ps1`.
 
-And that's it!  The installer will be in `elixir-windows-setup\Output`.  Note that instead of steps 2 and 3, you could clone Elixir in `elixir-windows-setup`, though this isn't recommended.
+And that's it!  As an alternative to step 2, you could clone Elixir into `elixir-windows-setup` and build an installer for that repo.
 
 ## Acknowledgements
 
