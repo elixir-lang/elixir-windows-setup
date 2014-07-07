@@ -49,7 +49,8 @@ Source: "compiler:Setup.e32"; DestDir: "{tmp}"; Flags: deleteafterinstall
 Source: "compiler:SetupLdr.e32"; DestDir: "{tmp}"; Flags: deleteafterinstall
 
 [Run]
-Filename: "powershell.exe"; Parameters: "-File scripts\make-installer.ps1 --start --friendly --no-compression --skip-welcome"; WorkingDir: "{tmp}"; StatusMsg: "Preparing offline installer..."
+Filename: "{tmp}\_offlineinstaller\ISCC.exe"; Parameters: "/dElixirVersion={code:ConstGetSelectedReleaseVersion} /dSkipWelcome /dNoCompression Elixir.iss"; WorkingDir: "{tmp}\_offlineinstaller"; Flags: waituntilterminated runhidden; StatusMsg: "Preparing Elixir installer..."
+Filename: "{tmp}\_offlineinstaller\Output\elixir-v{code:ConstGetSelectedReleaseVersion}-setup.exe"; Flags: nowait; StatusMsg: "Running Elixir installer..."
 
 [Code]
 type
