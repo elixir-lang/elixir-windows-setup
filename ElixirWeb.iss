@@ -16,6 +16,7 @@
 ; "Elixir" and the Elixir logo are copyright (c) 2012 Plataformatec.
 
 #define COMPAT_MASK 1
+#define PATH_TO_7ZA "C:\Users\Chris\Documents\7za920"
 #include <idp.iss>
 
 [Setup]
@@ -34,9 +35,10 @@ Uninstallable=no
 NameAndVersion=%1
 
 [Files]
+; 7-zip portable extractor
+Source: "{#PATH_TO_7ZA}\7za.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
 ; Offline installer files
 Source: "Elixir.iss"; DestDir: "{tmp}"; Flags: deleteafterinstall
-Source: "scripts\*"; DestDir: "{tmp}\scripts"; Flags: deleteafterinstall
 Source: "assets\*"; DestDir: "{tmp}\assets"; Flags: deleteafterinstall
 ; Compiler files
 Source: "compiler:Default.isl"; DestDir: "{tmp}"; Flags: deleteafterinstall
@@ -49,8 +51,9 @@ Source: "compiler:Setup.e32"; DestDir: "{tmp}"; Flags: deleteafterinstall
 Source: "compiler:SetupLdr.e32"; DestDir: "{tmp}"; Flags: deleteafterinstall
 
 [Run]
-Filename: "{tmp}\_offlineinstaller\ISCC.exe"; Parameters: "/dElixirVersion={code:ConstGetSelectedReleaseVersion} /dSkipWelcome /dNoCompression Elixir.iss"; WorkingDir: "{tmp}\_offlineinstaller"; Flags: waituntilterminated runhidden; StatusMsg: "Preparing Elixir installer..."
-Filename: "{tmp}\_offlineinstaller\Output\elixir-v{code:ConstGetSelectedReleaseVersion}-setup.exe"; Flags: nowait; StatusMsg: "Running Elixir installer..."
+Filename: "{tmp}\7za.exe"; Parameters: "x -oelixir Precompiled.zip"; WorkingDir: "{tmp}"; StatusMsg: "Extracting Precompiled.zip archive..."
+Filename: "{tmp}\ISCC.exe"; Parameters: "/dElixirVersion={code:ConstGetSelectedReleaseVersion} /dSkipWelcome /dNoCompression Elixir.iss"; WorkingDir: "{tmp}"; StatusMsg: "Compiling Elixir installer..."
+Filename: "{tmp}\Output\elixir-v{code:ConstGetSelectedReleaseVersion}-setup.exe"; Flags: nowait; StatusMsg: "Starting Elixir installer..."
 
 [Code]
 type
