@@ -34,5 +34,8 @@ Copyright (c) 2013-2014 Mitrich Software
 #### [modpath.iss](http://legroom.net/software/modpath)
 Copyright (c) Jared Breland
 
+#### [7-Zip](http://www.7-zip.org/)
+Copyright (C) 1999-2010 Igor Pavlov
+
 #### [Elixir](http://elixir-lang.org/)
 "Elixir" and the Elixir logo are copyright (c) 2012 Plataformatec.
