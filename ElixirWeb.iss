@@ -35,11 +35,11 @@ Uninstallable=no
 NameAndVersion=%1
 
 [Files]
-; 7-zip portable extractor
-Source: "{#PATH_TO_7ZA}\7za.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
 ; Offline installer files
 Source: "Elixir.iss"; DestDir: "{tmp}"; Flags: deleteafterinstall
 Source: "assets\*"; DestDir: "{tmp}\assets"; Flags: deleteafterinstall
+; 7-Zip portable extractor
+Source: "{#PATH_TO_7ZA}\7za.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
 ; Compiler files
 Source: "compiler:Default.isl"; DestDir: "{tmp}"; Flags: deleteafterinstall
 Source: "compiler:ISCC.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
