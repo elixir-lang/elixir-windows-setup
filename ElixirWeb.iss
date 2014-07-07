@@ -38,6 +38,7 @@ NameAndVersion=%1
 ; Offline installer files
 Source: "Elixir.iss"; DestDir: "{tmp}"; Flags: deleteafterinstall
 Source: "assets\*"; DestDir: "{tmp}\assets"; Flags: deleteafterinstall
+Source: "modpath.iss"; DestDir: "{tmp}"; Flags: deleteafterinstall
 ; 7-Zip portable extractor
 Source: "{#PATH_TO_7ZA}\7za.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
 ; Compiler files
