@@ -63,8 +63,8 @@ Source: "compiler:Setup.e32"; DestDir: "{tmp}"; Flags: deleteafterinstall
 Source: "compiler:SetupLdr.e32"; DestDir: "{tmp}"; Flags: deleteafterinstall
 
 [Run]
-Filename: "{tmp}\{#OTP_32_EXE}"; Flags: hidewizard; StatusMsg: "Installing {#OTP_32_NAME}..."; Tasks: erlang\32
-Filename: "{tmp}\{#OTP_64_EXE}"; Flags: hidewizard; StatusMsg: "Installing {#OTP_64_NAME}..."; Tasks: erlang\64
+Filename: "{tmp}\{#OTP_32_EXE}"; Flags: hidewizard; StatusMsg: "Installing {#OTP_32_NAME}..."; Tasks: erlang\32; AfterInstall: AppendErlangPathIfTaskSelected(False)
+Filename: "{tmp}\{#OTP_64_EXE}"; Flags: hidewizard; StatusMsg: "Installing {#OTP_64_NAME}..."; Tasks: erlang\64; AfterInstall: AppendErlangPathIfTaskSelected(True)
 Filename: "{tmp}\7za.exe"; Parameters: "x -oelixir Precompiled.zip"; WorkingDir: "{tmp}"; StatusMsg: "Extracting Precompiled.zip archive..."
 Filename: "{tmp}\ISCC.exe"; Parameters: "/dElixirVersion={code:ConstGetSelectedReleaseVersion} /dSkipWelcome /dNoCompression Elixir.iss"; WorkingDir: "{tmp}"; StatusMsg: "Compiling Elixir installer..."
 Filename: "{tmp}\Output\elixir-v{code:ConstGetSelectedReleaseVersion}-setup.exe"; Flags: nowait; StatusMsg: "Starting Elixir installer..."
@@ -210,26 +210,26 @@ begin
   Result := GetVersion(GetSelectedRelease());
 end;
 
-function GetErlangPath: String;
+function GetErlangPath(Of64Bit: Boolean): String;
 var
   Versions: TArrayOfString;
   Path: String;
 begin
   Result := '';
 
-  if RegGetSubkeyNames(HKEY_LOCAL_MACHINE, 'SOFTWARE\Ericsson\Erlang', Versions) then begin
-    if RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Ericsson\Erlang\' + '{#OTP_ERTS_VERSION}', '', Path) then begin
-      Result := Path;
-    end else if RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Ericsson\Erlang\' + Versions[GetArrayLength(Versions) - 1], '', Path) then begin
-      Result := Path;
-    end;
-  end;
-
-  if IsWin64 then begin
+  if Of64Bit then begin
     if RegGetSubkeyNames(HKEY_LOCAL_MACHINE, 'SOFTWARE\Wow6432Node\Ericsson\Erlang', Versions) then begin
       if RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Wow6432Node\Ericsson\Erlang\' + '{#OTP_ERTS_VERSION}', '', Path) then begin
         Result := Path;
       end else if RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Wow6432Node\Ericsson\Erlang\' + Versions[GetArrayLength(Versions) - 1], '', Path) then begin
+        Result := Path;
+      end;
+    end;
+  end else begin
+    if RegGetSubkeyNames(HKEY_LOCAL_MACHINE, 'SOFTWARE\Ericsson\Erlang', Versions) then begin
+      if RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Ericsson\Erlang\' + '{#OTP_ERTS_VERSION}', '', Path) then begin
+        Result := Path;
+      end else if RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Ericsson\Erlang\' + Versions[GetArrayLength(Versions) - 1], '', Path) then begin
         Result := Path;
       end;
     end;
@@ -243,12 +243,28 @@ end;
 
 function CheckToInstallErlang: Boolean;
 begin
-  Result := (GetErlangPath = '');
+  Result := (GetErlangPath(False) = '') or (GetErlangPath(True) = '');
 end;
 
 function CheckToAddErlangPath: Boolean;
 begin
   Result := not ErlangInPath;
+end;
+
+procedure AppendErlangPathIfTaskSelected(Of64Bit: Boolean);
+var
+  Path: String;
+  RegValue: String;
+begin
+  if IsTaskSelected('erlpath') then begin
+    Path := GetErlangPath(Of64Bit);
+    if not (Path = '') then begin
+      RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'Path', RegValue);
+      if Pos(Path, RegValue) = 0 then begin
+        RegWriteStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'Path', RegValue + ';' + Path + '\bin');
+      end;
+    end;
+  end;
 end;
 
 procedure CurPageChanged(CurPageID: Integer);
