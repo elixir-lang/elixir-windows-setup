@@ -197,6 +197,26 @@ begin
   Result := GetVersion(GetSelectedRelease());
 end;
 
+function GetErlangPath: String;
+var
+  Versions: TArrayOfString;
+  Path: String;
+begin
+  Result := '';
+
+  if RegGetSubkeyNames(HKEY_LOCAL_MACHINE, 'SOFTWARE\Ericsson\Erlang', Versions) then begin
+    RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Ericsson\Erlang' + '\' + Versions[GetArrayLength(Versions) - 1], '', Path);
+    Result := Path;
+  end;
+
+  if IsWin64 then begin
+    if RegGetSubkeyNames(HKEY_LOCAL_MACHINE, 'SOFTWARE\Wow6432Node\Ericsson\Erlang', Versions) then begin
+      RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Wow6432Node\Ericsson\Erlang' + '\' + Versions[GetArrayLength(Versions) - 1], '', Path);
+      Result := Path;
+    end;
+  end;
+end;
+
 function ErlangIsInstalled: Boolean;
 begin
   Result := Exec('erl.exe', '+V', '', SW_HIDE, ewWaitUntilTerminated, _int);
@@ -234,6 +254,8 @@ procedure InitializeWizard();
 var
   LatestRelease, LatestPrerelease: TStrings;
 begin
+  MsgBox(GetErlangPath, mbInformation, MB_OK);
+  
   idpSetOption('DetailsButton', '0');
   
   PSelInstallType := CreateInputOptionPage(wpWelcome, 'Select Elixir installation type', 'Select which installation type you want to perform, then click Next.', 'I want to:', True, False);
