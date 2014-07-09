@@ -16,7 +16,16 @@
 ; "Elixir" and the Elixir logo are copyright (c) 2012 Plataformatec.
 
 #define COMPAT_MASK 1
-#define PATH_TO_7ZA "C:\Users\Chris\Documents\7za920"
+#define PATH_TO_7ZA 'C:\Users\Chris\Documents\7za920'
+
+#define OTP_32_NAME 'OTP 17.1 (32-bit)'
+#define OTP_32_URL 'http://www.erlang.org/download/otp_win32_17.1.exe'
+#define OTP_32_EXE 'otp_win32_17.1.exe'
+
+#define OTP_64_NAME 'OTP 17.1 (64-bit)'
+#define OTP_64_URL 'http://www.erlang.org/download/otp_win64_17.1.exe'
+#define OTP_64_EXE 'otp_win64_17.1.exe'
+
 #include <idp.iss>
 
 [Setup]
@@ -52,16 +61,16 @@ Source: "compiler:Setup.e32"; DestDir: "{tmp}"; Flags: deleteafterinstall
 Source: "compiler:SetupLdr.e32"; DestDir: "{tmp}"; Flags: deleteafterinstall
 
 [Run]
-Filename: "{tmp}\otp_win32_17.1.exe"; Flags: hidewizard; StatusMsg: "Installing OTP 17.1 (32-bit)..."; Tasks: erlang\32
-Filename: "{tmp}\otp_win64_17.1.exe"; Flags: hidewizard; StatusMsg: "Installing OTP 17.1 (64-bit)..."; Tasks: erlang\64
+Filename: "{tmp}\{#OTP_32_EXE}"; Flags: hidewizard; StatusMsg: "Installing {#OTP_32_NAME}..."; Tasks: erlang\32
+Filename: "{tmp}\{#OTP_64_EXE}"; Flags: hidewizard; StatusMsg: "Installing {#OTP_64_NAME}..."; Tasks: erlang\64
 Filename: "{tmp}\7za.exe"; Parameters: "x -oelixir Precompiled.zip"; WorkingDir: "{tmp}"; StatusMsg: "Extracting Precompiled.zip archive..."
 Filename: "{tmp}\ISCC.exe"; Parameters: "/dElixirVersion={code:ConstGetSelectedReleaseVersion} /dSkipWelcome /dNoCompression Elixir.iss"; WorkingDir: "{tmp}"; StatusMsg: "Compiling Elixir installer..."
 Filename: "{tmp}\Output\elixir-v{code:ConstGetSelectedReleaseVersion}-setup.exe"; Flags: nowait; StatusMsg: "Starting Elixir installer..."
 
 [Tasks]
 Name: "erlang"; Description: "Install Erlang"; GroupDescription: "Erlang"; Check: CheckToInstallErlang
-Name: "erlang\32"; Description: "OTP 17.1 (32-bit)"; GroupDescription: "Erlang"; Flags: exclusive
-Name: "erlang\64"; Description: "OTP 17.1 (64-bit)"; GroupDescription: "Erlang"; Flags: exclusive; Check: IsWin64
+Name: "erlang\32"; Description: "{#OTP_32_NAME}"; GroupDescription: "Erlang"; Flags: exclusive
+Name: "erlang\64"; Description: "{#OTP_64_NAME}"; GroupDescription: "Erlang"; Flags: exclusive; Check: IsWin64
 Name: "erlpath"; Description: "Append Erlang directory to Path environment variable"; GroupDescription: "Erlang"; Check: CheckToAddErlangPath
 
 [Code]
@@ -226,7 +235,7 @@ end;
 
 function CheckToInstallErlang: Boolean;
 begin
-  Result := (GetErlangPath = '')
+  Result := (GetErlangPath = '');
 end;
 
 function CheckToAddErlangPath: Boolean;
@@ -238,10 +247,10 @@ procedure CurPageChanged(CurPageID: Integer);
 begin
   if CurPageID = wpPreparing then begin
     if IsTaskSelected('erlang\32') then begin
-      idpAddFile('http://www.erlang.org/download/otp_win32_17.1.exe', ExpandConstant('{tmp}\otp_win32_17.1.exe'));
+      idpAddFile('{#OTP_32_URL}', ExpandConstant('{tmp}\{#OTP_32_EXE}'));
     end;
     if IsTaskSelected('erlang\64') then begin
-      idpAddFile('http://www.erlang.org/download/otp_win64_17.1.exe', ExpandConstant('{tmp}\otp_win64_17.1.exe'));
+      idpAddFile('{#OTP_64_URL}', ExpandConstant('{tmp}\{#OTP_64_EXE}'));
     end;
     idpAddFile(GetURL(GetSelectedRelease()), ExpandConstant('{tmp}\Precompiled.zip'));
     idpDownloadAfter(wpPreparing);
