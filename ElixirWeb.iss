@@ -56,6 +56,12 @@ Filename: "{tmp}\7za.exe"; Parameters: "x -oelixir Precompiled.zip"; WorkingDir:
 Filename: "{tmp}\ISCC.exe"; Parameters: "/dElixirVersion={code:ConstGetSelectedReleaseVersion} /dSkipWelcome /dNoCompression Elixir.iss"; WorkingDir: "{tmp}"; StatusMsg: "Compiling Elixir installer..."
 Filename: "{tmp}\Output\elixir-v{code:ConstGetSelectedReleaseVersion}-setup.exe"; Flags: nowait; StatusMsg: "Starting Elixir installer..."
 
+[Tasks]
+Name: "erlang"; Description: "Install Erlang"; GroupDescription: "Erlang"
+Name: "erlang\32"; Description: "OTP 17.1 (32-bit)"; GroupDescription: "Erlang"; Flags: exclusive
+Name: "erlang\64"; Description: "OTP 17.1 (64-bit)"; GroupDescription: "Erlang"; Flags: exclusive; Check: IsWin64
+Name: "erlpath"; Description: "Append Erlang directory to Path environment variable"; GroupDescription: "Erlang"
+
 [Code]
 type
   TStringTable = array of TStringList;
