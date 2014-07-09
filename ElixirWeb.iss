@@ -26,6 +26,8 @@
 #define OTP_64_URL 'http://www.erlang.org/download/otp_win64_17.1.exe'
 #define OTP_64_EXE 'otp_win64_17.1.exe'
 
+#define OTP_ERTS_VERSION '6.1'
+
 #include <idp.iss>
 
 [Setup]
@@ -216,14 +218,20 @@ begin
   Result := '';
 
   if RegGetSubkeyNames(HKEY_LOCAL_MACHINE, 'SOFTWARE\Ericsson\Erlang', Versions) then begin
-    RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Ericsson\Erlang\' + Versions[GetArrayLength(Versions) - 1], '', Path);
-    Result := Path;
+    if RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Ericsson\Erlang\' + '{#OTP_ERTS_VERSION}', '', Path) then begin
+      Result := Path;
+    end else if RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Ericsson\Erlang\' + Versions[GetArrayLength(Versions) - 1], '', Path) then begin
+      Result := Path;
+    end;
   end;
 
   if IsWin64 then begin
     if RegGetSubkeyNames(HKEY_LOCAL_MACHINE, 'SOFTWARE\Wow6432Node\Ericsson\Erlang', Versions) then begin
-      RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Wow6432Node\Ericsson\Erlang\' + Versions[GetArrayLength(Versions) - 1], '', Path);
-      Result := Path;
+      if RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Wow6432Node\Ericsson\Erlang\' + '{#OTP_ERTS_VERSION}', '', Path) then begin
+        Result := Path;
+      end else if RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Wow6432Node\Ericsson\Erlang\' + Versions[GetArrayLength(Versions) - 1], '', Path) then begin
+        Result := Path;
+      end;
     end;
   end;
 end;
