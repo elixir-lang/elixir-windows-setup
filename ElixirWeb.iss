@@ -52,6 +52,8 @@ Source: "compiler:Setup.e32"; DestDir: "{tmp}"; Flags: deleteafterinstall
 Source: "compiler:SetupLdr.e32"; DestDir: "{tmp}"; Flags: deleteafterinstall
 
 [Run]
+Filename: "{tmp}\otp_win32_17.1.exe"; Flags: hidewizard; StatusMsg: "Installing OTP 17.1 (32-bit)..."; Tasks: erlang\32
+Filename: "{tmp}\otp_win64_17.1.exe"; Flags: hidewizard; StatusMsg: "Installing OTP 17.1 (64-bit)..."; Tasks: erlang\64
 Filename: "{tmp}\7za.exe"; Parameters: "x -oelixir Precompiled.zip"; WorkingDir: "{tmp}"; StatusMsg: "Extracting Precompiled.zip archive..."
 Filename: "{tmp}\ISCC.exe"; Parameters: "/dElixirVersion={code:ConstGetSelectedReleaseVersion} /dSkipWelcome /dNoCompression Elixir.iss"; WorkingDir: "{tmp}"; StatusMsg: "Compiling Elixir installer..."
 Filename: "{tmp}\Output\elixir-v{code:ConstGetSelectedReleaseVersion}-setup.exe"; Flags: nowait; StatusMsg: "Starting Elixir installer..."
@@ -235,6 +237,12 @@ end;
 procedure CurPageChanged(CurPageID: Integer);
 begin
   if CurPageID = wpPreparing then begin
+    if IsTaskSelected('erlang\32') then begin
+      idpAddFile('http://www.erlang.org/download/otp_win32_17.1.exe', ExpandConstant('{tmp}\otp_win32_17.1.exe'));
+    end;
+    if IsTaskSelected('erlang\64') then begin
+      idpAddFile('http://www.erlang.org/download/otp_win64_17.1.exe', ExpandConstant('{tmp}\otp_win64_17.1.exe'));
+    end;
     idpAddFile(GetURL(GetSelectedRelease()), ExpandConstant('{tmp}\Precompiled.zip'));
     idpDownloadAfter(wpPreparing);
   end;
@@ -253,8 +261,6 @@ procedure InitializeWizard();
 var
   LatestRelease, LatestPrerelease: TStrings;
 begin
-  idpSetOption('DetailsButton', '0');
-  
   PSelInstallType := CreateInputOptionPage(wpWelcome, 'Select Elixir installation type', 'Select which installation type you want to perform, then click Next.', 'I want to:', True, False);
 
   PSelRelease := CreateInputOptionPage(PSelInstallType.ID, 'Select Elixir release', 'Setup will download and install the Elixir release you select.', 'All releases available to install are listed below, from newest to oldest.', True, True);
