@@ -57,10 +57,10 @@ Filename: "{tmp}\ISCC.exe"; Parameters: "/dElixirVersion={code:ConstGetSelectedR
 Filename: "{tmp}\Output\elixir-v{code:ConstGetSelectedReleaseVersion}-setup.exe"; Flags: nowait; StatusMsg: "Starting Elixir installer..."
 
 [Tasks]
-Name: "erlang"; Description: "Install Erlang"; GroupDescription: "Erlang"
+Name: "erlang"; Description: "Install Erlang"; GroupDescription: "Erlang"; Check: CheckToInstallErlang
 Name: "erlang\32"; Description: "OTP 17.1 (32-bit)"; GroupDescription: "Erlang"; Flags: exclusive
 Name: "erlang\64"; Description: "OTP 17.1 (64-bit)"; GroupDescription: "Erlang"; Flags: exclusive; Check: IsWin64
-Name: "erlpath"; Description: "Append Erlang directory to Path environment variable"; GroupDescription: "Erlang"
+Name: "erlpath"; Description: "Append Erlang directory to Path environment variable"; GroupDescription: "Erlang"; Check: CheckToAddErlangPath
 
 [Code]
 type
@@ -217,9 +217,19 @@ begin
   end;
 end;
 
-function ErlangIsInstalled: Boolean;
+function ErlangInPath: Boolean;
 begin
   Result := Exec('erl.exe', '+V', '', SW_HIDE, ewWaitUntilTerminated, _int);
+end;
+
+function CheckToInstallErlang: Boolean;
+begin
+  Result := (GetErlangPath = '')
+end;
+
+function CheckToAddErlangPath: Boolean;
+begin
+  Result := not ErlangInPath;
 end;
 
 procedure CurPageChanged(CurPageID: Integer);
@@ -237,17 +247,6 @@ begin
   end else begin
     Result := False;
   end;
-end;
-
-function PrepareToInstall(var NeedsRestart: Boolean): String;
-begin
-  if not ErlangIsInstalled then begin
-    if MsgBox('Warning: Erlang does not seem to be installed.' + #13#10#13#10 +
-              'In order for Elixir to run, you will need to install Erlang from http://www.erlang.org/ and then add it to your Path environment variable.' + #13#10#13#10 +
-              'Proceed anyway?', mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDNO then begin
-      Result := 'Erlang not installed.';
-    end;
-  end;  
 end;
 
 procedure InitializeWizard();
