@@ -18,6 +18,9 @@
 #define COMPAT_MASK 1
 #define PATH_TO_7ZA 'C:\Users\Chris\Documents\7za920'
 
+#define ELIXIR_CSV_URL 'http://elixir-lang.org/elixir.csv'
+#define ERLANG_CSV_URL 'http://elixir-lang.org/erlang.csv'
+
 #define OTP_32_NAME 'OTP 17.1 (32-bit)'
 #define OTP_32_URL 'http://www.erlang.org/download/otp_win32_17.1.exe'
 #define OTP_32_EXE 'otp_win32_17.1.exe'
@@ -309,10 +312,15 @@ end;
 
 function InitializeSetup(): Boolean;
 begin
-  if not idpDownloadFile('http://elixir-lang.org/releases.csv', ExpandConstant('{tmp}\releases.csv')) then begin
-    MsgBox('Error: Downloading http://elixir-lang.org/releases.csv failed.  Setup cannot continue.', mbInformation, MB_OK);
+  Result := True;
+  if not idpDownloadFile('{#ELIXIR_CSV_URL}', ExpandConstant('{tmp}\elixir.csv')) then begin
+    MsgBox('Error: Downloading {#ELIXIR_CSV_URL} failed.  Setup cannot continue.', mbInformation, MB_OK);
     Result := False;
-  end else begin
-    Result := True;
+    exit;
+  end;
+  if not idpDownloadFile('{#ERLANG_CSV_URL}', ExpandConstant('{tmp}\erlang.csv')) then begin
+    MsgBox('Error: Downloading {#ERLANG_CSV_URL} failed.  Setup cannot continue.', mbInformation, MB_OK);
+    Result := False;
+    exit;
   end;
 end;
