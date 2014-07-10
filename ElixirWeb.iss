@@ -215,24 +215,21 @@ function GetErlangPath(Of64Bit: Boolean): String;
 var
   Versions: TArrayOfString;
   Path: String;
+  KeyPath: String;
 begin
   Result := '';
 
   if Of64Bit then begin
-    if RegGetSubkeyNames(HKEY_LOCAL_MACHINE, 'SOFTWARE\Wow6432Node\Ericsson\Erlang', Versions) then begin
-      if RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Wow6432Node\Ericsson\Erlang\' + '{#OTP_ERTS_VERSION}', '', Path) then begin
-        Result := Path;
-      end else if RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Wow6432Node\Ericsson\Erlang\' + Versions[GetArrayLength(Versions) - 1], '', Path) then begin
-        Result := Path;
-      end;
-    end;
+    KeyPath := 'SOFTWARE\Wow6432Node\Ericsson\Erlang';
   end else begin
-    if RegGetSubkeyNames(HKEY_LOCAL_MACHINE, 'SOFTWARE\Ericsson\Erlang', Versions) then begin
-      if RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Ericsson\Erlang\' + '{#OTP_ERTS_VERSION}', '', Path) then begin
-        Result := Path;
-      end else if RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Ericsson\Erlang\' + Versions[GetArrayLength(Versions) - 1], '', Path) then begin
-        Result := Path;
-      end;
+    KeyPath := 'SOFTWARE\Ericsson\Erlang';
+  end;
+
+  if RegGetSubkeyNames(HKEY_LOCAL_MACHINE, KeyPath, Versions) then begin
+    if RegQueryStringValue(HKEY_LOCAL_MACHINE, KeyPath + '\{#OTP_ERTS_VERSION}', '', Path) then begin
+      Result := Path;
+    end else if RegQueryStringValue(HKEY_LOCAL_MACHINE, KeyPath + '\' + Versions[GetArrayLength(Versions) - 1], '', Path) then begin
+      Result := Path;
     end;
   end;
 end;
