@@ -33,6 +33,7 @@
 [Setup]
 AppName=Elixir
 AppVersion=0.56
+ChangesEnvironment=yes
 CreateAppDir=no
 DisableFinishedPage=yes
 OutputBaseFilename=elixir-websetup
