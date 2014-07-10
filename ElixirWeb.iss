@@ -76,6 +76,7 @@ type
 var
   PSelRelease: TInputOptionWizardPage;
   PSelInstallType: TInputOptionWizardPage;
+  ErlangCSVInfo: TStrings;
   _int: Integer;
 
 function SplitStringRec(Str: String; Delim: String; StrList: TStringList): TStringList;
@@ -109,7 +110,6 @@ function GetURLFilePartRec(URL: String): String;
 var
   SlashPos: Integer;
 begin
-  MsgBox(URL, mbInformation, MB_OK);
   SlashPos := Pos('/', URL);
   if SlashPos = 0 then begin
     Result := URL;
@@ -123,6 +123,16 @@ function GetURLFilePart(URL: String): String;
 begin
   Delete(URL, 1, Pos('://', URL) + 2);
   Result := GetURLFilePartRec(URL);
+end;
+
+function GetElixirCSVFilePath: String;
+begin
+  Result := ExpandConstant('{tmp}\' + GetURLFilePart('{#ELIXIR_CSV_URL}'));
+end;
+
+function GetErlangCSVFilePath: String;
+begin
+  Result := ExpandConstant('{tmp}\' + GetURLFilePart('{#ERLANG_CSV_URL}'));
 end;
 
 function GetVersion(Release: TStrings): String;
@@ -143,6 +153,61 @@ end;
 function IsCompatibleForInstall(Release: TStrings): Boolean;
 begin
   Result := (StrToInt(Release[3]) = {#COMPAT_MASK});
+end;
+
+function GetOTP32Name: String;
+begin
+  Result := 'OTP ' + ErlangCSVInfo[0] + ' (32-bit)'
+end;
+
+function GetOTP64Name: String;
+begin
+  Result := 'OTP ' + ErlangCSVInfo[0] + ' (64-bit)'
+end;
+
+function ConstGetOTP32Name(Param: String): String;
+begin
+  Result := GetOTP32Name;
+end;
+
+function ConstGetOTP64Name(Param: String): String;
+begin
+  Result := GetOTP64Name;
+end;
+
+function GetERTSVersion: String;
+begin
+  Result := ErlangCSVInfo[1];
+end;
+
+function GetOTP32URL: String;
+begin
+  Result := ErlangCSVInfo[2];
+end;
+
+function GetOTP64URL: String;
+begin
+  Result := ErlangCSVInfo[3];
+end;
+
+function GetOTP32Exe: String;
+begin
+  Result := ExpandConstant('{tmp}\' + GetURLFilePart(GetOTP32URL));
+end;
+
+function GetOTP64Exe: String;
+begin
+  Result := ExpandConstant('{tmp}\' + GetURLFilePart(GetOTP64URL));
+end;
+
+function ConstGetOTP32Exe(Param: String): String;
+begin
+  Result := GetOTP32Exe;
+end;
+
+function ConstGetOTP64Exe(Param: String): String;
+begin
+  Result := GetOTP64Exe;
 end;
 
 function CSVToStringTable(Filename: String): TStringTable;
@@ -239,7 +304,7 @@ begin
   end;
 
   if RegGetSubkeyNames(HKEY_LOCAL_MACHINE, KeyPath, Versions) then begin
-    if RegQueryStringValue(HKEY_LOCAL_MACHINE, KeyPath + '\{#OTP_ERTS_VERSION}', '', Path) then begin
+    if RegQueryStringValue(HKEY_LOCAL_MACHINE, KeyPath + '\' + GetERTSVersion, '', Path) then begin
       Result := Path;
     end else if RegQueryStringValue(HKEY_LOCAL_MACHINE, KeyPath + '\' + Versions[GetArrayLength(Versions) - 1], '', Path) then begin
       Result := Path;
@@ -282,10 +347,10 @@ procedure CurPageChanged(CurPageID: Integer);
 begin
   if CurPageID = wpPreparing then begin
     if IsTaskSelected('erlang\32') then begin
-      idpAddFile('{#OTP_32_URL}', ExpandConstant('{tmp}\{#OTP_32_EXE}'));
+      idpAddFile(GetOTP32URL, GetOTP32Exe);
     end;
     if IsTaskSelected('erlang\64') then begin
-      idpAddFile('{#OTP_64_URL}', ExpandConstant('{tmp}\{#OTP_64_EXE}'));
+      idpAddFile(GetOTP64URL, GetOTP64Exe);
     end;
     idpAddFile(GetURL(GetSelectedRelease()), ExpandConstant('{tmp}\Precompiled.zip'));
     idpDownloadAfter(wpPreparing);
@@ -304,12 +369,13 @@ end;
 procedure InitializeWizard();
 var
   LatestRelease, LatestPrerelease: TStrings;
+  ErlangFile: TArrayOfString;
 begin
   PSelInstallType := CreateInputOptionPage(wpWelcome, 'Select Elixir installation type', 'Select which installation type you want to perform, then click Next.', 'I want to:', True, False);
 
   PSelRelease := CreateInputOptionPage(PSelInstallType.ID, 'Select Elixir release', 'Setup will download and install the Elixir release you select.', 'All releases available to install are listed below, from newest to oldest.', True, True);
 
-  PopulatePSelReleaseListBox(CSVToStringTable(ExpandConstant('{tmp}\releases.csv')));
+  PopulatePSelReleaseListBox(CSVToStringTable(GetElixirCSVFilePath));
   LatestRelease := GetListBoxLatestRelease(False);
   LatestPrerelease := GetListBoxLatestRelease(True);
 
@@ -318,17 +384,20 @@ begin
     PSelInstallType.CheckListBox.AddRadioButton('Install the latest prerelease (v' + GetVersion(LatestPrerelease) + ')', '', 0, False, True, LatestPrerelease);
   end;
   PSelInstallType.CheckListBox.AddRadioButton('Select another release to install', '', 0, False, True, nil);
+
+  LoadStringsFromFile(GetErlangCSVFilePath, ErlangFile);
+  ErlangCSVInfo := SplitString(ErlangFile[0], ',');
 end;
 
 function InitializeSetup(): Boolean;
 begin
   Result := True;
-  if not idpDownloadFile('{#ELIXIR_CSV_URL}', ExpandConstant('{tmp}\elixir.csv')) then begin
+  if not idpDownloadFile('{#ELIXIR_CSV_URL}', GetElixirCSVFilePath) then begin
     MsgBox('Error: Downloading {#ELIXIR_CSV_URL} failed.  Setup cannot continue.', mbInformation, MB_OK);
     Result := False;
     exit;
   end;
-  if not idpDownloadFile('{#ERLANG_CSV_URL}', ExpandConstant('{tmp}\erlang.csv')) then begin
+  if not idpDownloadFile('{#ERLANG_CSV_URL}', GetErlangCSVFilePath) then begin
     MsgBox('Error: Downloading {#ERLANG_CSV_URL} failed.  Setup cannot continue.', mbInformation, MB_OK);
     Result := False;
     exit;
