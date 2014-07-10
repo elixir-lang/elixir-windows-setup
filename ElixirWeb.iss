@@ -165,16 +165,6 @@ begin
   Result := 'OTP ' + ErlangCSVInfo[0] + ' (64-bit)'
 end;
 
-function ConstGetOTP32Name(Param: String): String;
-begin
-  Result := GetOTP32Name;
-end;
-
-function ConstGetOTP64Name(Param: String): String;
-begin
-  Result := GetOTP64Name;
-end;
-
 function GetERTSVersion: String;
 begin
   Result := ErlangCSVInfo[1];
@@ -198,16 +188,6 @@ end;
 function GetOTP64Exe: String;
 begin
   Result := ExpandConstant('{tmp}\' + GetURLFilePart(GetOTP64URL));
-end;
-
-function ConstGetOTP32Exe(Param: String): String;
-begin
-  Result := GetOTP32Exe;
-end;
-
-function ConstGetOTP64Exe(Param: String): String;
-begin
-  Result := GetOTP64Exe;
 end;
 
 function CSVToStringTable(Filename: String): TStringTable;
@@ -284,11 +264,6 @@ begin
   end;
 end;
 
-function ConstGetSelectedReleaseVersion(Param: String): String;
-begin
-  Result := GetVersion(GetSelectedRelease());
-end;
-
 function GetErlangPath(Of64Bit: Boolean): String;
 var
   Versions: TArrayOfString;
@@ -315,16 +290,6 @@ end;
 function ErlangInPath: Boolean;
 begin
   Result := Exec('erl.exe', '+V', '', SW_HIDE, ewWaitUntilTerminated, _int);
-end;
-
-function CheckToInstallErlang: Boolean;
-begin
-  Result := (not ErlangInPath) and ((GetErlangPath(False) = '') or (GetErlangPath(True) = ''));
-end;
-
-function CheckToAddErlangPath: Boolean;
-begin
-  Result := not ErlangInPath;
 end;
 
 procedure AppendErlangPathIfTaskSelected(Of64Bit: Boolean);
@@ -403,3 +368,14 @@ begin
     exit;
   end;
 end;
+
+function CheckToInstallErlang: Boolean; begin
+  Result := (not ErlangInPath) and ((GetErlangPath(False) = '') or (GetErlangPath(True) = '')); end;
+function CheckToAddErlangPath: Boolean; begin
+  Result := not ErlangInPath; end;
+
+function ConstGetOTP32Name(Param: String): String; begin Result := GetOTP32Name; end;
+function ConstGetOTP64Name(Param: String): String; begin Result := GetOTP64Name; end;
+function ConstGetOTP32Exe(Param: String): String;  begin Result := GetOTP32Exe; end;
+function ConstGetOTP64Exe(Param: String): String;  begin Result := GetOTP64Exe; end;
+function ConstGetSelectedReleaseVersion(Param: String): String; begin Result := GetVersion(GetSelectedRelease()); end;
