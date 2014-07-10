@@ -115,6 +115,26 @@ begin
   Result := SplitStringRec(Str, Delim, TStringList.Create);
 end;
 
+function GetURLFilePartRec(URL: String): String;
+var
+  SlashPos: Integer;
+begin
+  MsgBox(URL, mbInformation, MB_OK);
+  SlashPos := Pos('/', URL);
+  if SlashPos = 0 then begin
+    Result := URL;
+  end else begin;
+    Delete(URL, 1, SlashPos);
+    Result := GetURLFilePartRec(URL);
+  end;
+end;
+
+function GetURLFilePart(URL: String): String;
+begin
+  Delete(URL, 1, Pos('://', URL) + 2);
+  Result := GetURLFilePartRec(URL);
+end;
+
 function GetVersion(Release: TStrings): String;
 begin
   Result := Release[0];
