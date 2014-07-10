@@ -244,7 +244,7 @@ end;
 
 function CheckToInstallErlang: Boolean;
 begin
-  Result := (GetErlangPath(False) = '') or (GetErlangPath(True) = '');
+  Result := (not ErlangInPath) and ((GetErlangPath(False) = '') or (GetErlangPath(True) = ''));
 end;
 
 function CheckToAddErlangPath: Boolean;
