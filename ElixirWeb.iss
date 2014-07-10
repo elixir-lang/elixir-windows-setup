@@ -21,16 +21,6 @@
 #define ELIXIR_CSV_URL 'http://elixir-lang.org/elixir.csv'
 #define ERLANG_CSV_URL 'http://elixir-lang.org/erlang.csv'
 
-#define OTP_32_NAME 'OTP 17.1 (32-bit)'
-#define OTP_32_URL 'http://www.erlang.org/download/otp_win32_17.1.exe'
-#define OTP_32_EXE 'otp_win32_17.1.exe'
-
-#define OTP_64_NAME 'OTP 17.1 (64-bit)'
-#define OTP_64_URL 'http://www.erlang.org/download/otp_win64_17.1.exe'
-#define OTP_64_EXE 'otp_win64_17.1.exe'
-
-#define OTP_ERTS_VERSION '6.1'
-
 #include <idp.iss>
 
 [Setup]
@@ -67,16 +57,16 @@ Source: "compiler:Setup.e32"; DestDir: "{tmp}"; Flags: deleteafterinstall
 Source: "compiler:SetupLdr.e32"; DestDir: "{tmp}"; Flags: deleteafterinstall
 
 [Run]
-Filename: "{tmp}\{#OTP_32_EXE}"; Flags: hidewizard; StatusMsg: "Installing {#OTP_32_NAME}..."; Tasks: erlang\32; AfterInstall: AppendErlangPathIfTaskSelected(False)
-Filename: "{tmp}\{#OTP_64_EXE}"; Flags: hidewizard; StatusMsg: "Installing {#OTP_64_NAME}..."; Tasks: erlang\64; AfterInstall: AppendErlangPathIfTaskSelected(True)
+Filename: "{tmp}\{code:ConstGetOTP32Exe}"; Flags: hidewizard; StatusMsg: "Installing {code:ConstGetOTP32Name}..."; Tasks: erlang\32; AfterInstall: AppendErlangPathIfTaskSelected(False)
+Filename: "{tmp}\{code:ConstGetOTP64Exe}"; Flags: hidewizard; StatusMsg: "Installing {code:ConstGetOTP64Name}..."; Tasks: erlang\64; AfterInstall: AppendErlangPathIfTaskSelected(True)
 Filename: "{tmp}\7za.exe"; Parameters: "x -oelixir Precompiled.zip"; WorkingDir: "{tmp}"; StatusMsg: "Extracting Precompiled.zip archive..."
 Filename: "{tmp}\ISCC.exe"; Parameters: "/dElixirVersion={code:ConstGetSelectedReleaseVersion} /dSkipWelcome /dNoCompression Elixir.iss"; WorkingDir: "{tmp}"; StatusMsg: "Compiling Elixir installer..."
 Filename: "{tmp}\Output\elixir-v{code:ConstGetSelectedReleaseVersion}-setup.exe"; Flags: nowait; StatusMsg: "Starting Elixir installer..."
 
 [Tasks]
 Name: "erlang"; Description: "Install Erlang"; GroupDescription: "Erlang"; Check: CheckToInstallErlang
-Name: "erlang\32"; Description: "{#OTP_32_NAME}"; GroupDescription: "Erlang"; Flags: exclusive
-Name: "erlang\64"; Description: "{#OTP_64_NAME}"; GroupDescription: "Erlang"; Flags: exclusive; Check: IsWin64
+Name: "erlang\32"; Description: "{code:ConstGetOTP32Name}"; GroupDescription: "Erlang"; Flags: exclusive
+Name: "erlang\64"; Description: "{code:ConstGetOTP64Name}"; GroupDescription: "Erlang"; Flags: exclusive; Check: IsWin64
 Name: "erlpath"; Description: "Append Erlang directory to Path environment variable"; GroupDescription: "Erlang"; Check: CheckToAddErlangPath
 
 [Code]
