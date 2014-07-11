@@ -242,17 +242,19 @@ end;
 function CSVToErlangData(Filename: String): TErlangData;
 var
   Rows: TArrayOfString;
+  RowValues: TStrings;
 begin
   LoadStringsFromFile(Filename, Rows);
+  RowValues := SplitString(Rows[0], ',');
 
   with Result do begin
-    OTPVersion  := Rows[0][0];
-    ERTSVersion := Rows[0][1];
-    URL32       := Rows[0][2];
-    URL64       := Rows[0][3];
+    OTPVersion  := RowValues[0];
+    ERTSVersion := RowValues[1];
+    URL32       := RowValues[2];
+    URL64       := RowValues[3];
 
-    Exe32       := ExpandConstant('{tmp}\' + GetURLFilePart(URL32));
-    Exe64       := ExpandConstant('{tmp}\' + GetURLFilePart(URL64));
+    Exe32       := GetURLFilePart(URL32);
+    Exe64       := GetURLFilePart(URL64);
     Name32      := 'OTP ' + OTPVersion + ' (32-bit)';
     Name64      := 'OTP ' + OTPVersion + ' (64-bit)';
   end;
@@ -401,6 +403,8 @@ begin
     'Select another release to install',
     '', 0, False, True, nil
   );
+
+  GlobalErlangData := CSVToErlangData(GetErlangCSVFilePath);
 end;
 
 function InitializeSetup(): Boolean;
