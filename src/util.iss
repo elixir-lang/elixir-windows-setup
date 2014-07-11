@@ -13,6 +13,8 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+[Code]
+
 function SplitStringRec(Str: String; Delim: String; StrList: TStringList): TStringList;
 var
   StrHead: String;
