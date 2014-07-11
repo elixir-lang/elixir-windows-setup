@@ -58,8 +58,9 @@ Source: "compiler:Setup.e32"; DestDir: "{tmp}"; Flags: deleteafterinstall
 Source: "compiler:SetupLdr.e32"; DestDir: "{tmp}"; Flags: deleteafterinstall
 
 [Run]
-Filename: "{tmp}\{code:ConstGetErlangExe32}"; Flags: hidewizard; StatusMsg: "Installing {code:ConstGetErlangName32}..."; Tasks: erlang\32; AfterInstall: AppendNewErlangPathIfTaskSelected(False)
-Filename: "{tmp}\{code:ConstGetErlangExe64}"; Flags: hidewizard; StatusMsg: "Installing {code:ConstGetErlangName64}..."; Tasks: erlang\64; AfterInstall: AppendNewErlangPathIfTaskSelected(True)
+Filename: "{tmp}\{code:ConstGetErlangExe32}"; Flags: hidewizard; StatusMsg: "Installing {code:ConstGetErlangName32}..."; Tasks: erlang\32
+Filename: "{tmp}\{code:ConstGetErlangExe64}"; Flags: hidewizard; StatusMsg: "Installing {code:ConstGetErlangName64}..."; Tasks: erlang\64
+Filename: "cmd"; Parameters: "/C true"; Flags: runhidden; StatusMsg: "Appending {code:ConstGetLatestErlangPath}\bin to Path environment variable..."; Tasks: erlang\newpath existingpath; BeforeInstall: AppendLatestErlangPath 
 Filename: "{tmp}\7za.exe"; Parameters: "x -oelixir Precompiled.zip"; WorkingDir: "{tmp}"; StatusMsg: "Extracting Precompiled.zip archive..."
 Filename: "{tmp}\ISCC.exe"; Parameters: "/dElixirVersion={code:ConstGetSelectedReleaseVersion} /dSkipWelcome /dNoCompression Elixir.iss"; WorkingDir: "{tmp}"; StatusMsg: "Compiling Elixir installer..."
 Filename: "{tmp}\Output\elixir-v{code:ConstGetSelectedReleaseVersion}-setup.exe"; Flags: nowait; StatusMsg: "Starting Elixir installer..."
@@ -69,7 +70,7 @@ Name: "erlang"; Description: "Install Erlang"; Check: CheckToInstallErlang
 Name: "erlang\32"; Description: "{code:ConstGetErlangName32}"; Flags: exclusive
 Name: "erlang\64"; Description: "{code:ConstGetErlangName64}"; Flags: exclusive; Check: IsWin64
 Name: "erlang\newpath"; Description: "Append Erlang directory to Path environment variable"
-Name: "existingpath"; Description: "Append {code:ConstGetExistingErlangPath}\bin to Path environment variable"; Check: CheckToAddExistingErlangPath
+Name: "existingpath"; Description: "Append {code:ConstGetLatestErlangPath}\bin to Path environment variable"; Check: CheckToAddExistingErlangPath
 
 [Code]
 #include "src\util.iss"
@@ -91,10 +92,9 @@ var
 
   CacheSelectedRelease: TElixirRelease;
 
-procedure AppendNewErlangPathIfTaskSelected(Of64Bit: Boolean);
+procedure AppendLatestErlangPath;
 begin
-  if IsTaskSelected('erlang\newpath') then
-    AppendPath(GetLatestErlangPathOfArch(Of64Bit) + '\bin');
+  AppendPath(GetLatestErlangPath + '\bin');
 end;
 
 procedure CurPageChanged(CurPageID: Integer);
@@ -194,7 +194,7 @@ function ConstGetErlangExe32(Param: String): String; begin
   Result := GlobalErlangData.Exe32; end;
 function ConstGetErlangExe64(Param: String): String; begin
   Result := GlobalErlangData.Exe64; end;
-function ConstGetExistingErlangPath(Param: String): String; begin
+function ConstGetLatestErlangPath(Param: String): String; begin
   Result := GetLatestErlangPath; end;
 function ConstGetSelectedReleaseVersion(Param: String): String; begin
   Result := CacheSelectedRelease.Version; end;
