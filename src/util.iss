@@ -60,3 +60,42 @@ begin
   Delete(URL, 1, Pos('://', URL) + 2);
   Result := GetURLFilePartRec(URL);
 end;
+
+function CompareVersions(VerL, VerR: String): Integer;
+var
+  VerLExplode: TStrings;
+  VerRExplode: TStrings;
+  i: Integer;
+  MinCount: Integer;
+begin
+  Result := 0;
+  VerLExplode := SplitString(VerL, '.');
+  VerRExplode := SplitString(VerR, '.');
+
+  if VerLExplode.Count < VerRExplode.Count then begin
+    MinCount := VerLExplode.Count;
+  end else begin
+    MinCount := VerRExplode.Count;
+  end;
+
+  for i := 0 to MinCount - 1 do begin
+    if StrToIntDef(VerLExplode[i], 0) < StrToIntDef(VerRExplode[i], 0) then begin
+      Result := 1;
+      exit;
+    end else if StrToIntDef(VerLExplode[i], 0) > StrToIntDef(VerLExplode[i], 0) then begin
+      Result := -1;
+      exit;
+    end;
+  end;
+end;
+
+function GetLatestVersion(Versions: TArrayOfString): String;
+var
+  i: Integer;
+begin
+  Result := Versions[0];
+  for i := 0 to GetArrayLength(Versions) - 1 do begin
+    if CompareVersions(Result, Versions[i]) = 1 then
+      Result := Versions[i];
+  end;
+end;
