@@ -60,7 +60,6 @@ Source: "compiler:SetupLdr.e32"; DestDir: "{tmp}"; Flags: deleteafterinstall
 [Run]
 Filename: "{tmp}\{code:ConstGetErlangExe32}"; Flags: hidewizard; StatusMsg: "Installing {code:ConstGetErlangName32}..."; Tasks: erlang\32
 Filename: "{tmp}\{code:ConstGetErlangExe64}"; Flags: hidewizard; StatusMsg: "Installing {code:ConstGetErlangName64}..."; Tasks: erlang\64
-Filename: "cmd"; Parameters: "/C true"; Flags: runhidden; StatusMsg: "Appending {code:ConstGetLatestErlangPath}\bin to Path environment variable..."; Tasks: erlang\newpath existingpath; BeforeInstall: AppendLatestErlangPath 
 Filename: "{tmp}\7za.exe"; Parameters: "x -oelixir Precompiled.zip"; WorkingDir: "{tmp}"; StatusMsg: "Extracting Precompiled.zip archive..."
 Filename: "{tmp}\ISCC.exe"; Parameters: "/dElixirVersion={code:ConstGetSelectedReleaseVersion} /dSkipWelcome /dNoCompression Elixir.iss"; WorkingDir: "{tmp}"; StatusMsg: "Compiling Elixir installer..."
 Filename: "{tmp}\Output\elixir-v{code:ConstGetSelectedReleaseVersion}-setup.exe"; Flags: nowait; StatusMsg: "Starting Elixir installer..."
@@ -92,9 +91,12 @@ var
 
   CacheSelectedRelease: TElixirRelease;
 
-procedure AppendLatestErlangPath;
+procedure CurStepChanged(CurStep: TSetupStep);
 begin
-  AppendPath(GetLatestErlangPath + '\bin');
+  if CurStep = ssPostInstall then begin
+    if IsTaskSelected('erlang\newpath') or IsTaskSelected('existingpath') then
+      AppendPath(GetLatestErlangPath + '\bin');
+  end;
 end;
 
 procedure CurPageChanged(CurPageID: Integer);
