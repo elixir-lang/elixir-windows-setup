@@ -233,6 +233,25 @@ begin
   end;
 end;
 
+procedure CSVToErlangData(Filename: String; Erlang: TErlangData);
+var
+  Rows: TArrayOfString;
+begin
+  LoadStringsFromFile(Filename, Rows);
+
+  with Erlang do begin
+    OTPVersion  := Rows[0][0];
+    ERTSVersion := Rows[0][1];
+    URL32       := Rows[0][2];
+    URL64       := Rows[0][3];
+
+    Exe32       := ExpandConstant('{tmp}\' + GetURLFilePart(URL32));
+    Exe64       := ExpandConstant('{tmp}\' + GetURLFilePart(URL64));
+    Name32      := 'OTP ' + OTPVersion + ' (32-bit)';
+    Name64      := 'OTP ' + OTPVersion + ' (64-bit)';
+  end;
+end;
+
 function GetErlangPath(Of64Bit: Boolean): String;
 var
   Versions: TArrayOfString;
