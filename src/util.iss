@@ -22,7 +22,7 @@ var
   DelimPos: Integer;
 begin
   DelimPos := Pos(Delim, Str);
-  if (DelimPos = 0) then begin
+  if DelimPos = 0 then begin
     StrList.Add(Str);
     Result := StrList;
   end else begin

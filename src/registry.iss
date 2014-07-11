@@ -30,8 +30,8 @@ procedure AppendPath(Dir: String);
 var
   RegValue: String;
 begin
-  if not (Dir = '') then begin
-    RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'Path', RegValue);
+  if Dir <> '' then begin
+    RegValue := FuncRegQueryStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'Path');
     if Pos(Dir, RegValue) = 0 then begin
       RegWriteStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'Path', RegValue + ';' + Dir);
     end;
