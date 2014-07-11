@@ -57,4 +57,4 @@ begin
     Result[0] := ExpandConstant('{app}\bin'); 
 end;
  
-#include "modpath.iss"
+#include "src\modpath.iss"
