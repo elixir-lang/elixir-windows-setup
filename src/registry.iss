@@ -20,10 +20,10 @@ begin
   RegGetSubkeyNames(RootKey, SubKeyName, Result);
 end;
 
-function FuncRegQueryStringValue(RootKey: Integer; SubKeyName: String): String;
+function FuncRegQueryStringValue(RootKey: Integer; SubKeyName, ValueName: String): String;
 begin
   Result := ''
-  RegQueryStringValue(RootKey, SubKeyName, Result);
+  RegQueryStringValue(RootKey, SubKeyName, ValueName, Result);
 end;
 
 procedure AppendPath(Dir: String);

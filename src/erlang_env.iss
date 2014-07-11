@@ -30,7 +30,7 @@ begin
 
   ERTSVersions := FuncRegGetSubkeyNames(HKEY_LOCAL_MACHINE, SubKeyName);
   if GetArrayLength(ERTSVersions) <> 0 then
-    Result := FuncRegQueryStringValue(HKEY_LOCAL_MACHINE, SubKeyName + '\' + GetLatestVersion(ERTSVersions));
+    Result := FuncRegQueryStringValue(HKEY_LOCAL_MACHINE, SubKeyName + '\' + GetLatestVersion(ERTSVersions), '');
 end;
 
 function GetLatestErlangPath: String;
