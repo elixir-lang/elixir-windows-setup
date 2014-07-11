@@ -268,7 +268,7 @@ begin
   end;
 
   if RegGetSubkeyNames(HKEY_LOCAL_MACHINE, KeyPath, Versions) then begin
-    if RegQueryStringValue(HKEY_LOCAL_MACHINE, KeyPath + '\' + ErlangInfo.ERTSVersion, '', Path) then begin
+    if RegQueryStringValue(HKEY_LOCAL_MACHINE, KeyPath + '\' + GlobalErlangData.ERTSVersion, '', Path) then begin
       Result := Path;
     end else if RegQueryStringValue(HKEY_LOCAL_MACHINE, KeyPath + '\' + Versions[GetArrayLength(Versions) - 1], '', Path) then begin
       Result := Path;
