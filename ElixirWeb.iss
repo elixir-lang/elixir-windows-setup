@@ -68,7 +68,7 @@ Name: "erlang"; Description: "Install Erlang"; GroupDescription: "Erlang"; Check
 Name: "erlang\32"; Description: "{code:ConstGetErlangName32}"; GroupDescription: "Erlang"; Flags: exclusive
 Name: "erlang\64"; Description: "{code:ConstGetErlangName64}"; GroupDescription: "Erlang"; Flags: exclusive; Check: IsWin64
 Name: "erlang\newpath"; Description: "Append Erlang directory to Path environment variable"; GroupDescription: "Erlang"
-Name: "existingpath"; Description: "Append {code:ConstGetExistingErlangPath}\bin to Path environment variable"; GroupDescription: "Erlang"; Check: CheckToAddErlangPath
+Name: "existingpath"; Description: "Append {code:ConstGetExistingErlangPath}\bin to Path environment variable"; GroupDescription: "Erlang"; Check: CheckToAddExistingErlangPath
 
 [Code]
 #include "src\util.iss"
@@ -189,9 +189,9 @@ begin
 end;
 
 function CheckToInstallErlang: Boolean; begin
-  Result := (not ErlangInPath) and (GetExistingErlangPath(GlobalErlangData.ERTSVersion) = ''); end;
-function CheckToAddErlangPath: Boolean; begin
-  Result := not ErlangInPath; end;
+  Result := (GetExistingErlangPath(GlobalErlangData.ERTSVersion) = ''); end;
+function CheckToAddExistingErlangPath: Boolean; begin
+  Result := (not CheckToInstallErlang) and (not ErlangInPath); end;
 
 function ConstGetErlangName32(Param: String): String; begin
   Result := GlobalErlangData.Name32; end;
