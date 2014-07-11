@@ -64,11 +64,11 @@ Filename: "{tmp}\ISCC.exe"; Parameters: "/dElixirVersion={code:ConstGetSelectedR
 Filename: "{tmp}\Output\elixir-v{code:ConstGetSelectedReleaseVersion}-setup.exe"; Flags: nowait; StatusMsg: "Starting Elixir installer..."
 
 [Tasks]
-Name: "erlang"; Description: "Install Erlang"; GroupDescription: "Erlang"; Check: CheckToInstallErlang
-Name: "erlang\32"; Description: "{code:ConstGetErlangName32}"; GroupDescription: "Erlang"; Flags: exclusive
-Name: "erlang\64"; Description: "{code:ConstGetErlangName64}"; GroupDescription: "Erlang"; Flags: exclusive; Check: IsWin64
-Name: "erlang\newpath"; Description: "Append Erlang directory to Path environment variable"; GroupDescription: "Erlang"
-Name: "existingpath"; Description: "Append {code:ConstGetExistingErlangPath}\bin to Path environment variable"; GroupDescription: "Erlang"; Check: CheckToAddExistingErlangPath
+Name: "erlang"; Description: "Install Erlang"; Check: CheckToInstallErlang
+Name: "erlang\32"; Description: "{code:ConstGetErlangName32}"; Flags: exclusive
+Name: "erlang\64"; Description: "{code:ConstGetErlangName64}"; Flags: exclusive; Check: IsWin64
+Name: "erlang\newpath"; Description: "Append Erlang directory to Path environment variable"
+Name: "existingpath"; Description: "Append {code:ConstGetExistingErlangPath}\bin to Path environment variable"; Check: CheckToAddExistingErlangPath
 
 [Code]
 #include "src\util.iss"
