@@ -182,7 +182,7 @@ begin
 end;
 
 function CheckToInstallErlang: Boolean; begin
-  Result := (GetExistingErlangPath(GlobalErlangData.ERTSVersion) = ''); end;
+  Result := (GetLatestErlangPath = ''); end;
 function CheckToAddExistingErlangPath: Boolean; begin
   Result := (not CheckToInstallErlang) and (not ErlangInPath); end;
 
@@ -195,6 +195,6 @@ function ConstGetErlangExe32(Param: String): String; begin
 function ConstGetErlangExe64(Param: String): String; begin
   Result := GlobalErlangData.Exe64; end;
 function ConstGetExistingErlangPath(Param: String): String; begin
-  Result := GetExistingErlangPath(GlobalErlangData.ERTSVersion); end;
+  Result := GetLatestErlangPath; end;
 function ConstGetSelectedReleaseVersion(Param: String): String; begin
   Result := CacheSelectedRelease.Version; end;
