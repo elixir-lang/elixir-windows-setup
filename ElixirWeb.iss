@@ -70,8 +70,9 @@ Name: "erlang\64"; Description: "{code:ConstGetErlangName64}"; GroupDescription:
 Name: "erlpath"; Description: "Append Erlang directory to Path environment variable"; GroupDescription: "Erlang"; Check: CheckToAddErlangPath
 
 [Code]
-#include "src\typedef.iss"
 #include "src\util.iss"
+#include "src\elixir_release.iss"
+#include "src\erlang_data.iss"
 
 var
   GlobalPageSelRelease: TInputOptionWizardPage;
@@ -92,108 +93,6 @@ end;
 function GetErlangCSVFilePath: String;
 begin
   Result := ExpandConstant('{tmp}\' + GetURLFilePart('{#ERLANG_CSV_URL}'));
-end;
-
-function ReleaseTypeToString(ReleaseType: TElixirReleaseType): String;
-begin
-  Result := 'Unknown';
-  if ReleaseType = rtRelease then
-    Result := 'Release';
-  if ReleaseType = rtPrerelease then
-    Result := 'Prerelease';
-  if ReleaseType = rtLatestRelease then
-    Result := 'Latest Release';
-  if ReleaseType = rtLatestPrerelease then
-    Result := 'Latest Prerelease';
-  if ReleaseType = rtIncompatible then
-    Result := 'Incompatible';
-end;
-
-function CSVToElixirReleases(Filename: String): array of TElixirRelease;
-var
-  Rows: TArrayOfString;
-  RowValues: TStrings;
-  i: Integer;
-  LatestPrerelease: Boolean;
-  LatestRelease: Boolean;                                                  
-begin
-  LatestPrerelease := True;
-  LatestRelease := True;
-  
-  LoadStringsFromFile(Filename, Rows); 
-  SetArrayLength(Result, GetArrayLength(Rows));
-
-  for i := 0 to GetArrayLength(Result) - 1 do begin
-    RowValues := SplitString(Rows[i], ',');
-
-    with Result[i] do begin
-      Version := RowValues[0];
-      URL := RowValues[1];
-
-      if StrToInt(RowValues[3]) = {#COMPAT_MASK} then begin
-        if RowValues[2] = 'prerelease' then begin
-          if LatestPrerelease then begin
-            ReleaseType := rtLatestPrerelease;
-            LatestPrerelease := False;
-          end else begin
-            ReleaseType := rtPrerelease;
-          end;
-        end else begin
-          if LatestRelease then begin
-            ReleaseType := rtLatestRelease;
-            LatestRelease := False;
-          end else begin
-            ReleaseType := rtRelease;
-          end;
-        end;
-      end else begin
-        ReleaseType := rtIncompatible;
-      end;
-
-      if Ref = nil then
-        Ref := TObject.Create();
-    end;
-  end;
-end;
-
-procedure ElixirReleasesToListBox(Releases: array of TElixirRelease; ListBox: TNewCheckListBox);
-var
-  i: Integer;
-begin
-  ListBox.Items.Clear;
-  for i := 0 to GetArrayLength(Releases) - 1 do begin
-    with Releases[i] do begin
-      ListBox.AddRadioButton(
-        'Elixir version ' + Version,
-        ReleaseTypeToString(ReleaseType),
-        0,
-        (ReleaseType = rtLatestRelease),
-        (ReleaseType <> rtIncompatible),
-        Ref
-      );
-    end
-  end;
-end;
-
-function CSVToErlangData(Filename: String): TErlangData;
-var
-  Rows: TArrayOfString;
-  RowValues: TStrings;
-begin
-  LoadStringsFromFile(Filename, Rows);
-  RowValues := SplitString(Rows[0], ',');
-
-  with Result do begin
-    OTPVersion  := RowValues[0];
-    ERTSVersion := RowValues[1];
-    URL32       := RowValues[2];
-    URL64       := RowValues[3];
-
-    Exe32       := GetURLFilePart(URL32);
-    Exe64       := GetURLFilePart(URL64);
-    Name32      := 'OTP ' + OTPVersion + ' (32-bit)';
-    Name64      := 'OTP ' + OTPVersion + ' (64-bit)';
-  end;
 end;
 
 function GetErlangPath(Of64Bit: Boolean): String;
@@ -236,30 +135,6 @@ begin
       if Pos(Path, RegValue) = 0 then begin
         RegWriteStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'Path', RegValue + ';' + Path + '\bin');
       end;
-    end;
-  end;
-end;
-
-function FindFirstReleaseOfType(Releases: array of TElixirRelease; ReleaseType: TElixirReleaseType): TElixirRelease;
-var
-  i: Integer;
-begin
-  for i := 0 to GetArrayLength(Releases) - 1 do begin
-    if Releases[i].ReleaseType = ReleaseType then begin
-      Result := Releases[i];
-      exit;
-    end;
-  end;
-end;
-
-function FindFirstReleaseMatchingRef(Releases: array of TElixirRelease; RefMatch: TObject): TElixirRelease;
-var
-  i: Integer;
-begin
-  for i := 0 to GetArrayLength(Releases) - 1 do begin
-    if Releases[i].Ref = RefMatch then begin
-      Result := Releases[i];
-      exit;
     end;
   end;
 end;
