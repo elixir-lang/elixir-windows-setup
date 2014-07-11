@@ -214,7 +214,7 @@ begin
         ReleaseType := rtIncompatible;
       end;
 
-      if Ref = Null then
+      if Ref = nil then
         Ref := TObject.Create();
     end;
   end;
@@ -306,7 +306,6 @@ function GetFirstReleaseOfType(Releases: array of TElixirRelease; ReleaseType: T
 var
   i: Integer;
 begin
-  Result := Null;
   for i := 0 to GetArrayLength(Releases) - 1 do begin
     if Releases[i].ReleaseType = ReleaseType then begin
       Result := Releases[i];
@@ -367,7 +366,7 @@ end;
 function ShouldSkipPage(PageID: Integer): Boolean;
 begin
   if PageID = GlobalPageSelRelease.ID then begin
-    Result := not (GlobalPageSelInstallType.CheckListBox.ItemObject[GlobalPageSelInstallType.SelectedValueIndex] = Null);
+    Result := not (GlobalPageSelInstallType.CheckListBox.ItemObject[GlobalPageSelInstallType.SelectedValueIndex] = nil);
   end else begin
     Result := False;
   end;
@@ -375,8 +374,6 @@ end;
 
 procedure InitializeWizard();
 begin
-  CacheSelectedRelease := Null;
-
   GlobalPageSelInstallType := CreateInputOptionPage(
     wpWelcome,
     'Select Elixir installation type',
