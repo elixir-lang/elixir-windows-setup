@@ -71,12 +71,29 @@ Name: "erlpath"; Description: "Append Erlang directory to Path environment varia
 
 [Code]
 type
-  TStringTable = array of TStringList;
+  TElixirReleaseType = (rtRelease, rtPrerelease, rtLatestRelease, rtLatestPrerelease, rtIncompatible);
+  TElixirRelease = record
+    Version: String;
+    URL: String;
+    ReleaseType: TElixirReleaseType;
+    Ref: TObject;
+  end;
+  TErlangRelease = record
+    OTPVersion: String;
+    ERTSVersion: String;
+    URL32: String;
+    URL64: String;
+    EXE32: String;
+    EXE64: String;
+  end;
 
 var
   PSelRelease: TInputOptionWizardPage;
   PSelInstallType: TInputOptionWizardPage;
-  ErlangCSVInfo: TStrings;
+
+  ElixirReleases: array of TElixirRelease;
+  ErlangInfo: TErlangRelease;
+
   _int: Integer;
 
 function SplitStringRec(Str: String; Delim: String; StrList: TStringList): TStringList;
@@ -135,132 +152,78 @@ begin
   Result := ExpandConstant('{tmp}\' + GetURLFilePart('{#ERLANG_CSV_URL}'));
 end;
 
-function GetVersion(Release: TStrings): String;
+function ReleaseTypeToString(ReleaseType: TElixirReleaseType): String;
 begin
-  Result := Release[0];
+  Result := 'Undefined';
+  if ReleaseType = rtRelease then
+    Result := 'Release';
+  if ReleaseType = rtPrerelease then
+    Result := 'Prerelease';
+  if ReleaseType = rtLatestRelease then
+    Result := 'Latest Release';
+  if ReleaseType = rtLatestPrerelease then
+    Result := 'Latest Prerelease';
+  if ReleaseType = rtIncompatible then
+    Result := 'Incompatible';
 end;
 
-function GetURL(Release: TStrings): String;
-begin
-  Result := Release[1];
-end;
-
-function IsPrerelease(Release: TStrings): Boolean;
-begin
-  Result := (Release[2] = 'prerelease');
-end;
-
-function IsCompatibleForInstall(Release: TStrings): Boolean;
-begin
-  Result := (StrToInt(Release[3]) = {#COMPAT_MASK});
-end;
-
-function GetOTP32Name: String;
-begin
-  Result := 'OTP ' + ErlangCSVInfo[0] + ' (32-bit)'
-end;
-
-function GetOTP64Name: String;
-begin
-  Result := 'OTP ' + ErlangCSVInfo[0] + ' (64-bit)'
-end;
-
-function GetERTSVersion: String;
-begin
-  Result := ErlangCSVInfo[1];
-end;
-
-function GetOTP32URL: String;
-begin
-  Result := ErlangCSVInfo[2];
-end;
-
-function GetOTP64URL: String;
-begin
-  Result := ErlangCSVInfo[3];
-end;
-
-function GetOTP32Exe: String;
-begin
-  Result := ExpandConstant('{tmp}\' + GetURLFilePart(GetOTP32URL));
-end;
-
-function GetOTP64Exe: String;
-begin
-  Result := ExpandConstant('{tmp}\' + GetURLFilePart(GetOTP64URL));
-end;
-
-function CSVToStringTable(Filename: String): TStringTable;
+procedure CSVToElixirReleases(Filename: String; Releases: array of TElixirRelease);
 var
   Rows: TArrayOfString;
-  i: Integer;                                                  
+  RowValues: TStrings;
+  i: Integer;
+  LatestPrerelease: Boolean;
+  LatestRelease: Boolean;                                                  
 begin
+  LatestPrerelease := True;
+  LatestRelease := True;
+  
   LoadStringsFromFile(Filename, Rows); 
-  SetArrayLength(Result, GetArrayLength(Rows));
+  SetArrayLength(Releases, GetArrayLength(Rows));
 
-  for i := 0 to GetArrayLength(Result) - 1 do begin
-    Result[i] := SplitString(Rows[i], ',');
+  for i := 0 to GetArrayLength(Releases) - 1 do begin
+    RowValues := SplitString(Rows[i], ',');
+
+    with Releases[i] do begin
+      Version := RowValues[0];
+      URL := RowValues[1];
+
+      if StrToInt(RowValues[3]) = {#COMPAT_MASK} then begin
+        if RowValues[2] = 'prerelease' then begin
+          if LatestPrerelease then begin
+            ReleaseType := rtLatestPrerelease;
+            LatestPrerelease := False;
+          end else begin
+            ReleaseType := rtPrerelease;
+          end;
+        end else begin
+          if LatestRelease then begin
+            ReleaseType := rtLatestRelease;
+            LatestRelease := False;
+          end else begin
+            ReleaseType := rtRelease;
+          end;
+        end;
+      end else begin
+        ReleaseType := rtIncompatible;
+      end;
+
+      Ref := TObject.Create();
+    end;
   end;
 end;
 
-procedure PopulatePSelReleaseListBox(StringTable: TStringTable);
+procedure ElixirReleasesToListBox(ListBox: TNewCheckListBox; Releases: array of TElixirRelease);
 var
-  SelectFirst: Boolean;
-  ReleaseDesc: String;
   i: Integer;
 begin
   PSelRelease.CheckListBox.Items.Clear;
-  SelectFirst := True;
-  for i := 0 to GetArrayLength(StringTable) - 1 do begin
-    if IsCompatibleForInstall(StringTable[i]) then begin
-      if IsPrerelease(StringTable[i]) then begin
-        ReleaseDesc := 'Prerelease';
-      end else begin
-        ReleaseDesc := 'Release';
+  for i := 0 to GetArrayLength(Releases) - 1 do begin
+    with Releases[i] do begin
+      if ReleaseType <> rtIncompatible then begin
+        PSelRelease.CheckListBox.AddRadioButton('Elixir version ' + Version, ReleaseTypeToString(ReleaseType), 0, (ReleaseType = rtLatestRelease), True, Ref);
       end;
-      PSelRelease.CheckListBox.AddRadioButton('Elixir version ' + GetVersion(StringTable[i]), ReleaseDesc, 0, SelectFirst, True, StringTable[i]);
-      SelectFirst := False;
-    end;
-  end;
-end;
-
-function GetListBoxSelectedRelease(): TStrings;
-var
-  i: Integer;
-begin
-  for i := 0 to PSelRelease.CheckListBox.Items.Count - 1 do begin
-    if PSelRelease.CheckListBox.Checked[i] then begin
-      Result := TStrings(PSelRelease.CheckListBox.ItemObject[i]);
-      break;
-    end;
-  end;
-end;
-
-function GetListBoxLatestRelease(Prerelease: Boolean): TStrings;
-var
-  i: Integer;
-begin
-  for i := 0 to PSelRelease.CheckListBox.Items.Count - 1 do begin
-    if Prerelease = IsPrerelease(TStrings(PSelRelease.CheckListBox.ItemObject[i])) then begin
-      Result := TStrings(PSelRelease.CheckListBox.ItemObject[i]);
-      break;
-    end;
-  end; 
-end;
-
-function GetSelectedRelease(): TStrings;
-var
-  i: Integer;
-begin
-  for i := 0 to PSelInstallType.CheckListBox.Items.Count - 1 do begin
-    if PSelInstallType.CheckListBox.Checked[i] then begin
-      if not (PSelInstallType.CheckListBox.ItemObject[i] = nil) then begin
-        Result := TStrings(PSelInstallType.CheckListBox.ItemObject[i]);
-      end else begin
-        Result := GetListBoxSelectedRelease();
-      end;
-      break;
-    end;
+    end
   end;
 end;
 
@@ -279,7 +242,7 @@ begin
   end;
 
   if RegGetSubkeyNames(HKEY_LOCAL_MACHINE, KeyPath, Versions) then begin
-    if RegQueryStringValue(HKEY_LOCAL_MACHINE, KeyPath + '\' + GetERTSVersion, '', Path) then begin
+    if RegQueryStringValue(HKEY_LOCAL_MACHINE, KeyPath + '\' + ErlangInfo.ERTSVersion, '', Path) then begin
       Result := Path;
     end else if RegQueryStringValue(HKEY_LOCAL_MACHINE, KeyPath + '\' + Versions[GetArrayLength(Versions) - 1], '', Path) then begin
       Result := Path;
@@ -312,10 +275,10 @@ procedure CurPageChanged(CurPageID: Integer);
 begin
   if CurPageID = wpPreparing then begin
     if IsTaskSelected('erlang\32') then begin
-      idpAddFile(GetOTP32URL, GetOTP32Exe);
+      idpAddFile(ErlangInfo.URL32, GetOTP32Exe);
     end;
     if IsTaskSelected('erlang\64') then begin
-      idpAddFile(GetOTP64URL, GetOTP64Exe);
+      idpAddFile(ErlangInfo.URL64, GetOTP64Exe);
     end;
     idpAddFile(GetURL(GetSelectedRelease()), ExpandConstant('{tmp}\Precompiled.zip'));
     idpDownloadAfter(wpPreparing);
