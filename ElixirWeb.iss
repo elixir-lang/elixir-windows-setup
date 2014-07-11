@@ -216,7 +216,7 @@ begin
   end;
 end;
 
-procedure ElixirReleasesToListBox(ListBox: TNewCheckListBox; Releases: array of TElixirRelease);
+procedure ElixirReleasesToListBox(Releases: array of TElixirRelease; ListBox: TNewCheckListBox);
 var
   i: Integer;
 begin
