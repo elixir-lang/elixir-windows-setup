@@ -38,6 +38,15 @@ begin
   end;
 end;
 
+function GetExistingErlangPath(PrefVersion: String): String;
+begin
+  Result := '';
+  if IsWin64 then
+    Result := GetErlangPath(True, PrefVersion);
+  if Result = '' then
+    Result := GetErlangPath(False, PrefVersion);
+end;
+
 function ErlangInPath: Boolean;
 var
   _int: Integer;

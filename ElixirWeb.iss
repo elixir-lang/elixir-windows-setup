@@ -89,15 +89,6 @@ var
 
   CacheSelectedRelease: TElixirRelease;
 
-function GetExistingErlangPath(PrefVersion: String): String;
-begin
-  Result := '';
-  if IsWin64 then
-    Result := GetErlangPath(True, PrefVersion);
-  if Result = '' then
-    Result := GetErlangPath(False, PrefVersion);
-end;
-
 procedure AppendErlangPathIfTaskSelected(Of64Bit: Boolean);
 begin
   if IsTaskSelected('erlang\newpath') or IsTaskSelected('existingpath') then
