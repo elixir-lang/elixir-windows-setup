@@ -399,7 +399,10 @@ begin
       '', 0, True, True, Ref
     );
   end;
-  GlobalPageSelInstallType.CheckListBox.AddRadioButton('Select another release to install', '', 0, False, True, nil);
+  GlobalPageSelInstallType.CheckListBox.AddRadioButton(
+    'Select another release to install',
+    '', 0, False, True, nil
+  );
 end;
 
 function InitializeSetup(): Boolean;
