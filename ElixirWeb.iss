@@ -78,13 +78,16 @@ type
     ReleaseType: TElixirReleaseType;
     Ref: TObject;
   end;
-  TErlangRelease = record
+
+  TErlangData = record
     OTPVersion: String;
     ERTSVersion: String;
     URL32: String;
     URL64: String;
-    EXE32: String;
-    EXE64: String;
+    Exe32: String;
+    Exe64: String;
+    Name32: String;
+    Name64: String;
   end;
 
 var
