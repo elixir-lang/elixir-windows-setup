@@ -15,36 +15,31 @@
 
 [Code]
 
-function GetErlangPath(Of64Bit: Boolean; PrefVersion: String): String;
+function GetLatestErlangPathOfArch(Of64Bit: Boolean): String;
 var
-  Versions: TArrayOfString;
-  Path: String;
-  KeyPath: String;
+  ERTSVersions: TArrayOfString;
+  SubKeyName: String;
 begin
   Result := '';
 
   if Of64Bit then begin
-    KeyPath := 'SOFTWARE\Wow6432Node\Ericsson\Erlang';
+    SubKeyName := 'SOFTWARE\Wow6432Node\Ericsson\Erlang';
   end else begin
-    KeyPath := 'SOFTWARE\Ericsson\Erlang';
+    SubKeyName := 'SOFTWARE\Ericsson\Erlang';
   end;
 
-  if RegGetSubkeyNames(HKEY_LOCAL_MACHINE, KeyPath, Versions) then begin
-    if RegQueryStringValue(HKEY_LOCAL_MACHINE, KeyPath + '\' + PrefVersion, '', Path) then begin
-      Result := Path;
-    end else if RegQueryStringValue(HKEY_LOCAL_MACHINE, KeyPath + '\' + Versions[GetArrayLength(Versions) - 1], '', Path) then begin
-      Result := Path;
-    end;
-  end;
+  ERTSVersions := FuncRegGetSubkeyNames(HKEY_LOCAL_MACHINE, SubKeyName);
+  if GetArrayLength(ERTSVersions) <> 0 then
+    Result := FuncRegQueryStringValue(HKEY_LOCAL_MACHINE, SubKeyName + '\' + GetLatestVersion(ERTSVersions));
 end;
 
-function GetExistingErlangPath(PrefVersion: String): String;
+function GetLatestErlangPath: String;
 begin
   Result := '';
   if IsWin64 then
-    Result := GetErlangPath(True, PrefVersion);
+    Result := GetLatestErlangPathOfArch(True);
   if Result = '' then
-    Result := GetErlangPath(False, PrefVersion);
+    Result := GetLatestErlangPathOfArch(False);
 end;
 
 function ErlangInPath: Boolean;
@@ -52,18 +47,4 @@ var
   _int: Integer;
 begin
   Result := Exec('erl.exe', '+V', '', SW_HIDE, ewWaitUntilTerminated, _int);
-end;
-
-procedure AppendErlangPath(Of64Bit: Boolean; PrefVersion: String);
-var
-  Path: String;
-  RegValue: String;
-begin
-  Path := GetErlangPath(Of64Bit, PrefVersion);
-  if not (Path = '') then begin
-    RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'Path', RegValue);
-    if Pos(Path, RegValue) = 0 then begin
-      RegWriteStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'Path', RegValue + ';' + Path + '\bin');
-    end;
-  end;
 end;
