@@ -13,6 +13,8 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+[Code]
+
 function GetErlangPath(Of64Bit: Boolean; PrefVersion: String): String;
 var
   Versions: TArrayOfString;
