@@ -313,8 +313,8 @@ end;
 
 function ShouldSkipPage(PageID: Integer): Boolean;
 begin
-  if PageID = PSelRelease.ID then begin
-    Result := not (PSelInstallType.CheckListBox.ItemObject[PSelInstallType.SelectedValueIndex] = nil);
+  if PageID = GlobalPageSelRelease.ID then begin
+    Result := not (GlobalPageSelInstallType.CheckListBox.ItemObject[GlobalPageSelInstallType.SelectedValueIndex] = Null);
   end else begin
     Result := False;
   end;
