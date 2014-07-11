@@ -102,51 +102,7 @@ var
 
   _int: Integer;
 
-function SplitStringRec(Str: String; Delim: String; StrList: TStringList): TStringList;
-var
-  StrHead: String;
-  StrTail: String;
-  DelimPos: Integer;
-begin
-  DelimPos := Pos(Delim, Str);
-  if (DelimPos = 0) then begin
-    StrList.Add(Str);
-    Result := StrList;
-  end else begin
-    StrHead := Str;
-    StrTail := Str;
-
-    Delete(StrHead, DelimPos, Length(StrTail));
-    Delete(StrTail, 1, DelimPos);   
-
-    StrList.Add(StrHead);
-    Result := SplitStringRec(StrTail, Delim, StrList);
-  end;
-end;
-
-function SplitString(Str: String; Delim: String): TStringList;
-begin
-  Result := SplitStringRec(Str, Delim, TStringList.Create);
-end;
-
-function GetURLFilePartRec(URL: String): String;
-var
-  SlashPos: Integer;
-begin
-  SlashPos := Pos('/', URL);
-  if SlashPos = 0 then begin
-    Result := URL;
-  end else begin;
-    Delete(URL, 1, SlashPos);
-    Result := GetURLFilePartRec(URL);
-  end;
-end;
-
-function GetURLFilePart(URL: String): String;
-begin
-  Delete(URL, 1, Pos('://', URL) + 2);
-  Result := GetURLFilePartRec(URL);
-end;
+#include "src\util.iss"
 
 function GetElixirCSVFilePath: String;
 begin
