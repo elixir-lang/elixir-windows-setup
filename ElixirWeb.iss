@@ -83,17 +83,10 @@ var
   GlobalElixirReleases: array of TElixirRelease;
   GlobalErlangData: TErlangData;
 
+  GlobalElixirCSVFilePath: String;
+  GlobalErlangCSVFilePath: String;
+
   CacheSelectedRelease: TElixirRelease;
-
-function GetElixirCSVFilePath: String;
-begin
-  Result := ExpandConstant('{tmp}\' + GetURLFilePart('{#ELIXIR_CSV_URL}'));
-end;
-
-function GetErlangCSVFilePath: String;
-begin
-  Result := ExpandConstant('{tmp}\' + GetURLFilePart('{#ERLANG_CSV_URL}'));
-end;
 
 procedure AppendErlangPathIfTaskSelected(Of64Bit: Boolean);
 begin
@@ -149,7 +142,7 @@ begin
     True, True
   );
 
-  GlobalElixirReleases := CSVToElixirReleases(GetElixirCSVFilePath);
+  GlobalElixirReleases := CSVToElixirReleases(GlobalElixirCSVFilePath);
   ElixirReleasesToListBox(GlobalElixirReleases, GlobalPageSelRelease.CheckListBox);
 
   with FindFirstReleaseOfType(GlobalElixirReleases, rtLatestRelease) do begin
@@ -163,18 +156,22 @@ begin
     '', 0, False, True, nil
   );
 
-  GlobalErlangData := CSVToErlangData(GetErlangCSVFilePath);
+  GlobalErlangData := CSVToErlangData(GlobalErlangCSVFilePath);
 end;
 
 function InitializeSetup(): Boolean;
 begin
   Result := True;
-  if not idpDownloadFile('{#ELIXIR_CSV_URL}', GetElixirCSVFilePath) then begin
+
+  GlobalElixirCSVFilePath := ExpandConstant('{tmp}\' + GetURLFilePart('{#ELIXIR_CSV_URL}'));
+  GlobalElixirCSVFilePath := ExpandConstant('{tmp}\' + GetURLFilePart('{#ERLANG_CSV_URL}'));
+
+  if not idpDownloadFile('{#ELIXIR_CSV_URL}', GlobalElixirCSVFilePath) then begin
     MsgBox('Error: Downloading {#ELIXIR_CSV_URL} failed.  Setup cannot continue.', mbInformation, MB_OK);
     Result := False;
     exit;
   end;
-  if not idpDownloadFile('{#ERLANG_CSV_URL}', GetErlangCSVFilePath) then begin
+  if not idpDownloadFile('{#ERLANG_CSV_URL}', GlobalErlangCSVFilePath) then begin
     MsgBox('Error: Downloading {#ERLANG_CSV_URL} failed.  Setup cannot continue.', mbInformation, MB_OK);
     Result := False;
     exit;
