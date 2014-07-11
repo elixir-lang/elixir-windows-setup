@@ -164,7 +164,7 @@ begin
   Result := True;
 
   GlobalElixirCSVFilePath := ExpandConstant('{tmp}\' + GetURLFilePart('{#ELIXIR_CSV_URL}'));
-  GlobalElixirCSVFilePath := ExpandConstant('{tmp}\' + GetURLFilePart('{#ERLANG_CSV_URL}'));
+  GlobalErlangCSVFilePath := ExpandConstant('{tmp}\' + GetURLFilePart('{#ERLANG_CSV_URL}'));
 
   if not idpDownloadFile('{#ELIXIR_CSV_URL}', GlobalElixirCSVFilePath) then begin
     MsgBox('Error: Downloading {#ELIXIR_CSV_URL} failed.  Setup cannot continue.', mbInformation, MB_OK);
