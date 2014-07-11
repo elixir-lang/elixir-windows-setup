@@ -73,6 +73,7 @@ Name: "existingpath"; Description: "Append {code:ConstGetExistingErlangPath}\bin
 
 [Code]
 #include "src\util.iss"
+#include "src\registry.iss"
 #include "src\elixir_release.iss"
 #include "src\elixir_lookup.iss"
 #include "src\erlang_data.iss"
