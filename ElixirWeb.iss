@@ -91,11 +91,13 @@ type
   end;
 
 var
-  PSelRelease: TInputOptionWizardPage;
-  PSelInstallType: TInputOptionWizardPage;
+  GlobalPageSelRelease: TInputOptionWizardPage;
+  GlobalPageSelInstallType: TInputOptionWizardPage;
 
-  ElixirReleases: array of TElixirRelease;
-  ErlangInfo: TErlangRelease;
+  GlobalElixirReleases: array of TElixirRelease;
+  GlobalErlangData: TErlangData;
+
+  CacheSelectedRelease: TElixirRelease;
 
   _int: Integer;
 
