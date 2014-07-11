@@ -67,7 +67,8 @@ Filename: "{tmp}\Output\elixir-v{code:ConstGetSelectedReleaseVersion}-setup.exe"
 Name: "erlang"; Description: "Install Erlang"; GroupDescription: "Erlang"; Check: CheckToInstallErlang
 Name: "erlang\32"; Description: "{code:ConstGetErlangName32}"; GroupDescription: "Erlang"; Flags: exclusive
 Name: "erlang\64"; Description: "{code:ConstGetErlangName64}"; GroupDescription: "Erlang"; Flags: exclusive; Check: IsWin64
-Name: "erlpath"; Description: "Append Erlang directory to Path environment variable"; GroupDescription: "Erlang"; Check: CheckToAddErlangPath
+Name: "erlang\newpath"; Description: "Append Erlang directory to Path environment variable"; GroupDescription: "Erlang"
+Name: "existingpath"; Description: "Append {code:ConstGetExistingErlangPath}\bin to Path environment variable"; GroupDescription: "Erlang"; Check: CheckToAddErlangPath
 
 [Code]
 #include "src\util.iss"
@@ -88,9 +89,18 @@ var
 
   CacheSelectedRelease: TElixirRelease;
 
+function GetExistingErlangPath(PrefVersion: String): String;
+begin
+  Result := '';
+  if IsWin64 then
+    Result := GetErlangPath(True, PrefVersion);
+  if Result = '' then
+    Result := GetErlangPath(False, PrefVersion);
+end;
+
 procedure AppendErlangPathIfTaskSelected(Of64Bit: Boolean);
 begin
-  if IsTaskSelected('erlpath') then
+  if IsTaskSelected('erlang\newpath') or IsTaskSelected('existingpath') then
     AppendErlangPath(Of64Bit, GlobalErlangData.ERTSVersion);
 end;
 
@@ -179,16 +189,19 @@ begin
 end;
 
 function CheckToInstallErlang: Boolean; begin
-  Result := (not ErlangInPath) and
-            (
-              (GetErlangPath(False, GlobalErlangData.ERTSVersion) = '') or
-              (GetErlangPath(True, GlobalErlangData.ERTSVersion) = '' )
-            ); end;
+  Result := (not ErlangInPath) and (GetExistingErlangPath(GlobalErlangData.ERTSVersion) = ''); end;
 function CheckToAddErlangPath: Boolean; begin
   Result := not ErlangInPath; end;
 
-function ConstGetErlangName32(Param: String): String; begin Result := GlobalErlangData.Name32; end;
-function ConstGetErlangName64(Param: String): String; begin Result := GlobalErlangData.Name64; end;
-function ConstGetErlangExe32(Param: String): String;  begin Result := GlobalErlangData.Exe32; end;
-function ConstGetErlangExe64(Param: String): String;  begin Result := GlobalErlangData.Exe64; end;
-function ConstGetSelectedReleaseVersion(Param: String): String; begin Result := CacheSelectedRelease.Version; end;
+function ConstGetErlangName32(Param: String): String; begin
+  Result := GlobalErlangData.Name32; end;
+function ConstGetErlangName64(Param: String): String; begin
+  Result := GlobalErlangData.Name64; end;
+function ConstGetErlangExe32(Param: String): String; begin
+  Result := GlobalErlangData.Exe32; end;
+function ConstGetErlangExe64(Param: String): String; begin
+  Result := GlobalErlangData.Exe64; end;
+function ConstGetExistingErlangPath(Param: String): String; begin
+  Result := GetExistingErlangPath(GlobalErlangData.ERTSVersion); end;
+function ConstGetSelectedReleaseVersion(Param: String): String; begin
+  Result := CacheSelectedRelease.Version; end;
