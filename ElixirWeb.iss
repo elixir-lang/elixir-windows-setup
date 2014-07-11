@@ -66,7 +66,7 @@ Filename: "{tmp}\Output\elixir-v{code:ConstGetSelectedReleaseVersion}-setup.exe"
 [Tasks]
 Name: "erlang"; Description: "Install Erlang"; GroupDescription: "Erlang"; Check: CheckToInstallErlang
 Name: "erlang\32"; Description: "{code:ConstGetErlangName32}"; GroupDescription: "Erlang"; Flags: exclusive
-Name: "erlang\64"; Description: "{code:ConstGetErlangName32}"; GroupDescription: "Erlang"; Flags: exclusive; Check: IsWin64
+Name: "erlang\64"; Description: "{code:ConstGetErlangName64}"; GroupDescription: "Erlang"; Flags: exclusive; Check: IsWin64
 Name: "erlpath"; Description: "Append Erlang directory to Path environment variable"; GroupDescription: "Erlang"; Check: CheckToAddErlangPath
 
 [Code]
@@ -318,7 +318,6 @@ function GetFirstReleaseMatchingRef(Releases: array of TElixirRelease; RefMatch:
 var
   i: Integer;
 begin
-  Result := Null;
   for i := 0 to GetArrayLength(Releases) - 1 do begin
     if Releases[i].Ref = RefMatch then begin
       Result := Releases[i];
@@ -331,10 +330,9 @@ function GetSelectedRelease(ListBoxes: array of TNewCheckListBox; Releases: arra
 var
   i, j, k: Integer;
 begin
-  Result := Null;
   for i := 0 to GetArrayLength(ListBoxes) - 1 do begin
     for j := 0 to ListBoxes[i].Items.Count - 1 do begin
-      if ListBoxes[i].ItemObject[j] <> Null then begin
+      if ListBoxes[i].ItemObject[j] <> nil then begin
         Result := GetFirstReleaseMatchingRef(Releases, ListBoxes[i].ItemObject[j]);
         exit;
       end;
