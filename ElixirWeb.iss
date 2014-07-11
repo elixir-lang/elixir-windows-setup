@@ -70,27 +70,7 @@ Name: "erlang\64"; Description: "{code:ConstGetErlangName64}"; GroupDescription:
 Name: "erlpath"; Description: "Append Erlang directory to Path environment variable"; GroupDescription: "Erlang"; Check: CheckToAddErlangPath
 
 [Code]
-type
-  TElixirReleaseType = (rtRelease, rtPrerelease, rtLatestRelease, rtLatestPrerelease, rtIncompatible);
-  
-  TElixirRelease = record
-    Version: String;
-    URL: String;
-    ReleaseType: TElixirReleaseType;
-    Ref: TObject;
-  end;
-
-  TErlangData = record
-    OTPVersion: String;
-    ERTSVersion: String;
-    URL32: String;
-    URL64: String;
-    Exe32: String;
-    Exe64: String;
-    Name32: String;
-    Name64: String;
-  end;
-
+#include "src\typedef.iss"
 var
   GlobalPageSelRelease: TInputOptionWizardPage;
   GlobalPageSelInstallType: TInputOptionWizardPage;
