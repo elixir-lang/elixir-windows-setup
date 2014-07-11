@@ -43,7 +43,7 @@ NameAndVersion=%1
 ; Offline installer files
 Source: "Elixir.iss"; DestDir: "{tmp}"; Flags: deleteafterinstall
 Source: "assets\*"; DestDir: "{tmp}\assets"; Flags: deleteafterinstall
-Source: "src\modpath.iss"; DestDir: "{tmp}\src"; Flags: deleteafterinstall
+Source: "src\legroom\modpath.iss"; DestDir: "{tmp}\src\legroom"; Flags: deleteafterinstall
 ; 7-Zip portable extractor
 Source: "{#PATH_TO_7ZA}\7za.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
 ; Compiler files
@@ -71,6 +71,8 @@ Name: "erlpath"; Description: "Append Erlang directory to Path environment varia
 
 [Code]
 #include "src\typedef.iss"
+#include "src\util.iss"
+
 var
   GlobalPageSelRelease: TInputOptionWizardPage;
   GlobalPageSelInstallType: TInputOptionWizardPage;
@@ -81,8 +83,6 @@ var
   CacheSelectedRelease: TElixirRelease;
 
   _int: Integer;
-
-#include "src\util.iss"
 
 function GetElixirCSVFilePath: String;
 begin
