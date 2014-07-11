@@ -25,7 +25,7 @@
 
 [Setup]
 AppName=Elixir
-AppVersion=0.56
+AppVersion=0.57
 ChangesEnvironment=yes
 CreateAppDir=no
 DisableFinishedPage=yes
