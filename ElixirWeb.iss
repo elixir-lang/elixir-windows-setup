@@ -173,7 +173,7 @@ begin
     Result := 'Incompatible';
 end;
 
-procedure CSVToElixirReleases(Filename: String; Releases: array of TElixirRelease);
+function CSVToElixirReleases(Filename: String): array of TElixirRelease;
 var
   Rows: TArrayOfString;
   RowValues: TStrings;
@@ -185,12 +185,12 @@ begin
   LatestRelease := True;
   
   LoadStringsFromFile(Filename, Rows); 
-  SetArrayLength(Releases, GetArrayLength(Rows));
+  SetArrayLength(Result, GetArrayLength(Rows));
 
-  for i := 0 to GetArrayLength(Releases) - 1 do begin
+  for i := 0 to GetArrayLength(Result) - 1 do begin
     RowValues := SplitString(Rows[i], ',');
 
-    with Releases[i] do begin
+    with Result[i] do begin
       Version := RowValues[0];
       URL := RowValues[1];
 
@@ -239,13 +239,13 @@ begin
   end;
 end;
 
-procedure CSVToErlangData(Filename: String; Erlang: TErlangData);
+function CSVToErlangData(Filename: String): TErlangData;
 var
   Rows: TArrayOfString;
 begin
   LoadStringsFromFile(Filename, Rows);
 
-  with Erlang do begin
+  with Result do begin
     OTPVersion  := Rows[0][0];
     ERTSVersion := Rows[0][1];
     URL32       := Rows[0][2];
@@ -390,7 +390,7 @@ begin
     True, True
   );
 
-  CSVToElixirReleases(GetElixirCSVFilePath, GlobalElixirReleases);
+  GlobalElixirReleases := CSVToElixirReleases(GetElixirCSVFilePath);
   ElixirReleasesToListBox(GlobalElixirReleases, GlobalPageSelRelease.CheckListBox);
 
   with GetFirstReleaseOfType(GlobalElixirReleases, rtLatestRelease) do begin
