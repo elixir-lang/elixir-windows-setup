@@ -57,21 +57,22 @@ Source: "compiler:Setup.e32"; DestDir: "{tmp}"; Flags: deleteafterinstall
 Source: "compiler:SetupLdr.e32"; DestDir: "{tmp}"; Flags: deleteafterinstall
 
 [Run]
-Filename: "{tmp}\{code:ConstGetOTP32Exe}"; Flags: hidewizard; StatusMsg: "Installing {code:ConstGetOTP32Name}..."; Tasks: erlang\32; AfterInstall: AppendErlangPathIfTaskSelected(False)
-Filename: "{tmp}\{code:ConstGetOTP64Exe}"; Flags: hidewizard; StatusMsg: "Installing {code:ConstGetOTP64Name}..."; Tasks: erlang\64; AfterInstall: AppendErlangPathIfTaskSelected(True)
+Filename: "{tmp}\{code:ConstGetErlangExe32}"; Flags: hidewizard; StatusMsg: "Installing {code:ConstGetErlangName32}..."; Tasks: erlang\32; AfterInstall: AppendErlangPathIfTaskSelected(False)
+Filename: "{tmp}\{code:ConstGetErlangExe64}"; Flags: hidewizard; StatusMsg: "Installing {code:ConstGetErlangName64}..."; Tasks: erlang\64; AfterInstall: AppendErlangPathIfTaskSelected(True)
 Filename: "{tmp}\7za.exe"; Parameters: "x -oelixir Precompiled.zip"; WorkingDir: "{tmp}"; StatusMsg: "Extracting Precompiled.zip archive..."
 Filename: "{tmp}\ISCC.exe"; Parameters: "/dElixirVersion={code:ConstGetSelectedReleaseVersion} /dSkipWelcome /dNoCompression Elixir.iss"; WorkingDir: "{tmp}"; StatusMsg: "Compiling Elixir installer..."
 Filename: "{tmp}\Output\elixir-v{code:ConstGetSelectedReleaseVersion}-setup.exe"; Flags: nowait; StatusMsg: "Starting Elixir installer..."
 
 [Tasks]
 Name: "erlang"; Description: "Install Erlang"; GroupDescription: "Erlang"; Check: CheckToInstallErlang
-Name: "erlang\32"; Description: "{code:ConstGetOTP32Name}"; GroupDescription: "Erlang"; Flags: exclusive
-Name: "erlang\64"; Description: "{code:ConstGetOTP64Name}"; GroupDescription: "Erlang"; Flags: exclusive; Check: IsWin64
+Name: "erlang\32"; Description: "{code:ConstGetErlangName32}"; GroupDescription: "Erlang"; Flags: exclusive
+Name: "erlang\64"; Description: "{code:ConstGetErlangName32}"; GroupDescription: "Erlang"; Flags: exclusive; Check: IsWin64
 Name: "erlpath"; Description: "Append Erlang directory to Path environment variable"; GroupDescription: "Erlang"; Check: CheckToAddErlangPath
 
 [Code]
 type
   TElixirReleaseType = (rtRelease, rtPrerelease, rtLatestRelease, rtLatestPrerelease, rtIncompatible);
+  
   TElixirRelease = record
     Version: String;
     URL: String;
@@ -362,8 +363,8 @@ function CheckToInstallErlang: Boolean; begin
 function CheckToAddErlangPath: Boolean; begin
   Result := not ErlangInPath; end;
 
-function ConstGetOTP32Name(Param: String): String; begin Result := GetOTP32Name; end;
-function ConstGetOTP64Name(Param: String): String; begin Result := GetOTP64Name; end;
-function ConstGetOTP32Exe(Param: String): String;  begin Result := GetOTP32Exe; end;
-function ConstGetOTP64Exe(Param: String): String;  begin Result := GetOTP64Exe; end;
-function ConstGetSelectedReleaseVersion(Param: String): String; begin Result := GetVersion(GetSelectedRelease()); end;
+function ConstGetErlangName32(Param: String): String; begin Result := GlobalErlangData.Name32; end;
+function ConstGetErlangName64(Param: String): String; begin Result := GlobalErlangData.Name64; end;
+function ConstGetErlangExe32(Param: String): String;  begin Result := GlobalErlangData.Exe32; end;
+function ConstGetErlangExe64(Param: String): String;  begin Result := GlobalErlangData.Exe64; end;
+function ConstGetSelectedReleaseVersion(Param: String): String; begin Result := CacheSelectedRelease.Version; end;
