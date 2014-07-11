@@ -58,8 +58,8 @@ Source: "compiler:Setup.e32"; DestDir: "{tmp}"; Flags: deleteafterinstall
 Source: "compiler:SetupLdr.e32"; DestDir: "{tmp}"; Flags: deleteafterinstall
 
 [Run]
-Filename: "{tmp}\{code:ConstGetErlangExe32}"; Flags: hidewizard; StatusMsg: "Installing {code:ConstGetErlangName32}..."; Tasks: erlang\32; AfterInstall: AppendErlangPathIfTaskSelected(False)
-Filename: "{tmp}\{code:ConstGetErlangExe64}"; Flags: hidewizard; StatusMsg: "Installing {code:ConstGetErlangName64}..."; Tasks: erlang\64; AfterInstall: AppendErlangPathIfTaskSelected(True)
+Filename: "{tmp}\{code:ConstGetErlangExe32}"; Flags: hidewizard; StatusMsg: "Installing {code:ConstGetErlangName32}..."; Tasks: erlang\32; AfterInstall: AppendNewErlangPathIfTaskSelected(False)
+Filename: "{tmp}\{code:ConstGetErlangExe64}"; Flags: hidewizard; StatusMsg: "Installing {code:ConstGetErlangName64}..."; Tasks: erlang\64; AfterInstall: AppendNewErlangPathIfTaskSelected(True)
 Filename: "{tmp}\7za.exe"; Parameters: "x -oelixir Precompiled.zip"; WorkingDir: "{tmp}"; StatusMsg: "Extracting Precompiled.zip archive..."
 Filename: "{tmp}\ISCC.exe"; Parameters: "/dElixirVersion={code:ConstGetSelectedReleaseVersion} /dSkipWelcome /dNoCompression Elixir.iss"; WorkingDir: "{tmp}"; StatusMsg: "Compiling Elixir installer..."
 Filename: "{tmp}\Output\elixir-v{code:ConstGetSelectedReleaseVersion}-setup.exe"; Flags: nowait; StatusMsg: "Starting Elixir installer..."
@@ -91,10 +91,10 @@ var
 
   CacheSelectedRelease: TElixirRelease;
 
-procedure AppendErlangPathIfTaskSelected(Of64Bit: Boolean);
+procedure AppendNewErlangPathIfTaskSelected(Of64Bit: Boolean);
 begin
-  if IsTaskSelected('erlang\newpath') or IsTaskSelected('existingpath') then
-    AppendErlangPath(Of64Bit, GlobalErlangData.ERTSVersion);
+  if IsTaskSelected('erlang\newpath') then
+    AppendPath(GetLatestErlangPathOfArch(Of64Bit) + '\bin');
 end;
 
 procedure CurPageChanged(CurPageID: Integer);
