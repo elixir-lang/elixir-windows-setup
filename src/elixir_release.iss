@@ -103,27 +103,3 @@ begin
     end
   end;
 end;
-
-function FindFirstReleaseOfType(Releases: array of TElixirRelease; ReleaseType: TElixirReleaseType): TElixirRelease;
-var
-  i: Integer;
-begin
-  for i := 0 to GetArrayLength(Releases) - 1 do begin
-    if Releases[i].ReleaseType = ReleaseType then begin
-      Result := Releases[i];
-      exit;
-    end;
-  end;
-end;
-
-function FindFirstReleaseMatchingRef(Releases: array of TElixirRelease; RefMatch: TObject): TElixirRelease;
-var
-  i: Integer;
-begin
-  for i := 0 to GetArrayLength(Releases) - 1 do begin
-    if Releases[i].Ref = RefMatch then begin
-      Result := Releases[i];
-      exit;
-    end;
-  end;
-end;

@@ -72,7 +72,9 @@ Name: "erlpath"; Description: "Append Erlang directory to Path environment varia
 [Code]
 #include "src\util.iss"
 #include "src\elixir_release.iss"
+#include "src\elixir_lookup.iss"
 #include "src\erlang_data.iss"
+#include "src\erlang_env.iss"
 
 var
   GlobalPageSelRelease: TInputOptionWizardPage;
@@ -82,8 +84,6 @@ var
   GlobalErlangData: TErlangData;
 
   CacheSelectedRelease: TElixirRelease;
-
-  _int: Integer;
 
 function GetElixirCSVFilePath: String;
 begin
@@ -95,62 +95,10 @@ begin
   Result := ExpandConstant('{tmp}\' + GetURLFilePart('{#ERLANG_CSV_URL}'));
 end;
 
-function GetErlangPath(Of64Bit: Boolean): String;
-var
-  Versions: TArrayOfString;
-  Path: String;
-  KeyPath: String;
-begin
-  Result := '';
-
-  if Of64Bit then begin
-    KeyPath := 'SOFTWARE\Wow6432Node\Ericsson\Erlang';
-  end else begin
-    KeyPath := 'SOFTWARE\Ericsson\Erlang';
-  end;
-
-  if RegGetSubkeyNames(HKEY_LOCAL_MACHINE, KeyPath, Versions) then begin
-    if RegQueryStringValue(HKEY_LOCAL_MACHINE, KeyPath + '\' + GlobalErlangData.ERTSVersion, '', Path) then begin
-      Result := Path;
-    end else if RegQueryStringValue(HKEY_LOCAL_MACHINE, KeyPath + '\' + Versions[GetArrayLength(Versions) - 1], '', Path) then begin
-      Result := Path;
-    end;
-  end;
-end;
-
-function ErlangInPath: Boolean;
-begin
-  Result := Exec('erl.exe', '+V', '', SW_HIDE, ewWaitUntilTerminated, _int);
-end;
-
 procedure AppendErlangPathIfTaskSelected(Of64Bit: Boolean);
-var
-  Path: String;
-  RegValue: String;
 begin
-  if IsTaskSelected('erlpath') then begin
-    Path := GetErlangPath(Of64Bit);
-    if not (Path = '') then begin
-      RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'Path', RegValue);
-      if Pos(Path, RegValue) = 0 then begin
-        RegWriteStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'Path', RegValue + ';' + Path + '\bin');
-      end;
-    end;
-  end;
-end;
-
-function FindSelectedRelease(ListBoxes: array of TNewCheckListBox; Releases: array of TElixirRelease): TElixirRelease;
-var
-  i, j, k: Integer;
-begin
-  for i := 0 to GetArrayLength(ListBoxes) - 1 do begin
-    for j := 0 to ListBoxes[i].Items.Count - 1 do begin
-      if ListBoxes[i].ItemObject[j] <> nil then begin
-        Result := FindFirstReleaseMatchingRef(Releases, ListBoxes[i].ItemObject[j]);
-        exit;
-      end;
-    end;
-  end;
+  if IsTaskSelected('erlpath') then
+    AppendErlangPath(Of64Bit, GlobalErlangData.ERTSVersion);
 end;
 
 procedure CurPageChanged(CurPageID: Integer);
@@ -234,7 +182,11 @@ begin
 end;
 
 function CheckToInstallErlang: Boolean; begin
-  Result := (not ErlangInPath) and ((GetErlangPath(False) = '') or (GetErlangPath(True) = '')); end;
+  Result := (not ErlangInPath) and
+            (
+              (GetErlangPath(False, GlobalErlangData.ERTSVersion) = '') or
+              (GetErlangPath(True, GlobalErlangData.ERTSVersion) = '' )
+            ); end;
 function CheckToAddErlangPath: Boolean; begin
   Result := not ErlangInPath; end;
 
