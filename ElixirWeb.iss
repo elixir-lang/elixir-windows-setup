@@ -154,7 +154,7 @@ end;
 
 function ReleaseTypeToString(ReleaseType: TElixirReleaseType): String;
 begin
-  Result := 'Undefined';
+  Result := 'Unknown';
   if ReleaseType = rtRelease then
     Result := 'Release';
   if ReleaseType = rtPrerelease then
