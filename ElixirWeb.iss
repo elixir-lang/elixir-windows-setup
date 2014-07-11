@@ -31,6 +31,7 @@ CreateAppDir=no
 DisableFinishedPage=yes
 OutputBaseFilename=elixir-websetup
 SetupIconFile=assets\drop.ico
+SolidCompression=yes
 WizardImageFile=assets\drop_banner.bmp
 WizardSmallImageFile=assets\null.bmp
 WizardImageBackColor=clWhite
