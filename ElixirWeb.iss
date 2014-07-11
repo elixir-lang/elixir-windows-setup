@@ -213,7 +213,8 @@ begin
         ReleaseType := rtIncompatible;
       end;
 
-      Ref := TObject.Create();
+      if Ref = Null then
+        Ref := TObject.Create();
     end;
   end;
 end;
