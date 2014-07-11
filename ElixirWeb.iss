@@ -224,12 +224,17 @@ procedure ElixirReleasesToListBox(Releases: array of TElixirRelease; ListBox: TN
 var
   i: Integer;
 begin
-  PSelRelease.CheckListBox.Items.Clear;
+  ListBox.Items.Clear;
   for i := 0 to GetArrayLength(Releases) - 1 do begin
     with Releases[i] do begin
-      if ReleaseType <> rtIncompatible then begin
-        PSelRelease.CheckListBox.AddRadioButton('Elixir version ' + Version, ReleaseTypeToString(ReleaseType), 0, (ReleaseType = rtLatestRelease), True, Ref);
-      end;
+      ListBox.AddRadioButton(
+        'Elixir version ' + Version,
+        ReleaseTypeToString(ReleaseType),
+        0,
+        (ReleaseType = rtLatestRelease),
+        (ReleaseType <> rtIncompatible),
+        Ref
+      );
     end
   end;
 end;
@@ -297,16 +302,64 @@ begin
   end;
 end;
 
+function GetFirstReleaseOfType(Releases: array of TElixirRelease; ReleaseType: TElixirReleaseType): TElixirRelease;
+var
+  i: Integer;
+begin
+  Result := Null;
+  for i := 0 to GetArrayLength(Releases) - 1 do begin
+    if Releases[i].ReleaseType = ReleaseType then begin
+      Result := Releases[i];
+      exit;
+    end;
+  end;
+end;
+
+function GetFirstReleaseMatchingRef(Releases: array of TElixirRelease; RefMatch: TObject): TElixirRelease;
+var
+  i: Integer;
+begin
+  Result := Null;
+  for i := 0 to GetArrayLength(Releases) - 1 do begin
+    if Releases[i].Ref = RefMatch then begin
+      Result := Releases[i];
+      exit;
+    end;
+  end;
+end;
+
+function GetSelectedRelease(ListBoxes: array of TNewCheckListBox; Releases: array of TElixirRelease): TElixirRelease;
+var
+  i, j, k: Integer;
+begin
+  Result := Null;
+  for i := 0 to GetArrayLength(ListBoxes) - 1 do begin
+    for j := 0 to ListBoxes[i].Items.Count - 1 do begin
+      if ListBoxes[i].ItemObject[j] <> Null then begin
+        Result := GetFirstReleaseMatchingRef(Releases, ListBoxes[i].ItemObject[j]);
+        exit;
+      end;
+    end;
+  end;
+end;
+
 procedure CurPageChanged(CurPageID: Integer);
+var
+  ListBoxesToCheck: array[0..1] of TNewCheckListBox;
 begin
   if CurPageID = wpPreparing then begin
-    if IsTaskSelected('erlang\32') then begin
-      idpAddFile(ErlangInfo.URL32, GetOTP32Exe);
+    with GlobalErlangData do begin
+      if IsTaskSelected('erlang\32') then
+        idpAddFile(URL32, Exe32);
+      if IsTaskSelected('erlang\64') then
+        idpAddFile(URL64, Exe64);
     end;
-    if IsTaskSelected('erlang\64') then begin
-      idpAddFile(ErlangInfo.URL64, GetOTP64Exe);
-    end;
-    idpAddFile(GetURL(GetSelectedRelease()), ExpandConstant('{tmp}\Precompiled.zip'));
+
+    ListBoxesToCheck[0] := GlobalPageSelInstallType.CheckListBox;
+    ListBoxesToCheck[1] := GlobalPageSelRelease.CheckListBox;
+
+    CacheSelectedRelease := GetSelectedRelease(ListBoxesToCheck, GlobalElixirReleases);
+    idpAddFile(CacheSelectedRelease.URL, ExpandConstant('{tmp}\Precompiled.zip'));
     idpDownloadAfter(wpPreparing);
   end;
 end;
@@ -321,26 +374,35 @@ begin
 end;
 
 procedure InitializeWizard();
-var
-  LatestRelease, LatestPrerelease: TStrings;
-  ErlangFile: TArrayOfString;
 begin
-  PSelInstallType := CreateInputOptionPage(wpWelcome, 'Select Elixir installation type', 'Select which installation type you want to perform, then click Next.', 'I want to:', True, False);
+  CacheSelectedRelease := Null;
 
-  PSelRelease := CreateInputOptionPage(PSelInstallType.ID, 'Select Elixir release', 'Setup will download and install the Elixir release you select.', 'All releases available to install are listed below, from newest to oldest.', True, True);
+  GlobalPageSelInstallType := CreateInputOptionPage(
+    wpWelcome,
+    'Select Elixir installation type',
+    'Select which installation type you want to perform, then click Next.',
+    'I want to:',
+    True, False
+  );
 
-  PopulatePSelReleaseListBox(CSVToStringTable(GetElixirCSVFilePath));
-  LatestRelease := GetListBoxLatestRelease(False);
-  LatestPrerelease := GetListBoxLatestRelease(True);
+  GlobalPageSelRelease := CreateInputOptionPage(
+    GlobalPageSelInstallType.ID,
+    'Select Elixir release',
+    'Setup will download and install the Elixir release you select.',
+    'All releases available to install are listed below, from newest to oldest.',
+    True, True
+  );
 
-  PSelInstallType.CheckListBox.AddRadioButton('Install the latest stable release (v' + GetVersion(LatestRelease) + ')', '', 0, True, True, LatestRelease);
-  if not (LatestPrerelease = nil) then begin
-    PSelInstallType.CheckListBox.AddRadioButton('Install the latest prerelease (v' + GetVersion(LatestPrerelease) + ')', '', 0, False, True, LatestPrerelease);
+  CSVToElixirReleases(GetElixirCSVFilePath, GlobalElixirReleases);
+  ElixirReleasesToListBox(GlobalElixirReleases, GlobalPageSelRelease.CheckListBox);
+
+  with GetFirstReleaseOfType(GlobalElixirReleases, rtLatestRelease) do begin
+    GlobalPageSelInstallType.CheckListBox.AddRadioButton(
+      'Install the latest stable release (v' + Version + ')',
+      '', 0, True, True, Ref
+    );
   end;
-  PSelInstallType.CheckListBox.AddRadioButton('Select another release to install', '', 0, False, True, nil);
-
-  LoadStringsFromFile(GetErlangCSVFilePath, ErlangFile);
-  ErlangCSVInfo := SplitString(ErlangFile[0], ',');
+  GlobalPageSelInstallType.CheckListBox.AddRadioButton('Select another release to install', '', 0, False, True, nil);
 end;
 
 function InitializeSetup(): Boolean;
