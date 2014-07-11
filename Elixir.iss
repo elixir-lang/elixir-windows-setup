@@ -44,7 +44,7 @@ Name: "{group}\Elixir"; Filename: "werl.exe"; WorkingDir: "%userprofile%"; IconF
 Name: "{group}\Uninstall Elixir"; Filename: "{uninstallexe}"; IconFilename: "{app}\drop_gs.ico"; IconIndex: 0
 
 [Tasks]
-Name: modifypath; Description: Append the system's Path environment variable
+Name: modifypath; Description: "Append {app}\bin to Path environment variable"
 
 [Code]
 const 
