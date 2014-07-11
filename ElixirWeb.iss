@@ -304,7 +304,7 @@ begin
   end;
 end;
 
-function GetFirstReleaseOfType(Releases: array of TElixirRelease; ReleaseType: TElixirReleaseType): TElixirRelease;
+function FindFirstReleaseOfType(Releases: array of TElixirRelease; ReleaseType: TElixirReleaseType): TElixirRelease;
 var
   i: Integer;
 begin
@@ -316,7 +316,7 @@ begin
   end;
 end;
 
-function GetFirstReleaseMatchingRef(Releases: array of TElixirRelease; RefMatch: TObject): TElixirRelease;
+function FindFirstReleaseMatchingRef(Releases: array of TElixirRelease; RefMatch: TObject): TElixirRelease;
 var
   i: Integer;
 begin
@@ -328,14 +328,14 @@ begin
   end;
 end;
 
-function GetSelectedRelease(ListBoxes: array of TNewCheckListBox; Releases: array of TElixirRelease): TElixirRelease;
+function FindSelectedRelease(ListBoxes: array of TNewCheckListBox; Releases: array of TElixirRelease): TElixirRelease;
 var
   i, j, k: Integer;
 begin
   for i := 0 to GetArrayLength(ListBoxes) - 1 do begin
     for j := 0 to ListBoxes[i].Items.Count - 1 do begin
       if ListBoxes[i].ItemObject[j] <> nil then begin
-        Result := GetFirstReleaseMatchingRef(Releases, ListBoxes[i].ItemObject[j]);
+        Result := FindFirstReleaseMatchingRef(Releases, ListBoxes[i].ItemObject[j]);
         exit;
       end;
     end;
@@ -357,7 +357,7 @@ begin
     ListBoxesToCheck[0] := GlobalPageSelInstallType.CheckListBox;
     ListBoxesToCheck[1] := GlobalPageSelRelease.CheckListBox;
 
-    CacheSelectedRelease := GetSelectedRelease(ListBoxesToCheck, GlobalElixirReleases);
+    CacheSelectedRelease := FindSelectedRelease(ListBoxesToCheck, GlobalElixirReleases);
     idpAddFile(CacheSelectedRelease.URL, ExpandConstant('{tmp}\Precompiled.zip'));
     idpDownloadAfter(wpPreparing);
   end;
@@ -393,7 +393,7 @@ begin
   GlobalElixirReleases := CSVToElixirReleases(GetElixirCSVFilePath);
   ElixirReleasesToListBox(GlobalElixirReleases, GlobalPageSelRelease.CheckListBox);
 
-  with GetFirstReleaseOfType(GlobalElixirReleases, rtLatestRelease) do begin
+  with FindFirstReleaseOfType(GlobalElixirReleases, rtLatestRelease) do begin
     GlobalPageSelInstallType.CheckListBox.AddRadioButton(
       'Install the latest stable release (v' + Version + ')',
       '', 0, True, True, Ref
