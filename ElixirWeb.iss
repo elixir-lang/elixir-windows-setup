@@ -22,10 +22,7 @@
 #define ERLANG_CSV_URL 'http://elixir-lang.org/erlang.csv'
 
 #include <idp.iss>
-
-#define StrInspectSignature(str Value)   'Const_' + StringChange(Value, '.', '__')
-#define StrInspectScriptConst(str Value) '{code:' + StrInspectSignature(Value) + '}'
-#define StrInspectFuncDef(str Value)     'function ' + StrInspectSignature(Value) + '(Param: String): String; begin Result := ' + Value + '; end;'
+#include "src\ispp_inspect.iss"
 
 [Setup]
 AppName=Elixir
@@ -192,9 +189,4 @@ function CheckToInstallErlang: Boolean; begin
 function CheckToAddExistingErlangPath: Boolean; begin
   Result := (not CheckToInstallErlang) and (not ErlangInPath); end;
   
-{#StrInspectFuncDef('GlobalErlangData.Name32')}
-{#StrInspectFuncDef('GlobalErlangData.Name64')}
-{#StrInspectFuncDef('GlobalErlangData.Exe32')}
-{#StrInspectFuncDef('GlobalErlangData.Exe64')}
-{#StrInspectFuncDef('GetLatestErlangPath')}
-{#StrInspectFuncDef('CacheSelectedRelease.Version')}
+{#StrInspectAllFuncs}
