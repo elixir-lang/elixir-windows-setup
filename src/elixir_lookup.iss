@@ -1,5 +1,4 @@
-// elixir_lookup.iss - Functions for finding releases within TElixirRelease
-// arrays and other structures
+// elixir_lookup.iss - Functions for finding releases within TElixirRelease arrays and other structures
 // Copyright 2014 Chris Hyndman
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
