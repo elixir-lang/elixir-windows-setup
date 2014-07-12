@@ -187,6 +187,6 @@ end;
 function CheckToInstallErlang: Boolean; begin
   Result := (GetLatestErlangPath = ''); end;
 function CheckToAddExistingErlangPath: Boolean; begin
-  Result := (not CheckToInstallErlang) and (not ErlangInPath); end;
+  Result := not (CheckToInstallErlang or ErlangInPath); end;
   
 {#StrInspectAllFuncs}
