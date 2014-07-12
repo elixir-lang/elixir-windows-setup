@@ -23,6 +23,10 @@
 
 #include <idp.iss>
 
+#define StrInspectSignature(str Value)   'Const_' + StringChange(Value, '.', '__')
+#define StrInspectScriptConst(str Value) '{code:' + StrInspectSignature(Value) + '}'
+#define StrInspectFuncDef(str Value)     'function ' + StrInspectSignature(Value) + '(Param: String): String; begin Result := ' + Value + '; end;'
+
 [Setup]
 AppName=Elixir
 AppVersion=0.57
@@ -58,18 +62,18 @@ Source: "compiler:Setup.e32"; DestDir: "{tmp}"; Flags: deleteafterinstall
 Source: "compiler:SetupLdr.e32"; DestDir: "{tmp}"; Flags: deleteafterinstall
 
 [Run]
-Filename: "{tmp}\{code:ConstGetErlangExe32}"; Flags: hidewizard; StatusMsg: "Installing {code:ConstGetErlangName32}..."; Tasks: erlang\32
-Filename: "{tmp}\{code:ConstGetErlangExe64}"; Flags: hidewizard; StatusMsg: "Installing {code:ConstGetErlangName64}..."; Tasks: erlang\64
+Filename: "{tmp}\{#StrInspectScriptConst('GlobalErlangData.Exe32')}"; Flags: hidewizard; StatusMsg: "Installing {#StrInspectScriptConst('GlobalErlangData.Name32')}..."; Tasks: erlang\32
+Filename: "{tmp}\{#StrInspectScriptConst('GlobalErlangData.Exe64')}"; Flags: hidewizard; StatusMsg: "Installing {#StrInspectScriptConst('GlobalErlangData.Name64')}..."; Tasks: erlang\64
 Filename: "{tmp}\7za.exe"; Parameters: "x -oelixir Precompiled.zip"; WorkingDir: "{tmp}"; StatusMsg: "Extracting Precompiled.zip archive..."
-Filename: "{tmp}\ISCC.exe"; Parameters: "/dElixirVersion={code:ConstGetSelectedReleaseVersion} /dSkipWelcome /dNoCompression Elixir.iss"; WorkingDir: "{tmp}"; StatusMsg: "Compiling Elixir installer..."
-Filename: "{tmp}\Output\elixir-v{code:ConstGetSelectedReleaseVersion}-setup.exe"; Flags: nowait; StatusMsg: "Starting Elixir installer..."
+Filename: "{tmp}\ISCC.exe"; Parameters: "/dElixirVersion={#StrInspectScriptConst('CacheSelectedRelease.Version')} /dSkipWelcome /dNoCompression Elixir.iss"; WorkingDir: "{tmp}"; StatusMsg: "Compiling Elixir installer..."
+Filename: "{tmp}\Output\elixir-v{#StrInspectScriptConst('CacheSelectedRelease.Version')}-setup.exe"; Flags: nowait; StatusMsg: "Starting Elixir installer..."
 
 [Tasks]
 Name: "erlang"; Description: "Install Erlang"; Check: CheckToInstallErlang
-Name: "erlang\32"; Description: "{code:ConstGetErlangName32}"; Flags: exclusive
-Name: "erlang\64"; Description: "{code:ConstGetErlangName64}"; Flags: exclusive; Check: IsWin64
+Name: "erlang\32"; Description: "{#StrInspectScriptConst('GlobalErlangData.Name32')}"; Flags: exclusive
+Name: "erlang\64"; Description: "{#StrInspectScriptConst('GlobalErlangData.Name64')}"; Flags: exclusive; Check: IsWin64
 Name: "erlang\newpath"; Description: "Append Erlang directory to Path environment variable"
-Name: "existingpath"; Description: "Append {code:ConstGetLatestErlangPath}\bin to Path environment variable"; Check: CheckToAddExistingErlangPath
+Name: "existingpath"; Description: "Append {#StrInspectScriptConst('GetLatestErlangPath')}\bin to Path environment variable"; Check: CheckToAddExistingErlangPath
 
 [Code]
 #include "src\util.iss"
@@ -187,16 +191,10 @@ function CheckToInstallErlang: Boolean; begin
   Result := (GetLatestErlangPath = ''); end;
 function CheckToAddExistingErlangPath: Boolean; begin
   Result := (not CheckToInstallErlang) and (not ErlangInPath); end;
-
-function ConstGetErlangName32(Param: String): String; begin
-  Result := GlobalErlangData.Name32; end;
-function ConstGetErlangName64(Param: String): String; begin
-  Result := GlobalErlangData.Name64; end;
-function ConstGetErlangExe32(Param: String): String; begin
-  Result := GlobalErlangData.Exe32; end;
-function ConstGetErlangExe64(Param: String): String; begin
-  Result := GlobalErlangData.Exe64; end;
-function ConstGetLatestErlangPath(Param: String): String; begin
-  Result := GetLatestErlangPath; end;
-function ConstGetSelectedReleaseVersion(Param: String): String; begin
-  Result := CacheSelectedRelease.Version; end;
+  
+{#StrInspectFuncDef('GlobalErlangData.Name32')}
+{#StrInspectFuncDef('GlobalErlangData.Name64')}
+{#StrInspectFuncDef('GlobalErlangData.Exe32')}
+{#StrInspectFuncDef('GlobalErlangData.Exe64')}
+{#StrInspectFuncDef('GetLatestErlangPath')}
+{#StrInspectFuncDef('CacheSelectedRelease.Version')}
