@@ -15,6 +15,16 @@
 ;
 ; "Elixir" and the Elixir logo are copyright (c) 2012 Plataformatec.
 
+#ifndef ElixirVersion
+  #if FileExists('elixir\VERSION')
+    #define VersionFileHandle = FileOpen('elixir\VERSION')
+    #define ElixirVersion = FileRead(VersionFileHandle)
+    #expr FileClose(VersionFileHandle)
+  #else
+    #error elixir\VERSION not found
+  #endif
+#endif
+
 [Setup]
 AppName=Elixir
 AppVersion={#ElixirVersion}
