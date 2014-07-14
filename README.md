@@ -12,14 +12,17 @@ Part of the Elixir on Windows Google Summer of Code 2014 project, this installer
 
 ## Build Instructions
 
-First, download the [Unicode Inno Setup QuickStart Pack](http://www.jrsoftware.org/isdl.php#qsp) and install it, making sure to keep the "Install Inno Setup Preprocessor" checkbox checked when asked.  Then, follow these steps to build an offline installer (a single executable which only installs Elixir itself):
+First, download the [Unicode Inno Setup QuickStart Pack](http://www.jrsoftware.org/isdl.php#qsp) and install it, making sure to keep the "Install Inno Setup Preprocessor" checkbox checked when asked (the other choices are optional.)  Then, clone this repo (`elixir-windows-setup`) to your system.
 
-1. Clone this repo (`elixir-windows-setup`) to your system.
-2. Extract the Precompiled.zip of the desired [Elixir Release](https://github.com/elixir-lang/elixir/releases/) into `elixir-windows-setup\elixir`
-3. Open either a PowerShell or Command Prompt in `elixir-windows-setup`.
-4. In the directory, run `#INNOSETUPPATH#\ISCC.exe /dElixirVersion=#ELIXIRVERSION# Elixir.iss`, where `#INNOSETUPPATH#` is probably "C:\Program Files (x86)\Inno Setup 5" and `#ELIXIRVERSION#` is the version of Elixir you're building the installer for.
+To build the web installer, simply open ElixirWeb.iss in the Inno Setup Compiler and click "Compile" to build an installer in `elixir-windows-setup/Output`.
 
-And that's it!  As an alternative to step 2, you could clone Elixir into `elixir-windows-setup` and build an installer for that repo.
+To build the offline installer (which installs a specific release of Elixir and nothing else), follow these steps:
+
+1. Extract the Precompiled.zip of the desired [Elixir Release](https://github.com/elixir-lang/elixir/releases/) into `elixir-windows-setup\elixir`
+2. Open either a PowerShell or Command Prompt in `elixir-windows-setup`.
+3. In the directory, run `#INNOSETUPPATH#\ISCC.exe /dElixirVersion=#ELIXIRVERSION# Elixir.iss`, where `#INNOSETUPPATH#` is probably "C:\Program Files (x86)\Inno Setup 5" and `#ELIXIRVERSION#` is the version of Elixir you're building the installer for.
+
+And that's it!  As an alternative to step 1, you could clone Elixir into `elixir-windows-setup` and build an installer for that repo.
 
 ## Acknowledgements
 
