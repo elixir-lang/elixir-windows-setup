@@ -12,17 +12,18 @@ Part of the Elixir on Windows Google Summer of Code 2014 project, this installer
 
 ## Build Instructions
 
-First, download the [Unicode Inno Setup QuickStart Pack](http://www.jrsoftware.org/isdl.php#qsp) and install it, making sure to keep the "Install Inno Setup Preprocessor" checkbox checked when asked (the other choices are optional.)  Then, clone this repo (`elixir-windows-setup`) to your system.
+First, download the Unicode version of Inno Setup (isetup-X.Y.Z-unicode.exe from [jrsoftware.org](http://www.jrsoftware.org/isdl.php#stable)) and install it, making sure to keep the "Install Inno Setup Preprocessor" checkbox checked when asked (the other choices are optional.)  Then, clone this repo (`elixir-windows-setup`) to your system.
 
-To build the web installer, simply open ElixirWeb.iss in the Inno Setup Compiler and click "Compile" to build an installer in `elixir-windows-setup/Output`.
+To build the web installer (which offers to install any release of Elixir as well as install Erlang), follow these steps:
+1. Download and install the [Inno Download Plugin](https://code.google.com/p/inno-download-plugin/).
+2. Open ElixirWeb.iss in the Inno Setup Compiler.
+3. Click "Compile" to build an installer in `elixir-windows-setup/Output`.
 
 To build the offline installer (which installs a specific release of Elixir and nothing else), follow these steps:
 
 1. Extract the Precompiled.zip of the desired [Elixir Release](https://github.com/elixir-lang/elixir/releases/) into `elixir-windows-setup\elixir`
 2. Open either a PowerShell or Command Prompt in `elixir-windows-setup`.
 3. In the directory, run `#INNOSETUPPATH#\ISCC.exe /dElixirVersion=#ELIXIRVERSION# Elixir.iss`, where `#INNOSETUPPATH#` is probably "C:\Program Files (x86)\Inno Setup 5" and `#ELIXIRVERSION#` is the version of Elixir you're building the installer for.
-
-And that's it!  As an alternative to step 1, you could clone Elixir into `elixir-windows-setup` and build an installer for that repo.
 
 ## Acknowledgements
 
