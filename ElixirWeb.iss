@@ -16,7 +16,7 @@
 ; "Elixir" and the Elixir logo are copyright (c) 2012 Plataformatec.
 
 #define COMPAT_MASK 1
-#define PATH_TO_7ZA 'C:\Users\Chris\Documents\7za920'
+#define PATH_TO_7ZA GetEnv('USERPROFILE') + '\Documents\7za920'
 
 #define ELIXIR_CSV_URL 'http://elixir-lang.org/elixir.csv'
 #define ERLANG_CSV_URL 'http://elixir-lang.org/erlang.csv'
