@@ -1,5 +1,7 @@
 # elixir-windows-setup
 
+![elixir-websetup](assets/screenshot.png)
+
 Part of the Elixir on Windows Google Summer of Code 2014 project, this installer sets up [Elixir](http://elixir-lang.org/) on a Windows machine.
 
 ## Features
