@@ -12,9 +12,10 @@ Part of the Elixir on Windows Google Summer of Code 2014 project, this installer
 
 ## Build Instructions
 
-First, download the Unicode version of Inno Setup (isetup-X.Y.Z-unicode.exe from [jrsoftware.org](http://www.jrsoftware.org/isdl.php#stable)) and install it, making sure to keep the "Install Inno Setup Preprocessor" checkbox checked when asked (the other choices are optional.)  Then, clone this repo (`elixir-windows-setup`) to your system.
+First, download the Unicode version of Inno Setup (`isetup-X.Y.Z-unicode.exe` from [jrsoftware.org](http://www.jrsoftware.org/isdl.php#stable)) and install it, making sure to keep the "Install Inno Setup Preprocessor" checkbox checked when asked.  Then, clone this repo (`elixir-windows-setup`) to your system.
 
 To build the web installer (which offers to install any release of Elixir as well as install Erlang), follow these steps:
+
 1. Download and install the [Inno Download Plugin](https://code.google.com/p/inno-download-plugin/).
 2. Open ElixirWeb.iss in the Inno Setup Compiler.
 3. Click "Compile" to build an installer in `elixir-windows-setup/Output`.
