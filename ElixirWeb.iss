@@ -44,7 +44,10 @@ NameAndVersion=%1
 [Files]
 ; Offline installer files
 Source: "Elixir.iss"; DestDir: "{tmp}"; Flags: deleteafterinstall
-Source: "assets\*"; DestDir: "{tmp}\assets"; Flags: deleteafterinstall
+Source: "assets\drop.ico"; DestDir: "{tmp}\assets"; Flags: deleteafterinstall
+Source: "assets\drop_gs.ico"; DestDir: "{tmp}\assets"; Flags: deleteafterinstall
+Source: "assets\drop_banner.bmp"; DestDir: "{tmp}\assets"; Flags: deleteafterinstall
+Source: "assets\null.bmp"; DestDir: "{tmp}\assets"; Flags: deleteafterinstall
 Source: "src\legroom\modpath.iss"; DestDir: "{tmp}\src\legroom"; Flags: deleteafterinstall
 ; 7-Zip portable extractor
 Source: "{#PATH_TO_7ZA}\7za.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
