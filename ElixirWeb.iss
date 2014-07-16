@@ -27,16 +27,25 @@
 [Setup]
 AppName=Elixir
 AppVersion=0.59
-ChangesEnvironment=yes
-CreateAppDir=no
-DisableFinishedPage=yes
 OutputBaseFilename=elixir-websetup
-SetupIconFile=assets\drop.ico
 SolidCompression=yes
+
+; This installer doesn't install anything itself, it just runs other installers
+CreateAppDir=no
+Uninstallable=no
+
+; Because we may be adding Erlang to Path
+ChangesEnvironment=yes
+
+; The user will see the offline installer's finished page instead
+DisableFinishedPage=yes
+
+; Visual
+SetupIconFile=assets\drop.ico
+WizardImageBackColor=clWhite
 WizardImageFile=assets\drop_banner.bmp
 WizardSmallImageFile=assets\null.bmp
-WizardImageBackColor=clWhite
-Uninstallable=no
+
 
 [CustomMessages]
 NameAndVersion=%1
