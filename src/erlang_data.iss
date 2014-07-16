@@ -27,6 +27,8 @@ type
     Name64: String;
   end;
 
+// Given a filename to an erlang.csv file, returns the latest OTP release in
+// the file as a TErlangData record
 function CSVToErlangData(Filename: String): TErlangData;
 var
   Rows: TArrayOfString;
