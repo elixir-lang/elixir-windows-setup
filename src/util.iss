@@ -15,11 +15,13 @@
 
 [Code]
 
+// Wrapper function for returning a path relative to {tmp}
 function Tmp(Path: String): String;
 begin
   Result := ExpandConstant('{tmp}\') + Path;
 end;
 
+// Recursive function called by SplitString
 function SplitStringRec(Str: String; Delim: String; StrList: TStringList): TStringList;
 var
   StrHead: String;
@@ -42,11 +44,14 @@ begin
   end;
 end;
 
+// Given a string and a delimiter, returns the strings separated by the delimiter
+// as a TStringList object
 function SplitString(Str: String; Delim: String): TStringList;
 begin
   Result := SplitStringRec(Str, Delim, TStringList.Create);
 end;
 
+// Recursive function called by GetURLFilePart
 function GetURLFilePartRec(URL: String): String;
 var
   SlashPos: Integer;
@@ -60,12 +65,17 @@ begin
   end;
 end;
 
+// Given a URL to a file, returns the filename portion of the URL
 function GetURLFilePart(URL: String): String;
 begin
   Delete(URL, 1, Pos('://', URL) + 2);
   Result := GetURLFilePartRec(URL);
 end;
 
+// Given two software version strings (ex. '1.5.0'), returns:
+//    1 if the second version is later than the first
+//   -1 if the second version is earlier than the first
+//    0 if equivalent (
 function CompareVersions(VerL, VerR: String): Integer;
 var
   VerLExplode: TStrings;
@@ -94,6 +104,8 @@ begin
   end;
 end;
 
+// Given an array of strings representing software versions, returns
+// the latest of those versions
 function GetLatestVersion(Versions: TArrayOfString): String;
 var
   i: Integer;
