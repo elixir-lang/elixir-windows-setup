@@ -112,7 +112,9 @@ var
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
   if CurStep = ssPostInstall then begin
+    // The other sections ([Files], [Run]) have been processed
     if IsTaskSelected('erlang\newpath') or IsTaskSelected('existingpath') then
+      // An Erlang Path-related task was selected, so it is performed here
       AppendPath(GetLatestErlangPath + '\bin');
   end;
 end;
@@ -122,18 +124,28 @@ var
   ListBoxesToCheck: array[0..1] of TNewCheckListBox;
 begin
   if CurPageID = wpPreparing then begin
+    // We're on the page after the "Ready To Install" page but before [Files] and [Run] are processed
+    
     with GlobalErlangData do begin
       if IsTaskSelected('erlang\32') then
+        // 32-bit OTP needs to be downloaded before it's installed
         idpAddFile(URL32, Tmp(Exe32));
       if IsTaskSelected('erlang\64') then
+        // 64-bit OTP needs to be downloaded before it's installed
         idpAddFile(URL64, Tmp(Exe64));
     end;
-
+    
+    // Look in these two listboxes for the selected release to install
     ListBoxesToCheck[0] := GlobalPageSelInstallType.CheckListBox;
     ListBoxesToCheck[1] := GlobalPageSelRelease.CheckListBox;
-
+    
+    // Store the selected release for use during the installation process
     CacheSelectedRelease := FindSelectedRelease(ListBoxesToCheck, GlobalElixirReleases);
+    
+    // Download the Precompiled.zip archive for the selected release
     idpAddFile(CacheSelectedRelease.URL, Tmp('Precompiled.zip'));
+    
+    // Put the downloader page directly after this page
     idpDownloadAfter(wpPreparing);
   end;
 end;
@@ -141,6 +153,8 @@ end;
 function ShouldSkipPage(PageID: Integer): Boolean;
 begin
   if PageID = GlobalPageSelRelease.ID then begin
+    // We should skip the page for selecting an Elixir release if the install type selection page
+    // has some Elixir release set (such as the latest stable release)
     Result := not (GlobalPageSelInstallType.CheckListBox.ItemObject[GlobalPageSelInstallType.SelectedValueIndex] = nil);
   end else begin
     Result := False;
@@ -149,51 +163,62 @@ end;
 
 procedure InitializeWizard();
 begin
+  // Define the installation type page
   GlobalPageSelInstallType := CreateInputOptionPage(
     wpWelcome,
     'Select Elixir installation type',
     'Select which installation type you want to perform, then click Next.',
     'I want to:',
-    True, False
+    True, False // (Use Radio Buttons), (Don't put them in a scrollable list box)
   );
-
+  
+  // Define the custom release selection page
   GlobalPageSelRelease := CreateInputOptionPage(
     GlobalPageSelInstallType.ID,
     'Select Elixir release',
     'Setup will download and install the Elixir release you select.',
     'All releases available to install are listed below, from newest to oldest.',
-    True, True
+    True, True // (Use Radio Buttons), (Put them in a scrollable list box)
   );
-
+  
+  // Create an array of TElixirRelease records from elixir.csv and store them in a global variable
   GlobalElixirReleases := CSVToElixirReleases(GlobalElixirCSVFilePath);
+  
+  // Use the global Elixir release array to populate the custom Elixir release list box
   ElixirReleasesToListBox(GlobalElixirReleases, GlobalPageSelRelease.CheckListBox);
-
+  
+  // Find the latest release and put it as a selection on the installation type page
   with FindFirstReleaseOfType(GlobalElixirReleases, rtLatestRelease) do begin
     GlobalPageSelInstallType.CheckListBox.AddRadioButton(
       'Install the latest stable release (v' + Version + ')',
       '', 0, True, True, Ref
     );
   end;
+  // Create a selection which will allow the custom Elixir release page to show up next
   GlobalPageSelInstallType.CheckListBox.AddRadioButton(
     'Select another release to install',
     '', 0, False, True, nil
   );
-
+  
+  // Create an TErlangData from erlang.csv record and store it in a global variable
   GlobalErlangData := CSVToErlangData(GlobalErlangCSVFilePath);
 end;
 
 function InitializeSetup(): Boolean;
 begin
   Result := True;
-
+  
+  // Store the paths to elixir.csv, erlang.csv in global variables
   GlobalElixirCSVFilePath := Tmp(GetURLFilePart('{#ELIXIR_CSV_URL}'));
   GlobalErlangCSVFilePath := Tmp(GetURLFilePart('{#ERLANG_CSV_URL}'));
 
+  // Download elixir.csv; show an error message and exit the installer if downloading fails
   if not idpDownloadFile('{#ELIXIR_CSV_URL}', GlobalElixirCSVFilePath) then begin
     MsgBox('Error: Downloading {#ELIXIR_CSV_URL} failed.  Setup cannot continue.', mbInformation, MB_OK);
     Result := False;
     exit;
   end;
+  // Download erlang.csv; show an error message and exit the installer if downloading fails
   if not idpDownloadFile('{#ERLANG_CSV_URL}', GlobalErlangCSVFilePath) then begin
     MsgBox('Error: Downloading {#ERLANG_CSV_URL} failed.  Setup cannot continue.', mbInformation, MB_OK);
     Result := False;
@@ -202,8 +227,11 @@ begin
 end;
 
 function CheckToInstallErlang: Boolean; begin
+  // Erlang should be installed if there's no Erlang path in the registry
   Result := (GetLatestErlangPath = ''); end;
 function CheckToAddExistingErlangPath: Boolean; begin
+  // We shouldn't add an existing Erlang path if it's already in Path or it isn't installed at all
   Result := not (CheckToInstallErlang or ErlangInPath); end;
-  
+
+// Scripted constants expand here  
 {#StrInspectAllFuncs}
