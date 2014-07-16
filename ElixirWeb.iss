@@ -48,6 +48,7 @@ WizardSmallImageFile=assets\null.bmp
 
 
 [CustomMessages]
+; The version string shouldn't show the version of this installer (AppVersion)
 NameAndVersion=%1
 
 [Files]
@@ -71,10 +72,14 @@ Source: "compiler:Setup.e32"; DestDir: "{tmp}"; Flags: deleteafterinstall
 Source: "compiler:SetupLdr.e32"; DestDir: "{tmp}"; Flags: deleteafterinstall
 
 [Run]
+; Run the Erlang installer if task is selected
 Filename: "{tmp}\{#StrInspectScriptConst('GlobalErlangData.Exe32')}"; Flags: hidewizard; StatusMsg: "Installing {#StrInspectScriptConst('GlobalErlangData.Name32')}..."; Tasks: erlang\32
 Filename: "{tmp}\{#StrInspectScriptConst('GlobalErlangData.Exe64')}"; Flags: hidewizard; StatusMsg: "Installing {#StrInspectScriptConst('GlobalErlangData.Name64')}..."; Tasks: erlang\64
+; Extract the downloaded Precompiled.zip archive
 Filename: "{tmp}\7za.exe"; Parameters: "x -oelixir Precompiled.zip"; WorkingDir: "{tmp}"; StatusMsg: "Extracting Precompiled.zip archive..."
+; Compile the offline installer
 Filename: "{tmp}\ISCC.exe"; Parameters: "/dSkipWelcome /dNoCompression Elixir.iss"; WorkingDir: "{tmp}"; StatusMsg: "Compiling Elixir installer..."
+; Run the offline installer
 Filename: "{tmp}\Output\elixir-v{#StrInspectScriptConst('CacheSelectedRelease.Version')}-setup.exe"; Flags: nowait; StatusMsg: "Starting Elixir installer..."
 
 [Tasks]
