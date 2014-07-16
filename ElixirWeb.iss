@@ -119,7 +119,7 @@ begin
     ListBoxesToCheck[1] := GlobalPageSelRelease.CheckListBox;
 
     CacheSelectedRelease := FindSelectedRelease(ListBoxesToCheck, GlobalElixirReleases);
-    idpAddFile(CacheSelectedRelease.URL, ExpandConstant('{tmp}\Precompiled.zip'));
+    idpAddFile(CacheSelectedRelease.URL, Tmp('Precompiled.zip'));
     idpDownloadAfter(wpPreparing);
   end;
 end;
@@ -172,8 +172,8 @@ function InitializeSetup(): Boolean;
 begin
   Result := True;
 
-  GlobalElixirCSVFilePath := ExpandConstant('{tmp}\' + GetURLFilePart('{#ELIXIR_CSV_URL}'));
-  GlobalErlangCSVFilePath := ExpandConstant('{tmp}\' + GetURLFilePart('{#ERLANG_CSV_URL}'));
+  GlobalElixirCSVFilePath := Tmp(GetURLFilePart('{#ELIXIR_CSV_URL}'));
+  GlobalErlangCSVFilePath := Tmp(GetURLFilePart('{#ERLANG_CSV_URL}'));
 
   if not idpDownloadFile('{#ELIXIR_CSV_URL}', GlobalElixirCSVFilePath) then begin
     MsgBox('Error: Downloading {#ELIXIR_CSV_URL} failed.  Setup cannot continue.', mbInformation, MB_OK);
