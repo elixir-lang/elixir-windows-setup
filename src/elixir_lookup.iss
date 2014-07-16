@@ -15,6 +15,7 @@
 
 [Code]
 
+// Given an array of Elixir releases and a release type, return the first release in the array of that type
 function FindFirstReleaseOfType(Releases: array of TElixirRelease; ReleaseType: TElixirReleaseType): TElixirRelease;
 var
   i: Integer;
@@ -27,6 +28,8 @@ begin
   end;
 end;
 
+// Given an array of Elixir releases and a reference object, return the first release in the array which
+// points to the same object
 function FindFirstReleaseMatchingRef(Releases: array of TElixirRelease; RefMatch: TObject): TElixirRelease;
 var
   i: Integer;
@@ -39,6 +42,9 @@ begin
   end;
 end;
 
+// Given an array of list boxes and an array of Elixir releases, search for a selected radio button that
+// points to an Elixir release reference object, and return the Elixir release which shares that reference
+// object
 function FindSelectedRelease(ListBoxes: array of TNewCheckListBox; Releases: array of TElixirRelease): TElixirRelease;
 var
   i, j: Integer;
