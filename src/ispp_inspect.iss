@@ -13,12 +13,18 @@
 ;   See the License for the specific language governing permissions and
 ;   limitations under the License.
 
-#define StrInspectSignature(str Value) 'Const_' + StringChange(Value, '.', '__')
-#define StrInspectFuncDef(str Value) 'function ' + StrInspectSignature(Value) + '(Param: String): String; begin Result := ' + Value + '; end; '
+; Creates a syntax-legal function name from the value to inspect
+#define StrInspectFuncName(str Value) 'Const_' + StringChange(Value, '.', '__')
 
+; Creates a function which returns the value specified
+#define StrInspectFuncDef(str Value) 'function ' + StrInspectFuncName(Value) + '(Param: String): String; begin Result := ' + Value + '; end; '
+
+; This variable stores the functions for expanding in the translation
 #define StrInspectAllFuncs = ''
 
+; Creates a function for the value specified, if it doesn't already exist, and returns the scripted constant syntax for use
+; in non-[Code] sections
 #define StrInspectScriptConst(str Value) \
   Pos(StrInspectFuncDef(Value), StrInspectAllFuncs) == 0 ? \
   StrInspectAllFuncs = StrInspectAllFuncs + StrInspectFuncDef(Value) : 0, \
-  '{code:' + StrInspectSignature(Value) + '}'
+  '{code:' + StrInspectFuncName(Value) + '}'
