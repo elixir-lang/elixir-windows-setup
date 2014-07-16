@@ -15,6 +15,11 @@
 
 [Code]
 
+function Tmp(Path: String): String;
+begin
+  Result := ExpandConstant('{tmp}\') + Path;
+end;
+
 function SplitStringRec(Str: String; Delim: String; StrList: TStringList): TStringList;
 var
   StrHead: String;
