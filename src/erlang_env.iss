@@ -15,6 +15,8 @@
 
 [Code]
 
+// Given a Boolean where true -> 64bit and false -> 32bit, returns
+// the path of the latest Erlang installation of that architecture
 function GetLatestErlangPathOfArch(Of64Bit: Boolean): String;
 var
   ERTSVersions: TArrayOfString;
@@ -33,6 +35,8 @@ begin
     Result := FuncRegQueryStringValue(HKEY_LOCAL_MACHINE, SubKeyName + '\' + GetLatestVersion(ERTSVersions), '');
 end;
 
+// Returns the path of the latest Erlang installation, preferring
+// 64-bit over 32-bit
 function GetLatestErlangPath: String;
 begin
   Result := '';
@@ -42,6 +46,8 @@ begin
     Result := GetLatestErlangPathOfArch(False);
 end;
 
+// Returns true or false depending on if some erl.exe is in the
+// system's Path variable
 function ErlangInPath: Boolean;
 var
   _int: Integer;
