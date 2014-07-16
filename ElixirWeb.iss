@@ -110,9 +110,9 @@ begin
   if CurPageID = wpPreparing then begin
     with GlobalErlangData do begin
       if IsTaskSelected('erlang\32') then
-        idpAddFile(URL32, Exe32);
+        idpAddFile(URL32, Tmp(Exe32));
       if IsTaskSelected('erlang\64') then
-        idpAddFile(URL64, Exe64);
+        idpAddFile(URL64, Tmp(Exe64));
     end;
 
     ListBoxesToCheck[0] := GlobalPageSelInstallType.CheckListBox;
