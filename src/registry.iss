@@ -15,17 +15,21 @@
 
 [Code]
 
+// Wrapper for RegGetSubkeyNames so it acts like a function
 function FuncRegGetSubkeyNames(RootKey: Integer; SubKeyName: String): TArrayOfString;
 begin
   RegGetSubkeyNames(RootKey, SubKeyName, Result);
 end;
 
+// Wrapper for RegQueryStringValue so it acts like a function
 function FuncRegQueryStringValue(RootKey: Integer; SubKeyName, ValueName: String): String;
 begin
-  Result := ''
+  Result := '';
   RegQueryStringValue(RootKey, SubKeyName, ValueName, Result);
 end;
 
+// Given a directory path, appends the directory to the system's Path environment variable,
+// if it doesn't already exist
 procedure AppendPath(Dir: String);
 var
   RegValue: String;
