@@ -15,6 +15,7 @@
 ;
 ; "Elixir" and the Elixir logo are copyright (c) 2012 Plataformatec.
 
+; Determine version of Elixir from elixir\VERSION
 #ifndef ElixirVersion
   #if FileExists('elixir\VERSION')
     #define VersionFileHandle = FileOpen('elixir\VERSION')
@@ -32,17 +33,23 @@ ChangesEnvironment=yes
 DefaultDirName={pf}\Elixir
 DefaultGroupName=Elixir
 OutputBaseFilename=elixir-v{#ElixirVersion}-setup
-SetupIconFile=assets\drop.ico
-UninstallDisplayIcon={app}\drop.ico
+
+; Web installer: the user sees the welcome page as part of the web installer
 #ifdef SkipWelcome
 DisableWelcomePage=yes
 #endif
-WizardImageFile=assets\drop_banner.bmp
-WizardSmallImageFile=assets\null.bmp
-WizardImageBackColor=clWhite
+
+; Web installer: no need to compress, since the installer is built directly on the machine
 #ifdef NoCompression
 Compression=none
 #endif
+
+; Visual
+SetupIconFile=assets\drop.ico
+WizardImageBackColor=clWhite
+WizardImageFile=assets\drop_banner.bmp
+WizardSmallImageFile=assets\null.bmp
+UninstallDisplayIcon={app}\drop.ico
 
 [Files]
 Source: "assets\drop.ico"; DestDir: "{app}"
@@ -57,6 +64,7 @@ Name: "{group}\Uninstall Elixir"; Filename: "{uninstallexe}"; IconFilename: "{ap
 Name: modifypath; Description: "Append {app}\bin to Path environment variable"
 
 [Code]
+// All of this code is used by modpath.iss to determine which path(s) to add and the corresponding task
 const 
     ModPathName = 'modifypath'; 
     ModPathType = 'system'; 
