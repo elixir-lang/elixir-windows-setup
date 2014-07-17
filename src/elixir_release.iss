@@ -58,13 +58,13 @@ begin
   // Read the file at Filename and store the lines in Rows
   LoadStringsFromFile(Filename, Rows); 
   // Match length of return array to number of rows
-  SetArrayLength(Result, GetArrayLength(Rows));
+  SetArrayLength(Result, GetArrayLength(Rows) - 1);
 
-  for i := 0 to GetArrayLength(Result) - 1 do begin
+  for i := 1 to GetArrayLength(Rows) - 1 do begin
     // Separate values at commas
     RowValues := SplitString(Rows[i], ',');
 
-    with Result[i] do begin
+    with Result[i - 1] do begin
       // Store first and second values as the Version and URL respectively
       Version := RowValues[0];
       URL := RowValues[1];

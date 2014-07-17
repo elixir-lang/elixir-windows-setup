@@ -35,7 +35,7 @@ var
   RowValues: TStrings;
 begin
   LoadStringsFromFile(Filename, Rows);
-  RowValues := SplitString(Rows[0], ',');
+  RowValues := SplitString(Rows[1], ',');
 
   with Result do begin
     OTPVersion  := RowValues[0];
