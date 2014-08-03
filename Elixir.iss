@@ -28,7 +28,7 @@
 
 [Setup]
 AppName=Elixir
-AppPublisher=Plataformatec
+AppPublisher=ElixirLang
 AppPublisherURL=http://elixir-lang.org/
 AppVersion={#ElixirVersion}
 ChangesEnvironment=yes
