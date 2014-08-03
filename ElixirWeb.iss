@@ -229,6 +229,7 @@ end;
 function CheckToInstallErlang: Boolean; begin
   // Erlang should be installed if there's no Erlang path in the registry
   Result := (GetLatestErlangPath = ''); end;
+
 function CheckToAddExistingErlangPath: Boolean; begin
   // We shouldn't add an existing Erlang path if it's already in Path or it isn't installed at all
   Result := not (CheckToInstallErlang or ErlangInPath); end;

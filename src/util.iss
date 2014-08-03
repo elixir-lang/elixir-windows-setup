@@ -75,7 +75,7 @@ end;
 // Given two software version strings (ex. '1.5.0'), returns:
 //    1 if the second version is later than the first
 //   -1 if the second version is earlier than the first
-//    0 if equivalent (
+//    0 if equivalent
 function CompareVersions(VerL, VerR: String): Integer;
 var
   VerLExplode: TStrings;
