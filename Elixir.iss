@@ -28,6 +28,8 @@
 
 [Setup]
 AppName=Elixir
+AppPublisher=Plataformatec
+AppPublisherURL=http://elixir-lang.org/
 AppVersion={#ElixirVersion}
 ChangesEnvironment=yes
 DefaultDirName={pf}\Elixir
