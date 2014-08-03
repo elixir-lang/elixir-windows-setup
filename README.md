@@ -2,12 +2,10 @@
 
 ![elixir-websetup](assets/screenshot.png)
 
-Part of the Elixir on Windows Google Summer of Code 2014 project, this installer sets up [Elixir](http://elixir-lang.org/) on a Windows machine.
-
 ## Features
 
 * Downloads and installs the latest Elixir version, or another version the user selects
-* Offers to installer Erlang and add the Erlang directory to the system's Path variable
+* Offers to install Erlang and add the Erlang directory to the system's Path variable
 * Adds Elixir to the system's Path variable
 * Creates shortcuts to IEx and the uninstaller
 
@@ -15,7 +13,7 @@ Part of the Elixir on Windows Google Summer of Code 2014 project, this installer
 
 The **offline installer** ([Elixir.iss](Elixir.iss)) packages a specific Elixir release to install, and also can append the system's Path variable appropriately.  This kind of installer is currently not distributed in binary form.
 
-The **web installer** ([ElixirWeb.iss](ElixirWeb.iss)) is what's currently distributed (see [Releases](https://github.com/chyndman/elixir-windows-setup/releases)). The **web installer** itself does not install Elixir.  It packages the files necessary to download an Elixir release of the users choosing, build an **offline installer** against this release, and run the resulting **offline installer** that performs the actual Elixir installation.  It also handles installing Erlang and adding it to the system's Path variable.
+The **web installer** ([ElixirWeb.iss](ElixirWeb.iss)) is what's currently distributed (see [Releases](https://github.com/chyndman/elixir-windows-setup/releases)). The **web installer** itself does not install Elixir.  It packages the files necessary to download, compile, and run the **offline installer** for the selected Elixir release.  It also handles installing Erlang and adding it to the system's Path variable.
 
 ## Build Instructions
 
