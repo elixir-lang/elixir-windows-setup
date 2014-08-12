@@ -30,6 +30,13 @@ AppVersion=1.00
 OutputBaseFilename=elixir-websetup
 SolidCompression=yes
 
+; Sign the installer using signtool.exe from VS and arguments from signtool_args.txt
+#ifexist 'signtool_args.txt'
+  #define FileHandle = FileOpen('signtool_args.txt')
+  #emit 'SignTool=signtool ' + FileRead(FileHandle)
+  #expr FileClose(FileHandle)
+#endif
+
 ; This installer doesn't install anything itself, it just runs other installers
 CreateAppDir=no
 Uninstallable=no
