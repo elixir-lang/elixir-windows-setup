@@ -90,6 +90,7 @@ Filename: "{tmp}\ISCC.exe"; Parameters: "/dSkipWelcome /dNoCompression Elixir.is
 Filename: "{tmp}\Output\elixir-v{#StrInspectScriptConst('CacheSelectedRelease.Version')}-setup.exe"; Flags: nowait; StatusMsg: "Starting Elixir installer..."
 
 [Tasks]
+Name: "unins_previous"; Description: "Uninstall previous version at {#StrInspectScriptConst('GetPreviousAppPath')} (Recommended)"; Check: CheckPreviousVersionExists
 Name: "erlang"; Description: "Install Erlang"; Check: CheckToInstallErlang
 Name: "erlang\32"; Description: "{#StrInspectScriptConst('GlobalErlangData.Name32')}"; Flags: exclusive
 Name: "erlang\64"; Description: "{#StrInspectScriptConst('GlobalErlangData.Name64')}"; Flags: exclusive; Check: IsWin64
@@ -103,6 +104,7 @@ Name: "existingpath"; Description: "Append {#StrInspectScriptConst('GetLatestErl
 #include "src\elixir_lookup.iss"
 #include "src\erlang_data.iss"
 #include "src\erlang_env.iss"
+#include "src\unins_previous.iss"
 
 var
   GlobalPageSelRelease: TInputOptionWizardPage;
@@ -129,10 +131,14 @@ end;
 procedure CurPageChanged(CurPageID: Integer);
 var
   ListBoxesToCheck: array[0..1] of TNewCheckListBox;
+  _int: Integer;
 begin
   if CurPageID = wpPreparing then begin
     // We're on the page after the "Ready To Install" page but before [Files] and [Run] are processed
     
+    if IsTaskSelected('unins_previous') then
+      ExecAsOriginalUser(GetPreviousUninsExe, '/SILENT', '', SW_SHOW, ewWaitUntilTerminated, _int);
+
     with GlobalErlangData do begin
       if IsTaskSelected('erlang\32') then
         // 32-bit OTP needs to be downloaded before it's installed
