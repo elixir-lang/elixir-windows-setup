@@ -1,4 +1,4 @@
-; ElixirWeb.iss - Elixir Web Installer
+﻿; ElixirWeb.iss - Elixir Web Installer
 ; Copyright 2014 Chris Hyndman
 ;
 ;   Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,10 @@
 ; "Elixir" and the Elixir logo are copyright (c) 2012 Plataformatec.
 
 #define COMPAT_MASK 1
-#define PATH_TO_7ZA GetEnv('USERPROFILE') + '\Documents\7za920'
+
+#define FILE_7ZA_PATH = FileOpen('7za_path.txt')
+#define PATH_TO_7ZA FileRead(FILE_7ZA_PATH)
+#expr FileClose(FILE_7ZA_PATH)
 
 #define ELIXIR_CSV_URL 'http://elixir-lang.org/elixir.csv'
 #define ERLANG_CSV_URL 'http://elixir-lang.org/erlang.csv'
@@ -26,16 +29,9 @@
 
 [Setup]
 AppName=Elixir
-AppVersion=1.01
+AppVersion=1.02
 OutputBaseFilename=elixir-websetup
 SolidCompression=yes
-
-; Sign the installer using signtool.exe from VS and arguments from signtool_args.txt
-#ifexist 'signtool_args.txt'
-  #define FileHandle = FileOpen('signtool_args.txt')
-  #emit 'SignTool=signtool ' + FileRead(FileHandle)
-  #expr FileClose(FileHandle)
-#endif
 
 ; This installer doesn't install anything itself, it just runs other installers
 CreateAppDir=no
@@ -53,7 +49,6 @@ WizardImageBackColor=clWhite
 WizardImageFile=assets\drop_banner.bmp
 WizardSmallImageFile=assets\null.bmp
 
-
 [CustomMessages]
 ; The version string shouldn't show the version of this installer (AppVersion)
 NameAndVersion=%1
@@ -67,7 +62,7 @@ Source: "assets\drop_banner.bmp"; DestDir: "{tmp}\assets"; Flags: deleteafterins
 Source: "assets\null.bmp"; DestDir: "{tmp}\assets"; Flags: deleteafterinstall
 Source: "src\legroom\modpath.iss"; DestDir: "{tmp}\src\legroom"; Flags: deleteafterinstall
 ; 7-Zip portable extractor
-Source: "{#PATH_TO_7ZA}\7za.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
+Source: "{#PATH_TO_7ZA}"; DestDir: "{tmp}"; Flags: deleteafterinstall
 ; Compiler files
 Source: "compiler:Default.isl"; DestDir: "{tmp}"; Flags: deleteafterinstall
 Source: "compiler:ISCC.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall

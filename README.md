@@ -22,9 +22,10 @@ First, download the Unicode version of Inno Setup (`isetup-X.Y.Z-unicode.exe` fr
 To build the **web installer**, follow these steps:
 
 1. Download and install the [Inno Download Plugin](https://code.google.com/p/inno-download-plugin/).
-2. Download the [7-Zip Command Line Version](http://www.7-zip.org/download.html) and extract it to `7za920` in your Documents folder (i.e. `C:\Users\YourUserName\Documents\7za920`).  You can redefine the `PATH_TO_7ZA` macro if you have this extracted elsewhere.
-3. Open `elixir-windows-setup\ElixirWeb.iss` in the Inno Setup Compiler.
-4. Click "Compile" to build an installer in `elixir-windows-setup/Output`.
+2. Download the [7-Zip Command Line Version](http://www.7-zip.org/download.html) and extract it somewhere.
+3. Edit the path in `elixir-windows-setup\7za_path.txt` to point to where you extracted 7za.exe.
+4. Open `elixir-windows-setup\ElixirWeb.iss` in the Inno Setup Compiler.
+5. Click "Compile" to build an installer in `elixir-windows-setup/Output`.
 
 To build the **offline installer** follow these steps:
 
