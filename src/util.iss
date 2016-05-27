@@ -1,5 +1,5 @@
 // util.iss - Useful helper functions
-// Copyright 2014 Chris Hyndman
+// Copyright (c) Chris Hyndman
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.

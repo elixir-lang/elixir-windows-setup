@@ -1,5 +1,5 @@
 ﻿; ElixirWeb.iss - Elixir Web Installer
-; Copyright 2014 Chris Hyndman
+; Copyright (c) Chris Hyndman
 ;
 ;   Licensed under the Apache License, Version 2.0 (the "License");
 ;   you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
 
 [Setup]
 AppName=Elixir
-AppVersion=1.02
+AppVersion=1.03
 OutputBaseFilename=elixir-websetup
 SolidCompression=yes
 
