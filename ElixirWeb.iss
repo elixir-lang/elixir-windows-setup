@@ -27,6 +27,7 @@ AppName=Elixir
 AppVersion=1.10
 OutputBaseFilename=elixir-websetup
 SolidCompression=yes
+DisableWelcomePage=no
 
 ; This installer doesn't install anything itself, it just runs other installers
 CreateAppDir=no
