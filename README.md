@@ -40,10 +40,7 @@ Copyright (C) 1997-2013 Jordan Russell. All rights reserved.
 Portions Copyright (C) 2000-2013 Martijn Laan. All rights reserved.
 
 #### [Inno Download Plugin](https://code.google.com/p/inno-download-plugin/)
-Copyright (c) 2013-2014 Mitrich Software
-
-#### [modpath.iss](http://legroom.net/software/modpath)
-Copyright (c) Jared Breland
+Copyright (c) 2013-2016 Mitrich Software
 
 #### [7-Zip](http://www.7-zip.org/)
 Copyright (C) 1999-2010 Igor Pavlov
