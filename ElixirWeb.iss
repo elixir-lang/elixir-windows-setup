@@ -77,7 +77,7 @@ Filename: "{tmp}\7za.exe"; Parameters: "x -oelixir Precompiled.zip"; WorkingDir:
 ; Compile the offline installer
 Filename: "{tmp}\ISCC.exe"; Parameters: "/dSkipWelcome /dNoCompression Elixir.iss"; WorkingDir: "{tmp}"; StatusMsg: "Compiling Elixir installer..."
 ; Run the offline installer
-Filename: "{tmp}\Output\elixir-v{#StrInspectScriptConst('CacheSelectedRelease.Version')}-setup.exe"; Flags: nowait; StatusMsg: "Starting Elixir installer..."
+Filename: "{tmp}\Output\elixir-v{#StrInspectScriptConst('CacheSelectedRelease.Version')}-setup.exe"; Flags: nowait postinstall; StatusMsg: "Starting Elixir installer..."
 
 [Tasks]
 Name: "unins_previous"; Description: "Uninstall previous version at {#StrInspectScriptConst('GetPreviousAppPath')} (Recommended)"; Check: CheckPreviousVersionExists
