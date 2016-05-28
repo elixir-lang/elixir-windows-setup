@@ -16,11 +16,6 @@
 ; "Elixir" and the Elixir logo are copyright (c) 2012 Plataformatec.
 
 #define COMPAT_MASK 1
-
-#define FILE_7ZA_PATH = FileOpen('7za_path.txt')
-#define PATH_TO_7ZA FileRead(FILE_7ZA_PATH)
-#expr FileClose(FILE_7ZA_PATH)
-
 #define ELIXIR_CSV_URL 'http://elixir-lang.org/elixir.csv'
 #define ERLANG_CSV_URL 'http://elixir-lang.org/erlang.csv'
 
@@ -62,7 +57,7 @@ Source: "assets\drop_banner.bmp"; DestDir: "{tmp}\assets"; Flags: deleteafterins
 Source: "assets\null.bmp"; DestDir: "{tmp}\assets"; Flags: deleteafterinstall
 Source: "src\legroom\modpath.iss"; DestDir: "{tmp}\src\legroom"; Flags: deleteafterinstall
 ; 7-Zip portable extractor
-Source: "{#PATH_TO_7ZA}"; DestDir: "{tmp}"; Flags: deleteafterinstall
+Source: "bin\7za.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
 ; Compiler files
 Source: "compiler:Default.isl"; DestDir: "{tmp}"; Flags: deleteafterinstall
 Source: "compiler:ISCC.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
