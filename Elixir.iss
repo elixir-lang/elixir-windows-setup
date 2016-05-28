@@ -55,12 +55,11 @@ UninstallDisplayIcon={app}\drop.ico
 
 [Files]
 Source: "assets\drop.ico"; DestDir: "{app}"
-Source: "assets\drop_gs.ico"; DestDir: "{app}"
 Source: "elixir\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\Elixir"; Filename: "werl.exe"; WorkingDir: "%userprofile%"; IconFilename: "{app}\drop.ico"; IconIndex: 0; Parameters: "-env ERL_LIBS ""{app}\lib"" -user Elixir.IEx.CLI -extra --no-halt"
-Name: "{group}\Uninstall Elixir"; Filename: "{uninstallexe}"; IconFilename: "{app}\drop_gs.ico"; IconIndex: 0
+
 
 [Tasks]
 Name: modifypath; Description: "Append {app}\bin to Path environment variable"
