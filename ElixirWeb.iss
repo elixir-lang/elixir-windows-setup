@@ -55,7 +55,8 @@ Source: "Elixir.iss"; DestDir: "{tmp}"; Flags: deleteafterinstall
 Source: "assets\drop.ico"; DestDir: "{tmp}\assets"; Flags: deleteafterinstall
 Source: "assets\drop_banner.bmp"; DestDir: "{tmp}\assets"; Flags: deleteafterinstall
 Source: "assets\null.bmp"; DestDir: "{tmp}\assets"; Flags: deleteafterinstall
-Source: "src\legroom\modpath.iss"; DestDir: "{tmp}\src\legroom"; Flags: deleteafterinstall
+Source: "src\util.iss"; DestDir: "{tmp}\src"; Flags: deleteafterinstall
+Source: "src\path.iss"; DestDir: "{tmp}\src"; Flags: deleteafterinstall
 ; 7-Zip portable extractor
 Source: "bin\7za.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
 ; Compiler files
@@ -84,12 +85,12 @@ Name: "unins_previous"; Description: "Uninstall previous version at {#StrInspect
 Name: "erlang"; Description: "Install Erlang"; Check: CheckToInstallErlang
 Name: "erlang\32"; Description: "{#StrInspectScriptConst('GlobalErlangData.Name32')}"; Flags: exclusive
 Name: "erlang\64"; Description: "{#StrInspectScriptConst('GlobalErlangData.Name64')}"; Flags: exclusive; Check: IsWin64
-Name: "erlang\newpath"; Description: "Append Erlang directory to Path environment variable"
-Name: "existingpath"; Description: "Append {#StrInspectScriptConst('GetLatestErlangPath')}\bin to Path environment variable"; Check: CheckToAddExistingErlangPath
+Name: "erlang\newpath"; Description: "Append Erlang directory to system PATH"
+Name: "existingpath"; Description: "Append {#StrInspectScriptConst('GetLatestErlangPath')}\bin to system PATH"; Check: CheckToAddExistingErlangPath
 
 [Code]
 #include "src\util.iss"
-#include "src\registry.iss"
+#include "src\path.iss"
 #include "src\elixir_release.iss"
 #include "src\elixir_lookup.iss"
 #include "src\erlang_data.iss"

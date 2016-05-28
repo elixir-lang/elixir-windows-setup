@@ -26,6 +26,9 @@
   #endif
 #endif
 
+#define ELIXIR_PATH '{app}\bin'
+#define ESCRIPT_PATH '%USERPROFILE%\.mix\escripts'
+
 [Setup]
 AppName=Elixir
 AppPublisher=ElixirLang
@@ -60,20 +63,47 @@ Source: "elixir\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs
 [Icons]
 Name: "{group}\Elixir"; Filename: "werl.exe"; WorkingDir: "%userprofile%"; IconFilename: "{app}\drop.ico"; IconIndex: 0; Parameters: "-env ERL_LIBS ""{app}\lib"" -user Elixir.IEx.CLI -extra --no-halt"
 
-
 [Tasks]
-Name: modifypath; Description: "Append {app}\bin to Path environment variable"
+Name: elixirpath; Description: "Append {#ELIXIR_PATH} to system PATH"; Check: CheckToAppendElixirPath
+Name: escriptpath; Description: "Append {#ESCRIPT_PATH} to system PATH"; Check: CheckToAppendEscriptPath
 
 [Code]
-// All of this code is used by modpath.iss to determine which path(s) to add and the corresponding task
-const 
-    ModPathName = 'modifypath'; 
-    ModPathType = 'system'; 
+#include "src\util.iss"
+#include "src\path.iss"
 
-function ModPathDir(): TArrayOfString; 
-begin 
-    setArrayLength(Result, 1) 
-    Result[0] := ExpandConstant('{app}\bin'); 
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+	if CurStep = ssPostInstall then begin
+		if IsTaskSelected('elixirpath') then begin
+			AppendPath(ExpandConstant('{#ELIXIR_PATH}'));
+    end;
+    if IsTaskSelected('escriptpath') then begin
+      AppendPath(ExpandConstant('{#ESCRIPT_PATH}'));
+    end;
+  end;
 end;
- 
-#include "src\legroom\modpath.iss"
+
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+var
+	SelTaskString: String;
+  SelTasks: TStringList;
+  ElixirIdx: Integer;
+  EscriptIdx: Integer;
+begin
+	if CurUninstallStep = usUninstall then begin
+		SelTaskString := '';
+    RegQueryStringValue(HKLM, 'Software\Microsoft\Windows\CurrentVersion\Uninstall\Elixir_is1', 'Inno Setup: Selected Tasks', SelTaskString);
+
+		if Pos('elixirpath', SelTaskString) <> 0 then
+			DeletePath(ExpandConstant('{#ELIXIR_PATH}'));
+    
+    if Pos('escriptpath', SelTaskString) <> 0 then
+      DeletePath(ExpandConstant('{#ESCRIPT_PATH}'));
+	end;
+end;
+
+function CheckToAppendElixirPath: Boolean; begin
+  Result := not ContainsPath(ExpandConstant('{#ELIXIR_PATH}')); end;
+
+function CheckToAppendEscriptPath: Boolean; begin
+  Result := not ContainsPath(ExpandConstant('{#ESCRIPT_PATH}')); end;

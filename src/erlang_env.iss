@@ -30,9 +30,10 @@ begin
     SubKeyName := 'SOFTWARE\Ericsson\Erlang';
   end;
 
-  ERTSVersions := FuncRegGetSubkeyNames(HKEY_LOCAL_MACHINE, SubKeyName);
-  if GetArrayLength(ERTSVersions) <> 0 then
-    Result := FuncRegQueryStringValue(HKEY_LOCAL_MACHINE, SubKeyName + '\' + GetLatestVersion(ERTSVersions), '');
+  if RegGetSubkeyNames(HKEY_LOCAL_MACHINE, SubKeyName, ERTSVersions) then begin
+    if GetArrayLength(ERTSVersions) <> 0 then
+      RegQueryStringValue(HKEY_LOCAL_MACHINE, SubKeyName + '\' + GetLatestVersion(ERTSVersions), '', Result);
+  end;
 end;
 
 // Returns the path of the latest Erlang installation, preferring
