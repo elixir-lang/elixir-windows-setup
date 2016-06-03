@@ -41,7 +41,6 @@ DisableFinishedPage=yes
 
 ; Visual
 SetupIconFile=assets\drop.ico
-WizardImageBackColor=clWhite
 WizardImageFile=assets\drop_banner.bmp
 WizardSmallImageFile=assets\null.bmp
 
