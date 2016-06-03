@@ -24,7 +24,7 @@
 
 [Setup]
 AppName=Elixir
-AppVersion=1.10
+AppVersion=1.11
 OutputBaseFilename=elixir-websetup
 SolidCompression=yes
 DisableWelcomePage=no
