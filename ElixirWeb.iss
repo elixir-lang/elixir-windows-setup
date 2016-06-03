@@ -184,15 +184,6 @@ begin
     True, True // (Use Radio Buttons), (Put them in a scrollable list box)
   );
   
-  // Create an array of TElixirRelease records from elixir.csv and store them in a global variable
-  GlobalElixirReleases := CSVToElixirReleases(GlobalElixirCSVFilePath);
-  
-  // Check if above didn't work
-  if GetArrayLength(GlobalElixirReleases) = 0 then begin
-    MsgBox('Error: Parsing {#ELIXIR_CSV_URL} failed.  Setup cannot continue.', mbInformation, MB_OK);
-    Abort();
-  end;
-  
   // Use the global Elixir release array to populate the custom Elixir release list box
   ElixirReleasesToListBox(GlobalElixirReleases, GlobalPageSelRelease.CheckListBox);
   
@@ -203,20 +194,12 @@ begin
       '', 0, True, True, Ref
     );
   end;
+  
   // Create a selection which will allow the custom Elixir release page to show up next
   GlobalPageSelInstallType.CheckListBox.AddRadioButton(
     'Select another release to install',
     '', 0, False, True, nil
   );
-  
-  // Create an TErlangData from erlang.csv record and store it in a global variable
-  GlobalErlangData := CSVToErlangData(GlobalErlangCSVFilePath);
-  
-  // Check if above didn't work
-  if GlobalErlangData.OTPVersion = '' then begin
-    MsgBox('Error: Parsing {#ERLANG_CSV_URL} failed.  Setup cannot continue.', mbInformation, MB_OK);
-    Abort();
-  end;
 end;
 
 function InitializeSetup(): Boolean;
@@ -236,6 +219,26 @@ begin
   // Download erlang.csv; show an error message and exit the installer if downloading fails
   if not idpDownloadFile('{#ERLANG_CSV_URL}', GlobalErlangCSVFilePath) then begin
     MsgBox('Error: Downloading {#ERLANG_CSV_URL} failed.  Setup cannot continue.', mbInformation, MB_OK);
+    Result := False;
+    exit;
+  end;
+  
+  // Create an array of TElixirRelease records from elixir.csv and store them in a global variable
+  GlobalElixirReleases := CSVToElixirReleases(GlobalElixirCSVFilePath);
+  
+  // Check if above didn't work
+  if GetArrayLength(GlobalElixirReleases) = 0 then begin
+    MsgBox('Error: Parsing {#ELIXIR_CSV_URL} failed.  Setup cannot continue.', mbInformation, MB_OK);
+    Result := False;
+    exit;
+  end;
+  
+  // Create an TErlangData from erlang.csv record and store it in a global variable
+  GlobalErlangData := CSVToErlangData(GlobalErlangCSVFilePath);
+  
+  // Check if above didn't work
+  if GlobalErlangData.OTPVersion = '' then begin
+    MsgBox('Error: Parsing {#ERLANG_CSV_URL} failed.  Setup cannot continue.', mbInformation, MB_OK);
     Result := False;
     exit;
   end;
