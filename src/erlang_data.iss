@@ -34,18 +34,31 @@ var
   Rows: TArrayOfString;
   RowValues: TStrings;
 begin
-  LoadStringsFromFile(Filename, Rows);
-  RowValues := SplitString(Rows[1], ',');
+  if LoadStringsFromFile(Filename, Rows) then begin
+    RowValues := SplitString(Rows[1], ',');
 
-  with Result do begin
-    OTPVersion  := RowValues[0];
-    ERTSVersion := RowValues[1];
-    URL32       := RowValues[2];
-    URL64       := RowValues[3];
+    with Result do begin
+      OTPVersion  := RowValues[0];
+      ERTSVersion := RowValues[1];
+      URL32       := RowValues[2];
+      URL64       := RowValues[3];
 
-    Exe32       := GetURLFilePart(URL32);
-    Exe64       := GetURLFilePart(URL64);
-    Name32      := 'OTP ' + OTPVersion + ' (32-bit)';
-    Name64      := 'OTP ' + OTPVersion + ' (64-bit)';
+      Exe32       := GetURLFilePart(URL32);
+      Exe64       := GetURLFilePart(URL64);
+      Name32      := 'OTP ' + OTPVersion + ' (32-bit)';
+      Name64      := 'OTP ' + OTPVersion + ' (64-bit)';
+    end;
+  end else begin
+    with Result do begin
+      OTPVersion  := '';
+      ERTSVersion := '';
+      URL32       := '';
+      URL64       := '';
+
+      Exe32       := '';
+      Exe64       := '';
+      Name32      := '';
+      Name64      := '';
+    end;
   end;
 end;

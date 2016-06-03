@@ -188,6 +188,12 @@ begin
   // Create an array of TElixirRelease records from elixir.csv and store them in a global variable
   GlobalElixirReleases := CSVToElixirReleases(GlobalElixirCSVFilePath);
   
+  // Check if above didn't work
+  if GetArrayLength(GlobalElixirReleases) = 0 then begin
+    MsgBox('Error: Parsing {#ELIXIR_CSV_URL} failed.  Setup cannot continue.', mbInformation, MB_OK);
+    Abort();
+  end;
+  
   // Use the global Elixir release array to populate the custom Elixir release list box
   ElixirReleasesToListBox(GlobalElixirReleases, GlobalPageSelRelease.CheckListBox);
   
@@ -206,6 +212,12 @@ begin
   
   // Create an TErlangData from erlang.csv record and store it in a global variable
   GlobalErlangData := CSVToErlangData(GlobalErlangCSVFilePath);
+  
+  // Check if above didn't work
+  if GlobalErlangData.OTPVersion = '' then begin
+    MsgBox('Error: Parsing {#ERLANG_CSV_URL} failed.  Setup cannot continue.', mbInformation, MB_OK);
+    Abort();
+  end;
 end;
 
 function InitializeSetup(): Boolean;

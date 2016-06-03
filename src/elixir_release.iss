@@ -56,50 +56,53 @@ begin
   LatestRelease := True;
   
   // Read the file at Filename and store the lines in Rows
-  LoadStringsFromFile(Filename, Rows); 
-  // Match length of return array to number of rows
-  SetArrayLength(Result, GetArrayLength(Rows) - 1);
+  if LoadStringsFromFile(Filename, Rows) then begin 
+    // Match length of return array to number of rows
+    SetArrayLength(Result, GetArrayLength(Rows) - 1);
 
-  for i := 1 to GetArrayLength(Rows) - 1 do begin
-    // Separate values at commas
-    RowValues := SplitString(Rows[i], ',');
+    for i := 1 to GetArrayLength(Rows) - 1 do begin
+      // Separate values at commas
+      RowValues := SplitString(Rows[i], ',');
 
-    with Result[i - 1] do begin
-      // Store first and second values as the Version and URL respectively
-      Version := RowValues[0];
-      URL := RowValues[1];
+      with Result[i - 1] do begin
+        // Store first and second values as the Version and URL respectively
+        Version := RowValues[0];
+        URL := RowValues[1];
 
-      if StrToInt(RowValues[3]) = {#COMPAT_MASK} then begin
-        // Release has a compatibility mask matching this installer
-        if RowValues[2] = 'prerelease' then begin
-          // Release is designated as a prerelease
-          if LatestPrerelease then begin
-            // This is the first prerelease found, so it's the latest prerelease
-            ReleaseType := rtLatestPrerelease;
-            LatestPrerelease := False;
+        if StrToInt(RowValues[3]) = {#COMPAT_MASK} then begin
+          // Release has a compatibility mask matching this installer
+          if RowValues[2] = 'prerelease' then begin
+            // Release is designated as a prerelease
+            if LatestPrerelease then begin
+              // This is the first prerelease found, so it's the latest prerelease
+              ReleaseType := rtLatestPrerelease;
+              LatestPrerelease := False;
+            end else begin
+              // This is not the latest prerelease
+              ReleaseType := rtPrerelease;
+            end;
           end else begin
-            // This is not the latest prerelease
-            ReleaseType := rtPrerelease;
+            if LatestRelease then begin
+              // This is the first release found, so it's the latest prerelease
+              ReleaseType := rtLatestRelease;
+              LatestRelease := False;
+            end else begin
+              // This is not the latest release
+              ReleaseType := rtRelease;
+            end;
           end;
         end else begin
-          if LatestRelease then begin
-            // This is the first release found, so it's the latest prerelease
-            ReleaseType := rtLatestRelease;
-            LatestRelease := False;
-          end else begin
-            // This is not the latest release
-            ReleaseType := rtRelease;
-          end;
+          // Release can't be installed by this installer
+          ReleaseType := rtIncompatible;
         end;
-      end else begin
-        // Release can't be installed by this installer
-        ReleaseType := rtIncompatible;
-      end;
 
-      // Assign this Elixir release a new reference object
-      if Ref = nil then
-        Ref := TObject.Create();
+        // Assign this Elixir release a new reference object
+        if Ref = nil then
+          Ref := TObject.Create();
+      end;
     end;
+  end else begin
+    SetArrayLength(Result, 0);
   end;
 end;
 
