@@ -38,6 +38,7 @@ ChangesEnvironment=yes
 DefaultDirName={pf}\Elixir
 DefaultGroupName=Elixir
 OutputBaseFilename=elixir-v{#ElixirVersion}-setup
+AllowNoIcons=yes
 
 ; Web installer: the user sees the welcome page as part of the web installer
 #ifdef SkipWelcome
