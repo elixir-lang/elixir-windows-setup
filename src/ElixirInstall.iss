@@ -1,4 +1,4 @@
-// unins_previous.iss - Functionality to check for previous Elixir installations
+// ElixirInstall.iss - Functions relating to existing installations of Elixir
 // Copyright (c) Chris Hyndman
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");

@@ -33,9 +33,6 @@ DisableWelcomePage=no
 CreateAppDir=no
 Uninstallable=no
 
-; Because we may be adding Erlang to Path
-ChangesEnvironment=yes
-
 ; The user will see the offline installer's finished page instead
 DisableFinishedPage=yes
 
@@ -54,9 +51,9 @@ Source: "Elixir.iss"; DestDir: "{tmp}"; Flags: deleteafterinstall
 Source: "assets\drop.ico"; DestDir: "{tmp}\assets"; Flags: deleteafterinstall
 Source: "assets\drop_banner.bmp"; DestDir: "{tmp}\assets"; Flags: deleteafterinstall
 Source: "assets\null.bmp"; DestDir: "{tmp}\assets"; Flags: deleteafterinstall
-Source: "src\util.iss"; DestDir: "{tmp}\src"; Flags: deleteafterinstall
-Source: "src\path.iss"; DestDir: "{tmp}\src"; Flags: deleteafterinstall
-Source: "src\erlang_env.iss"; DestDir: "{tmp}\src"; Flags: deleteafterinstall
+Source: "src\Util.iss"; DestDir: "{tmp}\src"; Flags: deleteafterinstall
+Source: "src\Path.iss"; DestDir: "{tmp}\src"; Flags: deleteafterinstall
+Source: "src\ErlangInstall.iss"; DestDir: "{tmp}\src"; Flags: deleteafterinstall
 ; 7-Zip portable extractor
 Source: "bin\7za.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
 ; Compiler files
@@ -85,17 +82,14 @@ Name: "unins_previous"; Description: "Uninstall previous version at {#StrInspect
 Name: "erlang"; Description: "Install Erlang"; Check: CheckToInstallErlang
 Name: "erlang\32"; Description: "{#StrInspectScriptConst('GlobalErlangData.Name32')}"; Flags: exclusive
 Name: "erlang\64"; Description: "{#StrInspectScriptConst('GlobalErlangData.Name64')}"; Flags: exclusive; Check: IsWin64
-Name: "erlang\newpath"; Description: "Append Erlang directory to system PATH"
-Name: "existingpath"; Description: "Append {#StrInspectScriptConst('GetLatestErlangPath')}\bin to system PATH"; Check: CheckToAddExistingErlangPath
 
 [Code]
-#include "src\util.iss"
-#include "src\path.iss"
-#include "src\elixir_release.iss"
-#include "src\elixir_lookup.iss"
-#include "src\erlang_data.iss"
-#include "src\erlang_env.iss"
-#include "src\unins_previous.iss"
+#include "src\Util.iss"
+#include "src\Path.iss"
+#include "src\TErlangData.iss"
+#include "src\TElixirRelease.iss"
+#include "src\ErlangInstall.iss"
+#include "src\ElixirInstall.iss"
 
 var
   GlobalPageSelRelease: TInputOptionWizardPage;
@@ -108,16 +102,6 @@ var
   GlobalErlangCSVFilePath: String;
 
   CacheSelectedRelease: TElixirRelease;
-
-procedure CurStepChanged(CurStep: TSetupStep);
-begin
-  if CurStep = ssPostInstall then begin
-    // The other sections ([Files], [Run]) have been processed
-    if IsTaskSelected('erlang\newpath') or IsTaskSelected('existingpath') then
-      // An Erlang Path-related task was selected, so it is performed here
-      AppendPath(GetLatestErlangPath + '\bin');
-  end;
-end;
 
 procedure CurPageChanged(CurPageID: Integer);
 var
@@ -248,10 +232,6 @@ end;
 function CheckToInstallErlang: Boolean; begin
   // Erlang should be installed if there's no Erlang path in the registry
   Result := (GetLatestErlangPath = ''); end;
-
-function CheckToAddExistingErlangPath: Boolean; begin
-  // We shouldn't add an existing Erlang path if it's already in Path or it isn't installed at all
-  Result := not (CheckToInstallErlang or ErlangInPath); end;
 
 // Scripted constants expand here  
 {#StrInspectAllFuncs}

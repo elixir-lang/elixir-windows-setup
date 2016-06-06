@@ -1,4 +1,4 @@
-// path.iss - Manipulate the PATH variable
+// Path.iss - Manipulate the PATH variable
 // Copyright (c) Chris Hyndman
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");

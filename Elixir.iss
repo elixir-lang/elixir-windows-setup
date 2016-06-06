@@ -68,9 +68,9 @@ Name: elixirpath; Description: "Append {#ELIXIR_PATH} to system PATH"; Check: Ch
 Name: escriptpath; Description: "Append {#ESCRIPT_PATH} to system PATH"; Check: CheckToAppendEscriptPath
 
 [Code]
-#include "src\util.iss"
-#include "src\path.iss"
-#include "src\erlang_env.iss"
+#include "src\Util.iss"
+#include "src\Path.iss"
+#include "src\ErlangInstall.iss"
 
 var
   GlobalPageErlangDir: TInputDirWizardPage;

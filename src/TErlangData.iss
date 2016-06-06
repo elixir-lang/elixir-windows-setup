@@ -1,4 +1,4 @@
-// erlang_data.iss - TErlangData and related functions
+// TErlangData.iss - TErlangData and related functions
 // Copyright (c) Chris Hyndman
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");

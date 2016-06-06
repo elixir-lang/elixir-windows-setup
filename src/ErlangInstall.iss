@@ -1,4 +1,4 @@
-// erlang_env.iss - Functions relating to Erlang's environment properties
+// ErlangInstall.iss - Functions relating to existing installations of Erlang
 // Copyright (c) Chris Hyndman
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,13 +45,4 @@ begin
     Result := GetLatestErlangPathOfArch(True);
   if Result = '' then
     Result := GetLatestErlangPathOfArch(False);
-end;
-
-// Returns true or false depending on if some erl.exe is in the
-// system's Path variable
-function ErlangInPath: Boolean;
-var
-  _int: Integer;
-begin
-  Result := Exec('erl.exe', '+V', '', SW_HIDE, ewWaitUntilTerminated, _int);
 end;
