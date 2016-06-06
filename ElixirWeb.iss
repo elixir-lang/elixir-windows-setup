@@ -30,7 +30,6 @@ SolidCompression=yes
 ; This installer doesn't install anything itself, it just runs other installers
 CreateAppDir=no
 Uninstallable=no
-PrivilegesRequired=lowest
 
 ; The user will see the offline installer's finished page instead
 DisableFinishedPage=yes
