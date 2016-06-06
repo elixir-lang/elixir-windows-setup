@@ -56,6 +56,7 @@ Source: "assets\drop_banner.bmp"; DestDir: "{tmp}\assets"; Flags: deleteafterins
 Source: "assets\null.bmp"; DestDir: "{tmp}\assets"; Flags: deleteafterinstall
 Source: "src\util.iss"; DestDir: "{tmp}\src"; Flags: deleteafterinstall
 Source: "src\path.iss"; DestDir: "{tmp}\src"; Flags: deleteafterinstall
+Source: "src\erlang_env.iss"; DestDir: "{tmp}\src"; Flags: deleteafterinstall
 ; 7-Zip portable extractor
 Source: "bin\7za.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
 ; Compiler files

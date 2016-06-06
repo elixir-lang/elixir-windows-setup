@@ -51,7 +51,6 @@ Compression=none
 
 ; Visual
 SetupIconFile=assets\drop.ico
-WizardImageBackColor=clWhite
 WizardImageFile=assets\drop_banner.bmp
 WizardSmallImageFile=assets\null.bmp
 UninstallDisplayIcon={app}\drop.ico
@@ -61,34 +60,43 @@ Source: "assets\drop.ico"; DestDir: "{app}"
 Source: "elixir\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs
 
 [Icons]
-Name: "{group}\Elixir"; Filename: "werl.exe"; WorkingDir: "%userprofile%"; IconFilename: "{app}\drop.ico"; IconIndex: 0; Parameters: "-env ERL_LIBS ""{app}\lib"" -user Elixir.IEx.CLI -extra --no-halt"
+Name: "{group}\Elixir"; Filename: "{code:GetScriptString|ErlangBinPath}\werl.exe"; WorkingDir: "%userprofile%"; IconFilename: "{app}\drop.ico"; IconIndex: 0; Parameters: "-env ERL_LIBS ""{app}\lib"" -user Elixir.IEx.CLI -extra --no-halt"
 
 [Tasks]
+Name: erlangpath; Description: "Append {code:GetScriptString|ErlangBinPath} to system PATH"; Check: CheckToAppendErlangPath
 Name: elixirpath; Description: "Append {#ELIXIR_PATH} to system PATH"; Check: CheckToAppendElixirPath
 Name: escriptpath; Description: "Append {#ESCRIPT_PATH} to system PATH"; Check: CheckToAppendEscriptPath
 
 [Code]
 #include "src\util.iss"
 #include "src\path.iss"
+#include "src\erlang_env.iss"
+
+var
+  GlobalPageErlangDir: TInputDirWizardPage;
+
+function GetScriptString(Param: String): String;
+begin
+  Result := '';
+  if Param = 'ErlangBinPath' then
+    Result := GlobalPageErlangDir.Values[0] + '\bin';
+end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
 	if CurStep = ssPostInstall then begin
-		if IsTaskSelected('elixirpath') then begin
+    if IsTaskSelected('erlangpath') then
+      AppendPath(GetScriptString('ErlangBinPath'));
+		if IsTaskSelected('elixirpath') then
 			AppendPath(ExpandConstant('{#ELIXIR_PATH}'));
-    end;
-    if IsTaskSelected('escriptpath') then begin
+    if IsTaskSelected('escriptpath') then
       AppendPath(ExpandConstant('{#ESCRIPT_PATH}'));
-    end;
   end;
 end;
 
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 var
 	SelTaskString: String;
-  SelTasks: TStringList;
-  ElixirIdx: Integer;
-  EscriptIdx: Integer;
 begin
 	if CurUninstallStep = usUninstall then begin
 		SelTaskString := '';
@@ -101,6 +109,23 @@ begin
       DeletePath(ExpandConstant('{#ESCRIPT_PATH}'));
 	end;
 end;
+
+procedure InitializeWizard();
+begin
+  GlobalPageErlangDir := CreateInputDirPage(
+    wpWelcome,
+    'Confirm Erlang Directory',
+    'Confirm the location of your Erlang installation, then click Next.',
+    'Setup will configure Elixir to use the following Erlang installation path.',
+    False, ''
+  );
+  
+  GlobalPageErlangDir.Add('');
+  GlobalPageErlangDir.Values[0] := GetLatestErlangPath();
+end;
+
+function CheckToAppendErlangPath: Boolean; begin
+  Result := not ContainsPath(GetScriptString('ErlangBinPath')); end;
 
 function CheckToAppendElixirPath: Boolean; begin
   Result := not ContainsPath(ExpandConstant('{#ELIXIR_PATH}')); end;
