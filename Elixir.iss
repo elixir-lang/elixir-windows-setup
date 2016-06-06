@@ -31,7 +31,6 @@
 
 [Setup]
 AppName=Elixir
-AppPublisher=ElixirLang
 AppPublisherURL=http://elixir-lang.org/
 AppVersion={#ElixirVersion}
 ChangesEnvironment=yes
