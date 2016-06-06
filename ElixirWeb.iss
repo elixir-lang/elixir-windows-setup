@@ -20,18 +20,17 @@
 #define ERLANG_CSV_URL 'http://elixir-lang.org/erlang.csv'
 
 #include <idp.iss>
-#include "src\ispp_inspect.iss"
 
 [Setup]
 AppName=Elixir
 AppVersion=2.0
 OutputBaseFilename=elixir-websetup
 SolidCompression=yes
-DisableWelcomePage=no
 
 ; This installer doesn't install anything itself, it just runs other installers
 CreateAppDir=no
 Uninstallable=no
+PrivilegesRequired=lowest
 
 ; The user will see the offline installer's finished page instead
 DisableFinishedPage=yes
@@ -40,6 +39,7 @@ DisableFinishedPage=yes
 SetupIconFile=assets\drop.ico
 WizardImageFile=assets\drop_banner.bmp
 WizardSmallImageFile=assets\null.bmp
+DisableWelcomePage=no
 
 [CustomMessages]
 ; The version string shouldn't show the version of this installer (AppVersion)
@@ -68,20 +68,20 @@ Source: "compiler:SetupLdr.e32"; DestDir: "{tmp}"; Flags: deleteafterinstall
 
 [Run]
 ; Run the Erlang installer if task is selected
-Filename: "{tmp}\{#StrInspectScriptConst('GlobalErlangData.Exe32')}"; Flags: hidewizard; StatusMsg: "Installing {#StrInspectScriptConst('GlobalErlangData.Name32')}..."; Tasks: erlang\32
-Filename: "{tmp}\{#StrInspectScriptConst('GlobalErlangData.Exe64')}"; Flags: hidewizard; StatusMsg: "Installing {#StrInspectScriptConst('GlobalErlangData.Name64')}..."; Tasks: erlang\64
+Filename: "{tmp}\{code:GetScriptString|ErlangExe32}"; Flags: hidewizard; StatusMsg: "Installing {code:GetScriptString|ErlangName32}..."; Tasks: erlang\32
+Filename: "{tmp}\{code:GetScriptString|ErlangExe64}"; Flags: hidewizard; StatusMsg: "Installing {code:GetScriptString|ErlangName64}..."; Tasks: erlang\64
 ; Extract the downloaded Precompiled.zip archive
 Filename: "{tmp}\7za.exe"; Parameters: "x -oelixir Precompiled.zip"; WorkingDir: "{tmp}"; StatusMsg: "Extracting Precompiled.zip archive..."
 ; Compile the offline installer
 Filename: "{tmp}\ISCC.exe"; Parameters: "/dSkipWelcome /dNoCompression Elixir.iss"; WorkingDir: "{tmp}"; StatusMsg: "Compiling Elixir installer..."
 ; Run the offline installer
-Filename: "{tmp}\Output\elixir-v{#StrInspectScriptConst('CacheSelectedRelease.Version')}-setup.exe"; Flags: nowait postinstall; StatusMsg: "Starting Elixir installer..."
+Filename: "{tmp}\Output\elixir-v{code:GetScriptString|ElixirVersion}-setup.exe"; Flags: nowait postinstall; StatusMsg: "Starting Elixir installer..."
 
 [Tasks]
-Name: "unins_previous"; Description: "Uninstall previous version at {#StrInspectScriptConst('GetPreviousAppPath')} (Recommended)"; Check: CheckPreviousVersionExists
+Name: "unins_previous"; Description: "Uninstall previous version at {code:GetScriptString|ElixirPreviousPath} (Recommended)"; Check: CheckPreviousVersionExists
 Name: "erlang"; Description: "Install Erlang"; Check: CheckToInstallErlang
-Name: "erlang\32"; Description: "{#StrInspectScriptConst('GlobalErlangData.Name32')}"; Flags: exclusive
-Name: "erlang\64"; Description: "{#StrInspectScriptConst('GlobalErlangData.Name64')}"; Flags: exclusive; Check: IsWin64
+Name: "erlang\32"; Description: "{code:GetScriptString|ErlangName32}"; Flags: exclusive
+Name: "erlang\64"; Description: "{code:GetScriptString|ErlangName64}"; Flags: exclusive; Check: IsWin64
 
 [Code]
 #include "src\Util.iss"
@@ -102,6 +102,20 @@ var
   GlobalErlangCSVFilePath: String;
 
   CacheSelectedRelease: TElixirRelease;
+  
+function GetScriptString(Param: String): String;
+begin
+  Result := '';
+  
+  case (Param) of
+    'ErlangExe32': Result := GlobalErlangData.Exe32;
+    'ErlangExe64': Result := GlobalErlangData.Exe64;
+    'ErlangName32': Result := GlobalErlangData.Name32;
+    'ErlangName64': Result := GlobalErlangData.Name64;
+    'ElixirVersion': Result := CacheSelectedRelease.Version;
+    'ElixirPreviousPath': Result := GetPreviousAppPath();
+  end;
+end;
 
 procedure CurPageChanged(CurPageID: Integer);
 var
@@ -232,6 +246,3 @@ end;
 function CheckToInstallErlang: Boolean; begin
   // Erlang should be installed if there's no Erlang path in the registry
   Result := (GetLatestErlangPath = ''); end;
-
-// Scripted constants expand here  
-{#StrInspectAllFuncs}
