@@ -72,20 +72,20 @@ Filename: "{tmp}\{code:GetScriptString|ErlangExe64}"; Flags: hidewizard; StatusM
 ; Extract the downloaded Precompiled.zip archive
 Filename: "{tmp}\7za.exe"; Parameters: "x -oelixir Precompiled.zip"; WorkingDir: "{tmp}"; StatusMsg: "Extracting Precompiled.zip archive..."
 ; Compile the offline installer
-Filename: "{tmp}\ISCC.exe"; Parameters: "/dSkipWelcome /dNoCompression Elixir.iss"; WorkingDir: "{tmp}"; StatusMsg: "Compiling Elixir installer..."; Tasks: not gen_offline
+Filename: "{tmp}\ISCC.exe"; Parameters: "/dSkipWelcome /dNoCompression Elixir.iss"; WorkingDir: "{tmp}"; StatusMsg: "Compiling Elixir installer..."; Tasks: not defer
 ; Use standard options for deferred install
-Filename: "{tmp}\ISCC.exe"; Parameters: "Elixir.iss"; WorkingDir: "{tmp}"; StatusMsg: "Compiling Elixir installer..."; Tasks: gen_offline
+Filename: "{tmp}\ISCC.exe"; Parameters: "Elixir.iss"; WorkingDir: "{tmp}"; StatusMsg: "Compiling Elixir installer..."; Tasks: defer
 ; Run the offline installer
-Filename: "{tmp}\Output\elixir-v{code:GetScriptString|ElixirVersion}-setup.exe"; Flags: nowait postinstall; StatusMsg: "Starting Elixir installer..."; Tasks: not gen_offline
+Filename: "{tmp}\Output\elixir-v{code:GetScriptString|ElixirVersion}-setup.exe"; Flags: nowait postinstall; StatusMsg: "Starting Elixir installer..."; Tasks: not defer
 ; Or copy offline installer to same folder as web installer
-Filename: "Robocopy.exe"; Parameters: "{tmp}\Output {src} elixir-v{code:GetScriptString|ElixirVersion}-setup.exe /IS"; Tasks: gen_offline
+Filename: "Robocopy.exe"; Parameters: "{tmp}\Output {src} elixir-v{code:GetScriptString|ElixirVersion}-setup.exe /IS"; Tasks: defer
 
 [Tasks]
 Name: "unins_previous"; Description: "Uninstall previous version at {code:GetScriptString|ElixirPreviousPath} (Recommended)"; Check: CheckPreviousVersionExists
 Name: "erlang"; Description: "Install Erlang"; Check: CheckToInstallErlang
 Name: "erlang\32"; Description: "{code:GetScriptString|ErlangName32}"; Flags: exclusive
 Name: "erlang\64"; Description: "{code:GetScriptString|ErlangName64}"; Flags: exclusive; Check: IsWin64
-Name: "gen_offline"; Description: "Defer installation (advanced)"; Flags: unchecked
+Name: "defer"; Description: "Defer installation (advanced)"; Flags: unchecked
 
 [Code]
 #include "src\Util.iss"
