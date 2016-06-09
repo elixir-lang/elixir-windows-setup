@@ -97,7 +97,6 @@ Name: "defer"; Description: "Defer installation (advanced)"; Flags: unchecked
 
 var
   GlobalPageSelRelease: TInputOptionWizardPage;
-  GlobalPageSelInstallType: TInputOptionWizardPage;
 
   GlobalElixirReleases: array of TElixirRelease;
   GlobalErlangData: TErlangData;
@@ -141,13 +140,6 @@ begin
         idpAddFile(URL64, Tmp(Exe64));
     end;
     
-    // Look in these two listboxes for the selected release to install
-    ListBoxesToCheck[0] := GlobalPageSelInstallType.CheckListBox;
-    ListBoxesToCheck[1] := GlobalPageSelRelease.CheckListBox;
-    
-    // Store the selected release for use during the installation process
-    CacheSelectedRelease := FindSelectedRelease(ListBoxesToCheck, GlobalElixirReleases);
-    
     // Download the Precompiled.zip archive for the selected release
     idpAddFile(CacheSelectedRelease.URL, Tmp('Precompiled.zip'));
     
@@ -156,53 +148,63 @@ begin
   end;
 end;
 
-function ShouldSkipPage(PageID: Integer): Boolean;
+function NextButtonClick(CurPageID: Integer): Boolean;
+var
+  i: Integer;
+  RefMatch: TObject;
 begin
-  if PageID = GlobalPageSelRelease.ID then begin
-    // We should skip the page for selecting an Elixir release if the install type selection page
-    // has some Elixir release set (such as the latest stable release)
-    Result := not (GlobalPageSelInstallType.CheckListBox.ItemObject[GlobalPageSelInstallType.SelectedValueIndex] = nil);
-  end else begin
-    Result := False;
+  Result := True;
+  
+  // Search for the selected release
+  if CurPageID = GlobalPageSelRelease.ID then begin
+    for i := 0 to GlobalPageSelRelease.CheckListBox.Items.Count - 1 do begin
+      if GlobalPageSelRelease.CheckListBox.Checked[i] then begin
+        RefMatch := GlobalPageSelRelease.CheckListBox.ItemObject[i];
+        break;
+      end;
+    end;
+  
+    for i := 0 to GetArrayLength(GlobalElixirReleases) - 1 do begin
+      if GlobalElixirReleases[i].Ref = RefMatch then begin
+        CacheSelectedRelease := GlobalElixirReleases[i];
+        break;
+      end;
+    end;
   end;
 end;
 
 procedure InitializeWizard();
+var
+  latest: Boolean;
+  i: Integer;
 begin
-  // Define the installation type page
-  GlobalPageSelInstallType := CreateInputOptionPage(
-    wpWelcome,
-    'Select Elixir installation type',
-    'Select which installation type you want to perform, then click Next.',
-    'I want to:',
-    True, False // (Use Radio Buttons), (Don't put them in a scrollable list box)
-  );
-  
   // Define the custom release selection page
   GlobalPageSelRelease := CreateInputOptionPage(
-    GlobalPageSelInstallType.ID,
+    wpWelcome,
     'Select Elixir release',
     'Setup will download and install the Elixir release you select.',
     'All releases available to install are listed below, from newest to oldest.',
     True, True // (Use Radio Buttons), (Put them in a scrollable list box)
   );
   
+  latest := True;
+  
   // Use the global Elixir release array to populate the custom Elixir release list box
-  ElixirReleasesToListBox(GlobalElixirReleases, GlobalPageSelRelease.CheckListBox);
-  
-  // Find the latest release and put it as a selection on the installation type page
-  with FindFirstReleaseOfType(GlobalElixirReleases, rtLatestRelease) do begin
-    GlobalPageSelInstallType.CheckListBox.AddRadioButton(
-      'Install the latest stable release (v' + Version + ')',
-      '', 0, True, True, Ref
-    );
+  for i := 0 to GetArrayLength(GlobalElixirReleases) - 1 do begin
+    with GlobalElixirReleases[i] do begin
+      GlobalPageSelRelease.CheckListBox.AddRadioButton(
+        'Elixir version ' + Version,            // Label next to radio button
+        ReleaseType,                            // Label right-justified in list box
+        0,                                      // All choices on the same level
+        (latest) and (ReleaseType = 'release'),  // Radio button selected by default if it's the latest release
+        (ReleaseType <> 'incompatible'),        // Incompatible releases can't be selected
+        Ref                                     // Pointer to release's reference object
+      );
+      
+      if ReleaseType = 'release' then
+        latest := False;
+    end
   end;
-  
-  // Create a selection which will allow the custom Elixir release page to show up next
-  GlobalPageSelInstallType.CheckListBox.AddRadioButton(
-    'Select another release to install',
-    '', 0, False, True, nil
-  );
 end;
 
 function InitializeSetup(): Boolean;

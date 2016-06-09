@@ -16,30 +16,12 @@
 [Code]
 
 type
-  TElixirReleaseType = (rtRelease, rtPrerelease, rtLatestRelease, rtLatestPrerelease, rtIncompatible);
-  
   TElixirRelease = record
     Version: String;
     URL: String;
-    ReleaseType: TElixirReleaseType;
+    ReleaseType: String;
     Ref: TObject;
   end;
-
-// Given an Elixir release type, return its string representation
-function ReleaseTypeToString(ReleaseType: TElixirReleaseType): String;
-begin
-  Result := 'Unknown';
-  if ReleaseType = rtRelease then
-    Result := 'Release';
-  if ReleaseType = rtPrerelease then
-    Result := 'Prerelease';
-  if ReleaseType = rtLatestRelease then
-    Result := 'Latest Release';
-  if ReleaseType = rtLatestPrerelease then
-    Result := 'Latest Prerelease';
-  if ReleaseType = rtIncompatible then
-    Result := 'Incompatible';
-end;
 
 // Given a filename to an elixir.csv file, return an array of Elixir releases corresponding to
 // the data in the csv file.
@@ -47,14 +29,8 @@ function CSVToElixirReleases(Filename: String): array of TElixirRelease;
 var
   Rows: TArrayOfString;
   RowValues: TStrings;
-  i: Integer;
-  LatestPrerelease: Boolean;
-  LatestRelease: Boolean;                                                  
+  i: Integer;                                             
 begin
-  // Initialize as one-way flags
-  LatestPrerelease := True;
-  LatestRelease := True;
-  
   // Read the file at Filename and store the lines in Rows
   if LoadStringsFromFile(Filename, Rows) then begin 
     // Match length of return array to number of rows
@@ -69,104 +45,18 @@ begin
         Version := RowValues[0];
         URL := RowValues[1];
 
+        // Store release type unless incompatible with installer
         if StrToInt(RowValues[3]) = {#COMPAT_MASK} then begin
-          // Release has a compatibility mask matching this installer
-          if RowValues[2] = 'prerelease' then begin
-            // Release is designated as a prerelease
-            if LatestPrerelease then begin
-              // This is the first prerelease found, so it's the latest prerelease
-              ReleaseType := rtLatestPrerelease;
-              LatestPrerelease := False;
-            end else begin
-              // This is not the latest prerelease
-              ReleaseType := rtPrerelease;
-            end;
-          end else begin
-            if LatestRelease then begin
-              // This is the first release found, so it's the latest prerelease
-              ReleaseType := rtLatestRelease;
-              LatestRelease := False;
-            end else begin
-              // This is not the latest release
-              ReleaseType := rtRelease;
-            end;
-          end;
+          ReleaseType := RowValues[2];
         end else begin
-          // Release can't be installed by this installer
-          ReleaseType := rtIncompatible;
+          ReleaseType := 'incompatible';
         end;
 
         // Assign this Elixir release a new reference object
-        if Ref = nil then
-          Ref := TObject.Create();
+        Ref := TObject.Create();
       end;
     end;
   end else begin
     SetArrayLength(Result, 0);
-  end;
-end;
-
-// Given an array of Elixir release and a list box, populate the list box with radio buttons
-// which describe and point to the releases in the Elixir release array
-procedure ElixirReleasesToListBox(Releases: array of TElixirRelease; ListBox: TNewCheckListBox);
-var
-  i: Integer;
-begin
-  ListBox.Items.Clear;
-  for i := 0 to GetArrayLength(Releases) - 1 do begin
-    with Releases[i] do begin
-      ListBox.AddRadioButton(
-        'Elixir version ' + Version,      // Label next to radio button
-        ReleaseTypeToString(ReleaseType), // Label right-justified in list box
-        0,                                // All choices on the same level
-        (ReleaseType = rtLatestRelease),  // Radio button selected by default if it's the latest release
-        (ReleaseType <> rtIncompatible),  // Incompatible releases can't be selected
-        Ref                               // Pointer to release's reference object
-      );
-    end
-  end;
-end;
-
-// Given an array of Elixir releases and a release type, return the first release in the array of that type
-function FindFirstReleaseOfType(Releases: array of TElixirRelease; ReleaseType: TElixirReleaseType): TElixirRelease;
-var
-  i: Integer;
-begin
-  for i := 0 to GetArrayLength(Releases) - 1 do begin
-    if Releases[i].ReleaseType = ReleaseType then begin
-      Result := Releases[i];
-      exit;
-    end;
-  end;
-end;
-
-// Given an array of Elixir releases and a reference object, return the first release in the array which
-// points to the same object
-function FindFirstReleaseMatchingRef(Releases: array of TElixirRelease; RefMatch: TObject): TElixirRelease;
-var
-  i: Integer;
-begin
-  for i := 0 to GetArrayLength(Releases) - 1 do begin
-    if Releases[i].Ref = RefMatch then begin
-      Result := Releases[i];
-      exit;
-    end;
-  end;
-end;
-
-// Given an array of list boxes and an array of Elixir releases, search for a selected radio button that
-// points to an Elixir release reference object, and return the Elixir release which shares that reference
-// object
-function FindSelectedRelease(ListBoxes: array of TNewCheckListBox; Releases: array of TElixirRelease): TElixirRelease;
-var
-  i, j: Integer;
-begin
-  for i := 0 to GetArrayLength(ListBoxes) - 1 do begin
-    for j := 0 to ListBoxes[i].Items.Count - 1 do begin
-      if ListBoxes[i].ItemObject[j] <> nil then begin
-        Result := FindFirstReleaseMatchingRef(Releases, ListBoxes[i].ItemObject[j]);
-        exit;
-      end;
-    end;
   end;
 end;
