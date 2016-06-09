@@ -39,9 +39,10 @@ DefaultGroupName=Elixir
 OutputBaseFilename=elixir-v{#ElixirVersion}-setup
 AllowNoIcons=yes
 
-; Web installer: the user sees the welcome page as part of the web installer
 #ifdef SkipWelcome
 DisableWelcomePage=yes
+#else
+DisableWelcomePage=no
 #endif
 
 ; Web installer: no need to compress, since the installer is built directly on the machine
