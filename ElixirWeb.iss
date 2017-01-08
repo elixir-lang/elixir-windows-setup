@@ -159,13 +159,6 @@ begin
   if CurPageID = GlobalPageSelRelease.ID then begin
     for i := 0 to GlobalPageSelRelease.CheckListBox.Items.Count - 1 do begin
       if GlobalPageSelRelease.CheckListBox.Checked[i] then begin
-        RefMatch := GlobalPageSelRelease.CheckListBox.ItemObject[i];
-        break;
-      end;
-    end;
-  
-    for i := 0 to GetArrayLength(GlobalElixirReleases) - 1 do begin
-      if GlobalElixirReleases[i].Ref = RefMatch then begin
         CacheSelectedRelease := GlobalElixirReleases[i];
         break;
       end;
@@ -198,7 +191,7 @@ begin
         0,                                      // All choices on the same level
         (latest) and (ReleaseType = 'release'),  // Radio button selected by default if it's the latest release
         (ReleaseType <> 'incompatible'),        // Incompatible releases can't be selected
-        Ref                                     // Pointer to release's reference object
+        Nil
       );
       
       if ReleaseType = 'release' then

@@ -20,7 +20,6 @@ type
     Version: String;
     URL: String;
     ReleaseType: String;
-    Ref: TObject;
   end;
 
 // Given a filename to an elixir.csv file, return an array of Elixir releases corresponding to
@@ -51,9 +50,6 @@ begin
         end else begin
           ReleaseType := 'incompatible';
         end;
-
-        // Assign this Elixir release a new reference object
-        Ref := TObject.Create();
       end;
     end;
   end else begin
