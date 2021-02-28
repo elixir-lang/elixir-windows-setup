@@ -105,11 +105,11 @@ var
   GlobalErlangCSVFilePath: String;
 
   CacheSelectedRelease: TElixirRelease;
-  
+
 function GetScriptString(Param: String): String;
 begin
   Result := '';
-  
+
   case (Param) of
     'ErlangExe32': Result := GlobalErlangData.Exe32;
     'ErlangExe64': Result := GlobalErlangData.Exe64;
@@ -127,7 +127,7 @@ var
 begin
   if CurPageID = wpPreparing then begin
     // We're on the page after the "Ready To Install" page but before [Files] and [Run] are processed
-    
+
     if IsTaskSelected('unins_previous') then
       ExecAsOriginalUser(GetPreviousUninsExe, '/SILENT', '', SW_SHOW, ewWaitUntilTerminated, _int);
 
@@ -139,10 +139,10 @@ begin
         // 64-bit OTP needs to be downloaded before it's installed
         idpAddFile(URL64, Tmp(Exe64));
     end;
-    
+
     // Download the Precompiled.zip archive for the selected release
     idpAddFile(CacheSelectedRelease.URL, Tmp('Precompiled.zip'));
-    
+
     // Put the downloader page directly after this page
     idpDownloadAfter(wpPreparing);
   end;
@@ -154,7 +154,7 @@ var
   RefMatch: TObject;
 begin
   Result := True;
-  
+
   // Search for the selected release
   if CurPageID = GlobalPageSelRelease.ID then begin
     for i := 0 to GlobalPageSelRelease.CheckListBox.Items.Count - 1 do begin
@@ -179,9 +179,9 @@ begin
     'All releases available to install are listed below, from newest to oldest.',
     True, True // (Use Radio Buttons), (Put them in a scrollable list box)
   );
-  
+
   latest := True;
-  
+
   // Use the global Elixir release array to populate the custom Elixir release list box
   for i := 0 to GetArrayLength(GlobalElixirReleases) - 1 do begin
     with GlobalElixirReleases[i] do begin
@@ -193,7 +193,7 @@ begin
         (ReleaseType <> 'incompatible'),        // Incompatible releases can't be selected
         Nil
       );
-      
+
       if ReleaseType = 'release' then
         latest := False;
     end
@@ -203,7 +203,7 @@ end;
 function InitializeSetup(): Boolean;
 begin
   Result := True;
-  
+
   // Store the paths to elixir.csv, erlang.csv in global variables
   GlobalElixirCSVFilePath := Tmp(GetURLFilePart('{#ELIXIR_CSV_URL}'));
   GlobalErlangCSVFilePath := Tmp(GetURLFilePart('{#ERLANG_CSV_URL}'));
@@ -220,20 +220,20 @@ begin
     Result := False;
     exit;
   end;
-  
+
   // Create an array of TElixirRelease records from elixir.csv and store them in a global variable
   GlobalElixirReleases := CSVToElixirReleases(GlobalElixirCSVFilePath);
-  
+
   // Check if above didn't work
   if GetArrayLength(GlobalElixirReleases) = 0 then begin
     MsgBox('Error: Parsing {#ELIXIR_CSV_URL} failed.  Setup cannot continue.', mbInformation, MB_OK);
     Result := False;
     exit;
   end;
-  
+
   // Create an TErlangData from erlang.csv record and store it in a global variable
   GlobalErlangData := CSVToErlangData(GlobalErlangCSVFilePath);
-  
+
   // Check if above didn't work
   if GlobalErlangData.OTPVersion = '' then begin
     MsgBox('Error: Parsing {#ERLANG_CSV_URL} failed.  Setup cannot continue.', mbInformation, MB_OK);

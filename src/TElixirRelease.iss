@@ -28,10 +28,10 @@ function CSVToElixirReleases(Filename: String): array of TElixirRelease;
 var
   Rows: TArrayOfString;
   RowValues: TStrings;
-  i: Integer;                                             
+  i: Integer;
 begin
   // Read the file at Filename and store the lines in Rows
-  if LoadStringsFromFile(Filename, Rows) then begin 
+  if LoadStringsFromFile(Filename, Rows) then begin
     // Match length of return array to number of rows
     SetArrayLength(Result, GetArrayLength(Rows) - 1);
 

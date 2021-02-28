@@ -105,7 +105,7 @@ begin
 
 		if Pos('elixirpath', SelTaskString) <> 0 then
 			DeletePath(ExpandConstant('{#ELIXIR_PATH}'));
-    
+
     if Pos('escriptpath', SelTaskString) <> 0 then
       DeletePath(ExpandConstant('{#ESCRIPT_PATH}'));
 	end;
@@ -120,7 +120,7 @@ begin
     'Setup will configure Elixir to use the following Erlang installation path.',
     False, ''
   );
-  
+
   GlobalPageErlangDir.Add('');
   GlobalPageErlangDir.Values[0] := GetLatestErlangPath();
 end;
