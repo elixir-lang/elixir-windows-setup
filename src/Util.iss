@@ -37,7 +37,7 @@ begin
     StrTail := Str;
 
     Delete(StrHead, DelimPos, Length(StrTail));
-    Delete(StrTail, 1, DelimPos);   
+    Delete(StrTail, 1, DelimPos);
 
     StrList.Add(StrHead);
     Result := SplitStringRec(StrTail, Delim, StrList);

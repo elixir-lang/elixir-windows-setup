@@ -15,7 +15,7 @@
 
 [Code]
 
-type                    
+type
   TErlangData = record
     OTPVersion: String;
     ERTSVersion: String;

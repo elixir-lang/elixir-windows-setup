@@ -18,7 +18,7 @@
 const
   PathVarRegRoot = HKEY_LOCAL_MACHINE;
   PathVarRegPath = 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment';
-  
+
 function ContainsPath(Dir: String): Boolean;
 var
   RegValue: String;

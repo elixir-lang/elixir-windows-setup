@@ -26,10 +26,10 @@ begin
   end else if RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Elixir_is1', 'UninstallString', UninsPath) then begin
     Result := RemoveQuotes(UninsPath);
   end else if RegQueryStringValue(HKCU, 'Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Elixir_is1', 'UninstallString', UninsPath) then begin
-    Result := RemoveQuotes(UninsPath); 
+    Result := RemoveQuotes(UninsPath);
   end else if RegQueryStringValue(HKCU, 'Software\Microsoft\Windows\CurrentVersion\Uninstall\Elixir_is1', 'UninstallString', UninsPath) then begin
     Result := RemoveQuotes(UninsPath);
-  end;  
+  end;
 end;
 
 function GetPreviousAppPath: String;
