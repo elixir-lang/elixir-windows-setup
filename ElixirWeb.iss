@@ -16,8 +16,8 @@
 ; "Elixir" and the Elixir logo are copyright (c) 2012 Plataformatec.
 
 #define COMPAT_MASK 1
-#define ELIXIR_CSV_URL 'http://elixir-lang.org/elixir.csv'
-#define ERLANG_CSV_URL 'http://elixir-lang.org/erlang.csv'
+#define ELIXIR_CSV_URL 'https://elixir-lang.org/elixir.csv'
+#define ERLANG_CSV_URL 'https://elixir-lang.org/erlang.csv'
 
 #include <idp.iss>
 
