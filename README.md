@@ -29,17 +29,13 @@ If you need to install Elixir on a system without internet access, follow these 
 
 First, download the Unicode version of Inno Setup (`isetup-X.Y.Z-unicode.exe` from [jrsoftware.org](http://www.jrsoftware.org/isdl.php#stable)) and install it, making sure to keep the "Install Inno Setup Preprocessor" checkbox checked when asked.  Then, clone this repo (`elixir-windows-setup`) to your system.
 
-To build the **web installer**, follow these steps:
-
-1. Download and install the [Inno Download Plugin](https://code.google.com/p/inno-download-plugin/).
-2. Open `elixir-windows-setup\ElixirWeb.iss` in the Inno Setup Compiler.
-3. Click "Compile" to build an installer in `elixir-windows-setup/Output`.
+To build the **web installer**, open `elixir-windows-setup\ElixirWeb.iss` in the Inno Setup Compiler and click "Compile" to build an installer in `elixir-windows-setup\Output`.
 
 To build the **offline installer** follow these steps:
 
 1. Extract Precompiled.zip of the desired [Elixir Release](https://github.com/elixir-lang/elixir/releases/) into `elixir-windows-setup\elixir`
 2. Open `elixir-windows-setup\Elixir.iss` in the Inno Setup Compiler.
-3. Click "Compile" to build an installer in `elixir-windows-setup/Output`.
+3. Click "Compile" to build an installer in `elixir-windows-setup\Output`.
 
 ## Acknowledgements
 
