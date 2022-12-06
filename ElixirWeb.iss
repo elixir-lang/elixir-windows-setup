@@ -19,8 +19,6 @@
 #define ELIXIR_CSV_URL 'https://elixir-lang.org/elixir.csv'
 #define ERLANG_CSV_URL 'https://elixir-lang.org/erlang.csv'
 
-#include <idp.iss>
-
 [Setup]
 AppName=Elixir
 AppVersion=2.2
@@ -97,6 +95,7 @@ Name: "defer"; Description: "Defer installation (advanced)"; Flags: unchecked
 
 var
   GlobalPageSelRelease: TInputOptionWizardPage;
+  GlobalPageDownload: TDownloadWizardPage;
 
   GlobalElixirReleases: array of TElixirRelease;
   GlobalErlangData: TErlangData;
@@ -130,21 +129,6 @@ begin
 
     if IsTaskSelected('unins_previous') then
       ExecAsOriginalUser(GetPreviousUninsExe, '/SILENT', '', SW_SHOW, ewWaitUntilTerminated, _int);
-
-    with GlobalErlangData do begin
-      if IsTaskSelected('erlang\32') then
-        // 32-bit OTP needs to be downloaded before it's installed
-        idpAddFile(URL32, Tmp(Exe32));
-      if IsTaskSelected('erlang\64') then
-        // 64-bit OTP needs to be downloaded before it's installed
-        idpAddFile(URL64, Tmp(Exe64));
-    end;
-
-    // Download the Precompiled.zip archive for the selected release
-    idpAddFile(CacheSelectedRelease.URL, Tmp('Precompiled.zip'));
-
-    // Put the downloader page directly after this page
-    idpDownloadAfter(wpPreparing);
   end;
 end;
 
@@ -155,13 +139,39 @@ var
 begin
   Result := True;
 
-  // Search for the selected release
   if CurPageID = GlobalPageSelRelease.ID then begin
+    // Search for the selected release
     for i := 0 to GlobalPageSelRelease.CheckListBox.Items.Count - 1 do begin
       if GlobalPageSelRelease.CheckListBox.Checked[i] then begin
         CacheSelectedRelease := GlobalElixirReleases[i];
         break;
       end;
+    end;
+  end else if CurPageID = wpReady then begin
+    GlobalPageDownload.Clear;
+    with GlobalErlangData do begin
+      if IsTaskSelected('erlang\32') then
+        // 32-bit OTP needs to be downloaded before it's installed
+        GlobalPageDownload.Add(URL32, Exe32, '');
+      if IsTaskSelected('erlang\64') then
+        // 64-bit OTP needs to be downloaded before it's installed
+        GlobalPageDownload.Add(URL64, Exe64, '');
+    end;
+
+    // Download the Precompiled.zip archive for the selected release
+    GlobalPageDownload.Add(CacheSelectedRelease.URL, 'Precompiled.zip', '');
+
+    // Run page
+    GlobalPageDownload.Show;
+    try
+      try
+        GlobalPageDownload.Download;
+      except
+        MsgBox(GetExceptionMessage, mbCriticalError, MB_OK);
+        Result := False;
+      end
+    finally
+      GlobalPageDownload.Hide;
     end;
   end;
 end;
@@ -198,6 +208,8 @@ begin
         latest := False;
     end
   end;
+
+  GlobalPageDownload := CreateDownloadPage(SetupMessage(msgWizardPreparing), SetupMessage(msgPreparingDesc), Nil);
 end;
 
 function InitializeSetup(): Boolean;
@@ -209,14 +221,18 @@ begin
   GlobalErlangCSVFilePath := Tmp(GetURLFilePart('{#ERLANG_CSV_URL}'));
 
   // Download elixir.csv; show an error message and exit the installer if downloading fails
-  if not idpDownloadFile('{#ELIXIR_CSV_URL}', GlobalElixirCSVFilePath) then begin
-    MsgBox('Error: Downloading {#ELIXIR_CSV_URL} failed.  Setup cannot continue.', mbInformation, MB_OK);
+  try
+    DownloadTemporaryFile('{#ELIXIR_CSV_URL}', GetURLFilePart('{#ELIXIR_CSV_URL}'), '', Nil);
+  except
+    MsgBox('{#ELIXIR_CSV_URL} - ' + GetExceptionMessage + '. Setup cannot continue.', mbInformation, MB_OK);
     Result := False;
     exit;
   end;
   // Download erlang.csv; show an error message and exit the installer if downloading fails
-  if not idpDownloadFile('{#ERLANG_CSV_URL}', GlobalErlangCSVFilePath) then begin
-    MsgBox('Error: Downloading {#ERLANG_CSV_URL} failed.  Setup cannot continue.', mbInformation, MB_OK);
+  try
+    DownloadTemporaryFile('{#ERLANG_CSV_URL}', GetURLFilePart('{#ERLANG_CSV_URL}'), '', Nil);
+  except
+    MsgBox('{#ERLANG_CSV_URL} - ' + GetExceptionMessage + '. Setup cannot continue.', mbInformation, MB_OK);
     Result := False;
     exit;
   end;
