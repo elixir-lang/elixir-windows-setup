@@ -80,9 +80,9 @@ Filename: "Robocopy.exe"; Parameters: "{tmp}\Output {src} elixir-v{code:GetScrip
 
 [Tasks]
 Name: "unins_previous"; Description: "Uninstall previous version at {code:GetScriptString|ElixirPreviousPath} (Recommended)"; Check: CheckPreviousVersionExists
-Name: "erlang"; Description: "Install Erlang"; Check: CheckToInstallErlang
-Name: "erlang\32"; Description: "{code:GetScriptString|ErlangName32}"; Flags: exclusive
-Name: "erlang\64"; Description: "{code:GetScriptString|ErlangName64}"; Flags: exclusive; Check: IsWin64
+Name: "erlang"; Description: "Install Erlang"; Flags: unchecked
+Name: "erlang\32"; Description: "{code:GetScriptString|ErlangName32}"; Flags: exclusive unchecked
+Name: "erlang\64"; Description: "{code:GetScriptString|ErlangName64}"; Flags: exclusive unchecked; Check: IsWin64
 Name: "defer"; Description: "Defer installation (advanced)"; Flags: unchecked
 
 [Code]
@@ -126,9 +126,15 @@ var
 begin
   if CurPageID = wpPreparing then begin
     // We're on the page after the "Ready To Install" page but before [Files] and [Run] are processed
-
     if IsTaskSelected('unins_previous') then
       ExecAsOriginalUser(GetPreviousUninsExe, '/SILENT', '', SW_SHOW, ewWaitUntilTerminated, _int);
+  end else if CurPageID = wpSelectTasks then begin
+    if GetLatestErlangPath = '' then begin
+      WizardSelectTasks('erlang');
+      if IsWin64 then begin
+        WizardSelectTasks('erlang\64');
+      end;
+    end;
   end;
 end;
 
@@ -257,7 +263,3 @@ begin
     exit;
   end;
 end;
-
-function CheckToInstallErlang: Boolean; begin
-  // Erlang should be installed if there's no Erlang path in the registry
-  Result := (GetLatestErlangPath = ''); end;
