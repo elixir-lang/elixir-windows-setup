@@ -21,7 +21,7 @@
 
 [Setup]
 AppName=Elixir
-AppVersion=2.3
+AppVersion=2.4
 OutputBaseFilename=elixir-websetup
 SolidCompression=yes
 
@@ -121,12 +121,11 @@ end;
 
 procedure CurPageChanged(CurPageID: Integer);
 var
-  ListBoxesToCheck: array[0..1] of TNewCheckListBox;
   _int: Integer;
 begin
   if CurPageID = wpPreparing then begin
     // We're on the page after the "Ready To Install" page but before [Files] and [Run] are processed
-    if IsTaskSelected('unins_previous') then
+    if WizardIsTaskSelected('unins_previous') then
       ExecAsOriginalUser(GetPreviousUninsExe, '/SILENT', '', SW_SHOW, ewWaitUntilTerminated, _int);
   end else if CurPageID = wpSelectTasks then begin
     if GetLatestErlangPath = '' then begin
@@ -141,7 +140,6 @@ end;
 function NextButtonClick(CurPageID: Integer): Boolean;
 var
   i: Integer;
-  RefMatch: TObject;
 begin
   Result := True;
 
@@ -156,10 +154,10 @@ begin
   end else if CurPageID = wpReady then begin
     GlobalPageDownload.Clear;
     with GlobalErlangData do begin
-      if IsTaskSelected('erlang\32') then
+      if WizardIsTaskSelected('erlang\32') then
         // 32-bit OTP needs to be downloaded before it's installed
         GlobalPageDownload.Add(URL32, Exe32, '');
-      if IsTaskSelected('erlang\64') then
+      if WizardIsTaskSelected('erlang\64') then
         // 64-bit OTP needs to be downloaded before it's installed
         GlobalPageDownload.Add(URL64, Exe64, '');
     end;
