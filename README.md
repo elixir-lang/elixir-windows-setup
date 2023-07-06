@@ -1,5 +1,7 @@
 # elixir-windows-setup
 
+> From version v1.15, Elixir now provides pre-compiled and offline installers for Windows per Erlang/OTP version. See [the official website](https://elixir-lang.org/) for all up to date install instructions.
+
 ![elixir-websetup](assets/screenshot.png)
 
 ## Features
